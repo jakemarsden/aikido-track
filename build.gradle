@@ -1,0 +1,51 @@
+plugins {
+    id 'groovy'
+    id 'project-report'
+    id 'org.springframework.boot' version '2.0.3.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.6.RELEASE'
+}
+
+group 'com.jakemarsden'
+version '1.0-SNAPSHOT'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    jcenter()
+}
+
+dependencyManagement {
+    imports {
+        mavenBom 'org.springframework.boot:spring-boot-dependencies:2.0.3.RELEASE'
+    }
+}
+
+dependencies {
+    compile group: 'org.apache.commons', name: 'commons-lang3'
+    compile group: 'org.codehaus.groovy', name: 'groovy-all'
+    runtime group: 'org.springframework.boot', name: 'spring-boot-devtools'
+    runtime group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-web'
+}
+
+sourceSets {
+    main.java.srcDirs = []
+    test.java.srcDirs = []
+}
+
+springBoot {
+    buildInfo {
+        properties {
+            time = null
+        }
+    }
+}
+
+bootRun {
+    sourceResources sourceSets.main
+}
+
+wrapper {
+    gradleVersion = '4.7'
+    distributionType = 'ALL'
+}
