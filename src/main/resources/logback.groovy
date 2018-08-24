@@ -44,5 +44,8 @@ appender('FILE', RollingFileAppender) {
 
 logger 'ch.qos.logback', WARN
 logger 'com.jakemarsden', TRACE
+logger 'org.hibernate', INFO
+logger 'org.hibernate.SQL', OFF  // Set to DEBUG to log SQL queries
+logger 'org.hibernate.type', OFF // Set to TRACE to log SQL query parameter values
 logger 'org.springframework', INFO
 root INFO, ['CONSOLE', 'FILE']

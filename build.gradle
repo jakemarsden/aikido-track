@@ -18,13 +18,23 @@ dependencyManagement {
     imports {
         mavenBom 'org.springframework.boot:spring-boot-dependencies:2.0.3.RELEASE'
     }
+
+    dependencies {
+        dependencySet(group: 'org.hibernate', version: '5.3.1.Final') {
+            entry 'hibernate-core'
+            entry 'hibernate-java8'
+        }
+    }
 }
 
 dependencies {
+    runtime group: 'com.h2database', name: 'h2'
     compile group: 'org.apache.commons', name: 'commons-lang3'
     compile group: 'org.codehaus.groovy', name: 'groovy-all'
+    runtime group: 'org.hibernate', name: 'hibernate-java8'
     runtime group: 'org.springframework.boot', name: 'spring-boot-devtools'
     runtime group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa'
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-web'
 }
 

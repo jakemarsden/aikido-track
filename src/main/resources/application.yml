@@ -2,6 +2,13 @@ server.port: 5000
 spring:
   jackson.serialization.indent_output: true
 
+  # Configure database connection
+  datasource.url: jdbc:h2:./data/db
+  jpa.hibernate.ddl-auto: update
+  h2.console:
+    enabled: true
+    settings.web-allow-others: true
+
 management:
   endpoint.shutdown.enabled: true
   endpoints:
