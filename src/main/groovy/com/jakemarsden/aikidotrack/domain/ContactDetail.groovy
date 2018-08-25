@@ -5,6 +5,7 @@ import javax.persistence.Column
 import javax.persistence.DiscriminatorColumn
 import javax.persistence.DiscriminatorValue
 import javax.persistence.Entity
+import javax.persistence.Enumerated
 import javax.persistence.Inheritance
 import javax.persistence.ManyToOne
 
@@ -22,7 +23,8 @@ import static javax.persistence.InheritanceType.SINGLE_TABLE
 @ToString(includePackage = false, includeNames = true, includeSuperProperties = true)
 abstract class ContactDetail extends Identifiable {
 
-    @ManyToOne(optional = false)
+    @Enumerated
+    @Column(nullable = false)
     ContactDetailType type
 
     @Column(nullable = false)

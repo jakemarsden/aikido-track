@@ -1,14 +1,9 @@
 package com.jakemarsden.aikidotrack.domain
 
-import com.jakemarsden.aikidotrack.domain.Identifiable
-import groovy.transform.ToString
-import javax.persistence.Column
-import javax.persistence.Entity
+enum ContactDetailType {
 
-@Entity
-@ToString(includePackage = false, includeNames = true, includeSuperProperties = true)
-final class ContactDetailType extends Identifiable {
+    Other,
 
-    @Column(nullable = false, unique = true)
-    String name
+    Email,
+    Phone,
 }
