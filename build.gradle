@@ -24,6 +24,10 @@ dependencyManagement {
             entry 'hibernate-core'
             entry 'hibernate-java8'
         }
+        dependency group: 'org.webjars', name: 'handlebars', version: '4.0.11-1'
+        dependency group: 'org.webjars', name: 'jquery', version: '3.3.1-1'
+        dependency group: 'org.webjars', name: 'requirejs', version: '2.3.5'
+        dependency group: 'org.webjars', name: 'webjars-locator', version: '0.34'
     }
 }
 
@@ -36,6 +40,11 @@ dependencies {
     runtime group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa'
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-web'
+
+    runtime group: 'org.webjars', name: 'handlebars'
+    runtime group: 'org.webjars', name: 'jquery'
+    runtime group: 'org.webjars', name: 'requirejs'
+    runtime group: 'org.webjars', name: 'webjars-locator'
 }
 
 sourceSets {

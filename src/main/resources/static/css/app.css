@@ -1,0 +1,78 @@
+:root {
+  --spacing-default: 0.5vw;
+}
+
+
+/************
+ * Defaults *
+ ************
+ * Defines default styling for common HTML elements
+ */
+
+/**
+ * Get rid of all those stupid fucking bits of padding on random elements which screw everything over... If I want
+ * margins or padding, I'll add them myself. Or maybe it's really a non-issue and I just suck at this front-end crap.
+ */
+* {
+  margin: 0;
+  padding: 0;
+  outline: 0 none;
+  box-sizing: border-box;
+}
+
+/**
+ * Because I basically always use lists structurally
+ */
+ul {
+  padding: 0;
+  list-style-type: none;
+}
+
+
+/**************
+ * Structural *
+ **************
+ * The main structural elements of the page, eg. menus, headers, footers, etc.
+ */
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body,
+#header,
+#content {
+  padding: var(--spacing-default);
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+body #header {
+  /* Don't grow or shrink from original size */
+  flex: 0 0 auto;
+}
+body #content {
+  /* Grow or shrink from original size to take up remaining vertical space */
+  flex: 1 1 auto;
+}
+
+#content {
+  display: flex;
+  flex-direction: row;
+}
+#content #center {
+  /* Grow or shrink from original size to take up remaining horizontal space */
+  flex: 1 1 auto;
+}
+
+
+/***********
+ * Content *
+ ***********
+ * Application-specific content, ie. the context-specific bits and pieces inside the structural elements
+ */
