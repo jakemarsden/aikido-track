@@ -192,29 +192,26 @@ body #content {
 .dialog .control {
   justify-content: flex-end;
 }
+.dialog .control button {
+  flex: 0 0 auto;
+}
 
 .dialog .header .icon,
-.dialog .header .title {
-  display: inline-block;
+.dialog .header .title,
+.dialog .header .control {
   padding: var(--spacing-default);
-  border-radius: var(--dialog-border-radius);
-}
-.dialog .header .icon {
-  flex: 0 1 auto;
-  width: var(--dialog-icon-size);
-  height: var(--dialog-icon-size);
-}
-.dialog .header .title {
-  flex: 0 0 auto;
   font-size: 1.2em;
   font-weight: bold;
 }
-.dialog .header .control {
+.dialog .header .title {
   flex: 0 0 auto;
-  margin-left: auto;
 }
-.dialog .control button {
+.dialog .header .icon {
   flex: 0 0 auto;
+  margin-left: var(--spacing-default);
+}
+.dialog .header .control {
+  flex: 1 0 auto;
 }
 
 
