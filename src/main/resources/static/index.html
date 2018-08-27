@@ -22,5 +22,34 @@
     </div>
 </div>
 
+<div class="modal-overlay">
+    <div id="dlg-member-details" class="modal dialog">
+        <div class="header">
+            <div class="title">Update member</div>
+        </div>
+        <div class="content">
+            <form>
+                <fieldset>
+                    <label for="member-id">ID</label>
+                    <input id="member-id" name="id" type="text" readonly/>
+                    <br/>
+                    <label for="member-firstName">First name</label>
+                    <input id="member-firstName" name="firstName" type="text"/>
+                    <br/>
+                    <label for="member-lastName">Last name</label>
+                    <input id="member-lastName" name="lastName" type="text"/>
+                    <br/>
+                    <label for="member-birthDate">Date of birth</label>
+                    <input id="member-birthDate" name="birthDate" type="date"/>
+                </fieldset>
+            </form>
+        </div>
+        <div class="control">
+            <button class="confirm">Apply</button>
+            <button class="cancel">Cancel</button>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
