@@ -26,12 +26,15 @@
     <div id="dlg-member-details" class="modal dialog">
         <div class="header">
             <div class="title">Update member</div>
+            <div class="control">
+                <button class="edit button toggle">Edit</button>
+            </div>
         </div>
         <div class="content">
             <form>
-                <fieldset>
+                <fieldset disabled>
                     <label for="member-id">ID</label>
-                    <input id="member-id" name="id" type="text" readonly/>
+                    <input id="member-id" name="id" type="text" disabled/>
                     <br/>
                     <label for="member-firstName">First name</label>
                     <input id="member-firstName" name="firstName" type="text"/>

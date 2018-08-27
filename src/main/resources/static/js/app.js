@@ -1,14 +1,21 @@
 require(["dialog", "templates", "jquery"], (Dialog, Templates, $) => {
     "use strict";
 
+    var selectedMember = undefined;
+
     Templates.preload(["member-list-item"]);
     $(onLoad);
 
     function onLoad() {
+        $("button.toggle").click(function () {
+            $(this).toggleClass("selected");
+        });
+
         const elemMemberList = $("ul.members");
-        const dlgMemberDetails = Dialog.create("#dlg-member-details", {
-            onConfirm: dlg => onMemberDetailsFormSubmission(dlg.elem.find("form")),
-            onClose: dlg => dlg.elem.find("form").trigger("reset")
+        const dlgMemberDetails = Dialog.createWithForm("#dlg-member-details", {
+            startEditable: false,
+            onFormPopulate: (dlg, form) => populateMemberDetailsForm(selectedMember, form),
+            onFormSubmit: (dlg, form) => onMemberDetailsFormSubmission(form)
         });
 
         // Who doesn't *love* nested callbacks?...
@@ -17,7 +24,7 @@ require(["dialog", "templates", "jquery"], (Dialog, Templates, $) => {
                 members.forEach(member => {
                     const elemMemberItem = $(tmpl(member));
                     elemMemberItem.click(() => {
-                        populateMemberDetailsForm(member, dlgMemberDetails.elem.find("form"));
+                        selectedMember = member;
                         dlgMemberDetails.open();
                     });
                     elemMemberList.append(elemMemberItem);
