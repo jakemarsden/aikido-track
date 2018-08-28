@@ -6,7 +6,7 @@ define(["jquery"], $ => {
 
         const originalOnInit = opts.onInit;
         opts.onInit = dlg => {
-            dlg._originalConfirmBtnDisplayProperty = undefined;
+            dlg._originalConfirmBtnDisplayProperty = dlg.confirmBtn.css("display");
             dlg._originalFormEditMode = opts.startEditable;
             dlg.formEditModeBtn = dlg.elem.find(".control .edit");
             dlg.formElem = dlg.elem.find("form:first-of-type");
@@ -28,12 +28,7 @@ define(["jquery"], $ => {
 
                 dlg.formElem.find("> fieldset").prop("disabled", !mode);
                 dlg.confirmBtn.prop("disabled", !mode);
-                if (mode) {
-                    dlg.confirmBtn.css("display", dlg._originalConfirmBtnDisplayProperty);
-                } else {
-                    dlg._originalConfirmBtnDisplayProperty = dlg.confirmBtn.css("display");
-                    dlg.confirmBtn.css("display", "none");
-                }
+                dlg.confirmBtn.css("display", mode ? dlg._originalConfirmBtnDisplayProperty : "none");
             };
 
             dlg.setFormEditMode(dlg._originalFormEditMode);

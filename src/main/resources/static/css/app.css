@@ -15,7 +15,6 @@
   --dialog-icon-size: 50px;
   --dialog-border-radius: 3px;
   --dialog-highlight-color: #c5c5c5;
-
 }
 
 
@@ -52,7 +51,7 @@ ul {
 
 button {
   display: inline-block;
-  margin: 0 var(--spacing-default);
+  margin: var(--spacing-default);
   padding: var(--spacing-default);
   border-radius: var(--btn-border-radius);
   border: 1px outset var(--btn-border-color);
@@ -118,6 +117,7 @@ body #header {
 body #content {
   /* Grow or shrink from original size to take up remaining vertical space */
   flex: 1 1 auto;
+  overflow-y: auto;
 }
 
 #content {
@@ -194,6 +194,8 @@ body #content {
 }
 .dialog .control button {
   flex: 0 0 auto;
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 .dialog .header .icon,
@@ -212,6 +214,8 @@ body #content {
 }
 .dialog .header .control {
   flex: 1 0 auto;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 
