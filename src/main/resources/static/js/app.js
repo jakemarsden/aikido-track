@@ -47,7 +47,11 @@ require(["dialog", "jquery", "datatables.net-dt"], (Dialog, $) => {
                 },
                 { data: "firstName" },
                 { data: "lastName" },
-                { data: "type" }
+                {
+                    data: "type",
+                    render: (data, type, row, meta) =>
+                            (type == "display") ? firstCharToUpperCase(data) : data
+                }
             ],
             order: [[2, "asc"]]
         });
@@ -80,6 +84,7 @@ require(["dialog", "jquery", "datatables.net-dt"], (Dialog, $) => {
         form.find("input[name=id]").val(member.id);
         form.find("input[name=firstName]").val(member.firstName);
         form.find("input[name=lastName]").val(member.lastName);
+        form.find("select[name=type] option[value=" + member.type + "]").prop("selected", true);
         form.find("input[name=birthDate]").val(member.birthDate);
     }
 
@@ -88,9 +93,13 @@ require(["dialog", "jquery", "datatables.net-dt"], (Dialog, $) => {
             id: form.find("input[name=id]").val(),
             firstName: form.find("input[name=firstName]").val(),
             lastName: form.find("input[name=lastName]").val(),
-            type: "Junior",
+            type: form.find("select[name=type] option:checked").val(),
             birthDate: form.find("input[name=birthDate]").val()
         };
         console.debug("onMemberDetailsFormSubmission: member=" + JSON.stringify(member));
+    }
+
+    function firstCharToUpperCase(str) {
+        return str.charAt(0).toUpperCase() + str.slice(1);
     }
 });

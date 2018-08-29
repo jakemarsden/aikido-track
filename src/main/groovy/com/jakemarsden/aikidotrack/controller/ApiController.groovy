@@ -38,9 +38,8 @@ class ApiController {
         Validate.notNull model
         Validate.notNull model.firstName
         Validate.notNull model.type
-        def member = new Member(
-                firstName: model.firstName, lastName: model.lastName, type: MemberModel.Type.asEntity(model.type),
-                birthDate: model.birthDate)
+        def member = new Member()
+        model.asEntity member
         member = memberService.saveMember member
         MemberModel.ofEntity member
     }

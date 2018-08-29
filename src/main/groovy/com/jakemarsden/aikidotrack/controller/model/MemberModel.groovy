@@ -7,6 +7,8 @@ import groovy.transform.PackageScope
 import groovy.transform.ToString
 import java.time.LocalDate
 
+import static org.apache.commons.lang3.StringUtils.lowerCase
+
 @EqualsAndHashCode
 @ToString(includePackage = false, includeNames = true)
 final class MemberModel {
@@ -14,7 +16,7 @@ final class MemberModel {
     String id
     String firstName
     String lastName
-    Type type
+    String type
     LocalDate birthDate
 
     static MemberModel ofEntity(Member entity) {
@@ -23,42 +25,30 @@ final class MemberModel {
         }
         new MemberModel(
                 id: entity.id, firstName: entity.firstName, lastName: entity.lastName,
-                type: Type.ofEntity(entity.type), birthDate: entity.birthDate)
+                type: lowerCase(entity.type as String), birthDate: entity.birthDate)
     }
 
     @PackageScope
     MemberModel() {
     }
 
-    enum Type {
+    void asEntity(Member entity) {
+        entity.firstName = firstName
+        entity.lastName = lastName
+        entity.type = typeAsEntity
+        entity.birthDate = birthDate
+    }
 
-        Adult,
-        Junior
-
-        static Type ofEntity(MemberType entity) {
-            switch (entity) {
-                case null:
-                    return null
-                case MemberType.Adult:
-                    return Adult
-                case MemberType.Junior:
-                    return Junior
-                default:
-                    throw new IllegalArgumentException("Unsupported $MemberType.simpleName: $entity")
-            }
-        }
-
-        static MemberType asEntity(Type model) {
-            switch (model) {
-                case null:
-                    return null
-                case Adult:
-                    return MemberType.Adult
-                case Junior:
-                    return MemberType.Junior
-                default:
-                    throw new IllegalArgumentException("Unsupported $Type.simpleName: $model")
-            }
+    private MemberType getTypeAsEntity() {
+        switch (type) {
+            case null:
+                return null
+            case "adult":
+                return MemberType.Adult
+            case "junior":
+                return MemberType.Junior
+            default:
+                throw new IllegalArgumentException("Unsupported $MemberType.simpleName: $type")
         }
     }
 }
