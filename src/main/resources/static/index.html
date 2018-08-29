@@ -5,6 +5,9 @@
     <meta http-equiv="Content-Type" content="text/html" charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
     <title>AikidoTrack</title>
+    <link rel="stylesheet" type="text/css" media="screen" href="/webjars/datatables/1.10.19/css/jquery.dataTables.css"/>
+    <link rel="stylesheet" type="text/css" media="screen"
+          href="/webjars/datatables/1.10.19/css/dataTables.foundation.css"/>
     <link rel="stylesheet" type="text/css" media="screen" href="/webjars/font-awesome/5.2.0/css/all.css"/>
     <link rel="stylesheet" type="text/css" media="screen" href="/css/app.css"/>
     <script type="text/javascript" src="/js/require-config.js"></script>
@@ -19,7 +22,17 @@
 
 <div id="content">
     <div id="center">
-        <ul class="members"></ul>
+        <table class="members hover order-column stripe cell-border row-border table-border">
+            <thead>
+            <tr>
+                <th><!-- Column containing controls (eg. an edit button for each row) --></th>
+                <th>First name</th>
+                <th>Last name</th>
+                <th>Type</th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
     </div>
 </div>
 
@@ -34,7 +47,7 @@
         </div>
         <div class="content">
             <form>
-                <fieldset disabled>
+                <fieldset>
                     <label for="member-id">ID</label>
                     <input id="member-id" name="id" type="text" disabled/>
                     <br/>

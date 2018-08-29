@@ -1,9 +1,8 @@
-require(["dialog", "templates", "jquery"], (Dialog, Templates, $) => {
+require(["dialog", "jquery", "datatables.net-dt"], (Dialog, $) => {
     "use strict";
 
     var selectedMember = undefined;
 
-    Templates.preload(["member-list-item"]);
     $(onLoad);
 
     function onLoad() {
@@ -11,26 +10,56 @@ require(["dialog", "templates", "jquery"], (Dialog, Templates, $) => {
             $(this).toggleClass("selected");
         });
 
-        const elemMemberList = $("ul.members");
+        const elemMemberTable = $(".members");
         const dlgMemberDetails = Dialog.createWithForm("#dlg-member-details", {
             startEditable: false,
             onFormPopulate: (dlg, form) => populateMemberDetailsForm(selectedMember, form),
             onFormSubmit: (dlg, form) => onMemberDetailsFormSubmission(form)
         });
 
-        // Who doesn't *love* nested callbacks?...
-        withMembers(members => {
-            Templates.withTemplate("member-list-item", tmpl => {
-                members.forEach(member => {
-                    const elemMemberItem = $(tmpl(member));
-                    elemMemberItem.click(() => {
-                        selectedMember = member;
-                        dlgMemberDetails.open();
-                    });
-                    elemMemberList.append(elemMemberItem);
-                });
-            });
+        const memberTable = elemMemberTable.dataTable({
+            dom: "t",
+            ajax: {
+                url: "/api/member/all",
+                method: "GET",
+                contentType: "application/json;charset=UTF-8",
+                dataType: "json",
+                dataSrc: ""
+            },
+            columns: [
+                {
+                    className: "control",
+                    orderable: false,
+                    data: (row, type, set, meta) => null,
+                    render: (data, type, row, meta) => {
+                        if (type === undefined || type != "display") {
+                            return data;
+                        }
+                        const editBtn = $("<button/>")
+                                .addClass("edit")
+                                .append($("<span/>")
+                                        .addClass("fas")
+                                        .addClass("fa-user-edit"));
+                        return editBtn.prop("outerHTML");
+                    }
+                },
+                { data: "firstName" },
+                { data: "lastName" },
+                { data: "type" }
+            ],
+            order: [[2, "asc"]]
         });
+        memberTable.on("click", "button.edit", function () {
+            const elem = $(this);
+            const row = memberTable.api().row(elem.closest("tr"));
+            const member = row.data();
+            onMemberEditButtonClick(member);
+        });
+
+        function onMemberEditButtonClick(member) {
+            selectedMember = member;
+            dlgMemberDetails.open();
+        }
     }
 
     function populateMemberDetailsForm(member, form) {
@@ -49,17 +78,5 @@ require(["dialog", "templates", "jquery"], (Dialog, Templates, $) => {
             birthDate: form.find("input[name=birthDate]").val()
         };
         console.debug("onMemberDetailsFormSubmission: member=" + JSON.stringify(member));
-    }
-
-    function withMembers(callback) {
-        const opts = {
-            url: "/api/member/all",
-            method: "GET",
-            contentType: "application/json;charset=UTF-8",
-            dataType: "json"
-        };
-        $.ajax(opts)
-                .done((data, textStatus, jqXhr) => callback(data))
-                .fail((jqXhr, textStatus, errorThrown) => { throw errorThrown; });
     }
 });
