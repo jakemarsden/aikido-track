@@ -331,6 +331,9 @@ body #content {
   padding-top: 0;
   padding-bottom: 0;
 }
+.dialog .header .control button:not(:first-of-type) {
+  margin-left: 0;
+}
 
 
 /***********

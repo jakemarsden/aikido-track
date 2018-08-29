@@ -10,12 +10,14 @@ require(["dialog", "jquery", "datatables.net-dt"], (Dialog, $) => {
             $(this).toggleClass("selected");
         });
 
-        const elemMemberTable = $(".members");
+        const elemMemberTable = $("table.members");
         const dlgMemberDetails = Dialog.createWithForm("#dlg-member-details", {
             startEditable: false,
-            onFormPopulate: (dlg, form) => populateMemberDetailsForm(selectedMember, form),
+            onFormPopulate: (dlg, form) => populateMemberDetailsForm(selectedMember, dlg, form),
             onFormSubmit: (dlg, form) => onMemberDetailsFormSubmission(form)
         });
+        const btnCreateMember = $("table.members thead button.add")
+                .click(() => onMemberEditButtonClick({ id: null }));
 
         const memberTable = elemMemberTable.dataTable({
             dom: "t",
@@ -62,7 +64,19 @@ require(["dialog", "jquery", "datatables.net-dt"], (Dialog, $) => {
         }
     }
 
-    function populateMemberDetailsForm(member, form) {
+    function populateMemberDetailsForm(member, dlg, form) {
+        if (member.id == null) {
+            // Member doesn't exist yet (ie. we're creating a new member)
+            dlg.iconElem.find("> *")
+                    .removeClass("fa-user-edit")
+                    .addClass("fa-user-plus");
+            dlg.setFormEditMode(true);
+        } else {
+            // Member already exists (ie. we're editing an existing member)
+            dlg.iconElem.find("> *")
+                    .removeClass("fa-user-plus")
+                    .addClass("fa-user-edit");
+        }
         form.find("input[name=id]").val(member.id);
         form.find("input[name=firstName]").val(member.firstName);
         form.find("input[name=lastName]").val(member.lastName);
