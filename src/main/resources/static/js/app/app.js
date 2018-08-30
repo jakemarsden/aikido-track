@@ -12,11 +12,15 @@ require(["app/dialog", "jquery", "datatables.net-dt"], (Dialog, $) => {
 
         const btnCreateMember = $("table.members thead button.add");
         const elemMemberTable = $("table.members");
-        const dlgMemberDetails = Dialog.createWithForm("#dlg-member-details", {
-            startEditable: false,
-            onFormPopulate: (dlg, form) => populateMemberDetailsForm(selectedMember, dlg, form),
-            onFormSubmit: (dlg, form) => onMemberDetailsFormSubmission(form)
-        });
+
+        const dlgMemberDetails = new Dialog.FormDialog("#dlg-member-details", false);
+        dlgMemberDetails.onFormPopulate = function (form) {
+            populateMemberDetailsForm(selectedMember, this, form);
+        };
+        dlgMemberDetails.onFormSubmit = function (form) {
+            onMemberDetailsFormSubmission(form);
+        };
+        dlgMemberDetails.init();
 
         const memberTable = elemMemberTable.dataTable({
             dom: "t",
@@ -68,13 +72,18 @@ require(["app/dialog", "jquery", "datatables.net-dt"], (Dialog, $) => {
         }
     }
 
+    /**
+     * @param {!{id: string, firstName: string, lastName: string, birthDate: string}} member
+     * @param {!Dialog.FormDialog} dlg
+     * @param {!jQuery} form
+     */
     function populateMemberDetailsForm(member, dlg, form) {
         if (member.id == null) {
             // Member doesn't exist yet (ie. we're creating a new member)
             dlg.iconElem.find("> *")
                     .removeClass("fa-user-edit")
                     .addClass("fa-user-plus");
-            dlg.setFormEditMode(true);
+            dlg.formEditMode = true;
         } else {
             // Member already exists (ie. we're editing an existing member)
             dlg.iconElem.find("> *")
@@ -88,6 +97,9 @@ require(["app/dialog", "jquery", "datatables.net-dt"], (Dialog, $) => {
         form.find("input[name=birthDate]").val(member.birthDate);
     }
 
+    /**
+     * @param {!jQuery} form
+     */
     function onMemberDetailsFormSubmission(form) {
         const member = {
             id: form.find("input[name=id]").val(),
@@ -99,6 +111,10 @@ require(["app/dialog", "jquery", "datatables.net-dt"], (Dialog, $) => {
         window.console.debug("onMemberDetailsFormSubmission: member=" + JSON.stringify(member));
     }
 
+    /**
+     * @param {!string} str
+     * @return {!string}
+     */
     function firstCharToUpperCase(str) {
         return str.charAt(0).toUpperCase() + str.slice(1);
     }

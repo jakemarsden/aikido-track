@@ -1,160 +1,148 @@
 define(["jquery"], $ => {
     "use strict";
 
-    function createDialogWithForm(elemSelector, opts) {
-        opts = validateFormOpts(opts);
+    /** @class Dialog */
+    class Dialog {
+        /** @param {!(string|jQuery)} elemSelector */
+        constructor(elemSelector) {
+            this._originalDisplayProperty = undefined;
+            this.elem = $(elemSelector);
+            this.overlayElem = this.elem.parents(".modal-overlay");
+            this.contentElem = this.elem.find(".content:first");
+            this.iconElem = this.elem.find(".header .icon");
+            this.titleElem = this.elem.find(".header .title");
+            this.confirmBtn = this.elem.find(".control .confirm");
+            this.cancelBtn = this.elem.find(".control .cancel");
+        }
 
-        const originalOnInit = opts.onInit;
-        opts.onInit = dlg => {
-            dlg._originalConfirmBtnDisplayProperty = dlg.confirmBtn.css("display");
-            dlg._originalFormEditMode = opts.startEditable;
-            dlg.formEditModeBtn = dlg.elem.find(".control .edit");
-            dlg.formElem = dlg.elem.find("form:first-of-type");
+        /** Call after setting any desired properties (eg. callbacks) but before {@link open}ing the dialog */
+        init() {
+            this._hide();
+            this.confirmBtn.click(() => this.confirm());
+            this.cancelBtn.click(() => this.cancel());
+        }
 
-            dlg.getFormEditMode = function () {
-                return dlg.formEditModeBtn.hasClass("selected");
-            };
-            dlg.setFormEditMode = function (mode) {
-                dlg.formEditModeBtn.toggleClass("selected", mode);
-                dlg._updateFormEditMode();
-            };
-            dlg.toggleFormEditMode = function () {
-                dlg.formEditModeBtn.toggleClass("selected");
-                dlg._updateFormEditMode();
-            };
-            dlg._updateFormEditMode = function () {
-                const mode = dlg.getFormEditMode();
-                opts.onFormEditModeChange(dlg, dlg.formElem, mode);
+        open() {
+            this.onOpen();
+            this._show();
+        }
 
-                dlg.formElem.find("> fieldset").prop("disabled", !mode);
-                dlg.confirmBtn.prop("disabled", !mode);
-                dlg.confirmBtn.css("display", mode ? dlg._originalConfirmBtnDisplayProperty : "none");
-            };
+        confirm() {
+            this._hide();
+            this.onConfirm();
+            this.onClose();
+        }
 
-            dlg.setFormEditMode(dlg._originalFormEditMode);
-            dlg.formEditModeBtn.click(() => dlg._updateFormEditMode());
-            return originalOnInit(dlg);
-        };
+        cancel() {
+            this._hide();
+            this.onCancel();
+            this.onClose();
+        }
 
-        const originalOnOpen = opts.onOpen;
-        opts.onOpen = dlg => {
-            opts.onFormPopulate(dlg, dlg.formElem);
-            return originalOnOpen(dlg);
-        };
+        /** @protected */
+        _show() {
+            this.overlayElem.css("display", this._originalDisplayProperty);
+        }
 
-        const originalOnConfirm = opts.onConfirm;
-        opts.onConfirm = dlg => {
-            opts.onFormSubmit(dlg, dlg.formElem);
-            return originalOnConfirm(dlg);
-        };
+        /** @protected */
+        _hide() {
+            this._originalDisplayProperty = this.overlayElem.css("display");
+            this.overlayElem.css("display", "none");
+        }
 
-        const originalOnClose = opts.onClose;
-        opts.onClose = dlg => {
-            opts.onFormReset(dlg, dlg.formElem);
-            dlg.formElem.trigger("reset");
-            dlg.setFormEditMode(dlg._originalFormEditMode);
-            return originalOnClose(dlg);
-        };
+        // Callbacks
 
-        return createDialog(elemSelector, opts);
+        onOpen() {}
+
+        onClose() {}
+
+        onConfirm() {}
+
+        onCancel() {}
     }
 
-    function createDialog(elemSelector, opts) {
-        opts = validateOpts(opts);
+    /**
+     * @class Dialog.FormDialog
+     * @extends Dialog
+     */
+    class FormDialog extends Dialog {
+        /**
+         * @param {!(string|jQuery)} elemSelector
+         * @param {boolean} [startEditable=false]
+         */
+        constructor(elemSelector, startEditable) {
+            super(elemSelector);
+            this._startEditable = startEditable === true;
+            this._originalConfirmBtnDisplayProperty = undefined;
+            this.formEditModeBtn = this.elem.find(".control .edit");
+            this.formElem = this.elem.find("form:first-of-type");
+        }
 
-        const dialogElem = $(elemSelector);
-        const dialog = {
-            _originalDisplayProperty: undefined,
-            elem: dialogElem,
-            overlayElem: dialogElem.parents(".modal-overlay"),
-            contentElem: dialogElem.find(".content:first"),
-            iconElem: dialogElem.find(".header .icon"),
-            titleElem: dialogElem.find(".header .title"),
-            confirmBtn: dialogElem.find(".control .confirm"),
-            cancelBtn: dialogElem.find(".control .cancel"),
+        init() {
+            this._originalConfirmBtnDisplayProperty = this.confirmBtn.css("display");
+            this.formEditMode = this._startEditable;
+            super.init();
+            this.formEditModeBtn.click(() => this._updateFormEditMode());
+        }
 
-            show: function () {
-                this.overlayElem.css("display", this._originalDisplayProperty);
-            },
-            hide: function () {
-                this._originalDisplayProperty = this.overlayElem.css("display");
-                this.overlayElem.css("display", "none");
-            },
+        open() {
+            this.onFormPopulate(this.formElem);
+            super.open();
+        }
 
-            open: function () {
-                opts.onOpen(this);
-                this.show();
-            },
-            confirm: function () {
-                opts.onConfirm(this);
-                opts.onClose(this);
-                this.hide();
-            },
-            cancel: function () {
-                opts.onCancel(this);
-                opts.onClose(this);
-                this.hide();
-            }
-        };
+        confirm() {
+            super.confirm();
+            this.formEditMode = this._startEditable;
+            this.onFormSubmit(this.formElem);
+            this.formElem.trigger("reset");
+            this.onFormReset(this.formElem);
+        }
 
-        dialog.hide();
-        opts.onInit(dialog);
+        cancel() {
+            super.cancel();
+            this.formEditMode = this._startEditable;
+            this.formElem.trigger("reset");
+            this.onFormReset(this.formElem);
+        }
 
-        dialog.confirmBtn.click(() => dialog.confirm());
-        dialog.cancelBtn.click(() => dialog.cancel());
+        /** @return {!boolean} */
+        get formEditMode() {
+            return this.formEditModeBtn.hasClass("selected");
+        }
 
-        return dialog;
+        /** @param {!boolean} mode */
+        set formEditMode(mode) {
+            this.formEditModeBtn.toggleClass("selected", mode);
+            this._updateFormEditMode();
+        }
+
+        /** @protected */
+        _updateFormEditMode() {
+            const mode = this.formEditMode;
+            this.formElem.find("> fieldset").prop("disabled", !mode);
+            this.confirmBtn.prop("disabled", !mode);
+            this.confirmBtn.css("display", mode ? this._originalConfirmBtnDisplayProperty : "none");
+            this.onFormEditModeChange(this.formElem, mode);
+        }
+
+        // Callbacks
+
+        /** @param {!jQuery} form */
+        onFormPopulate(form) {}
+
+        /** @param {!jQuery} form */
+        onFormSubmit(form) {}
+
+        /** @param {!jQuery} form */
+        onFormReset(form) {}
+
+        /**
+         * @param {!jQuery} form
+         * @param {!boolean} mode
+         */
+        onFormEditModeChange(form, mode) {}
     }
 
-    function validateOpts(opts) {
-        if (opts == null) {
-            opts = {};
-        }
-
-        const noop = dlg => {};
-        if (opts.onInit == null) {
-            opts.onInit = noop;
-        }
-        if (opts.onOpen == null) {
-            opts.onOpen = noop;
-        }
-        if (opts.onClose == null) {
-            opts.onClose = noop;
-        }
-        if (opts.onConfirm == null) {
-            opts.onConfirm = noop;
-        }
-        if (opts.onCancel == null) {
-            opts.onCancel = noop;
-        }
-        return opts;
-    }
-
-    function validateFormOpts(opts) {
-        opts = validateOpts(opts);
-        const noop = (dlg, form) => {};
-
-        if (opts.startEditable !== true) {
-            // ie. the default is false
-            opts.startEditable = false;
-        }
-        if (opts.onFormPopulate == null) {
-            opts.onFormPopulate = noop;
-        }
-        if (opts.onFormSubmit == null) {
-            opts.onFormSubmit = noop;
-        }
-        if (opts.onFormReset == null) {
-            opts.onFormReset = noop;
-        }
-        if (opts.onFormEditModeChange == null) {
-            opts.onFormEditModeChange = noop;
-        }
-        return opts;
-    }
-
-    return {
-        create: createDialog,
-        createWithForm: createDialogWithForm
-    };
+    Dialog.FormDialog = FormDialog;
+    return Dialog;
 });
