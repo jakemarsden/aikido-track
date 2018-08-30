@@ -50,23 +50,31 @@
         <div class="content">
             <form>
                 <fieldset>
-                    <label for="member-id">ID</label>
-                    <input id="member-id" name="id" type="text" disabled/>
-                    <br/>
-                    <label for="member-firstName">First name</label>
-                    <input id="member-firstName" name="firstName" type="text"/>
-                    <br/>
-                    <label for="member-lastName">Last name</label>
-                    <input id="member-lastName" name="lastName" type="text"/>
-                    <br/>
-                    <label for="member-type">Type</label>
-                    <select id="member-type" name="type">
-                        <option value="adult" selected>Adult</option>
-                        <option value="junior">Junior</option>
-                    </select>
-                    <br/>
-                    <label for="member-birthDate">Date of birth</label>
-                    <input id="member-birthDate" name="birthDate" type="date"/>
+                    <ul>
+                        <li>
+                            <label for="member-id">ID</label>
+                            <input id="member-id" name="id" type="number" disabled/>
+                        </li>
+                        <li>
+                            <label for="member-firstName">First name</label>
+                            <input id="member-firstName" name="firstName" type="text"/>
+                        </li>
+                        <li>
+                            <label for="member-lastName">Last name</label>
+                            <input id="member-lastName" name="lastName" type="text"/>
+                        </li>
+                        <li>
+                            <label for="member-type">Type</label>
+                            <select id="member-type" name="type">
+                                <option value="adult" selected>Adult</option>
+                                <option value="junior">Junior</option>
+                            </select>
+                        </li>
+                        <li>
+                            <label for="member-birthDate">Date of birth</label>
+                            <input id="member-birthDate" name="birthDate" type="date"/>
+                        </li>
+                    </ul>
                 </fieldset>
             </form>
         </div>

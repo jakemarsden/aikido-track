@@ -1,10 +1,18 @@
 :root {
   --spacing-default: 0.5vw;
+  --default-border-radius: 4px;
   --default-font-size: 100%;
   --default-font-family: Arial,Helvetica,sans-serif;
 
-  --form-border-radius: 3px;
+  --form-spacing: var(--spacing-default);
+  --form-border-radius: var(--default-border-radius);
   --form-border-color: #c5c5c5;
+  --form-focus-border-color: #939393;
+  --form-disabled-color: #e3e3e3;
+  --form-input-min-width: 10em;
+  --form-input-preferred-width: 16em;
+  --form-input-number-min-width: 4em;
+  --form-input-number-preferred-width: 6em;
 
   --table-spacing: var(--spacing-default);
   --table-border-color: #111;
@@ -16,14 +24,15 @@
   --table-row-highlight-color: #f2f2f2;
   --table-row-sorted-highlight-color: #e8e8e8;
 
-  --btn-border-radius: 3px;
+  --btn-border-radius: var(--default-border-radius);
   --btn-border-color: #c5c5c5;
   --btn-text-color: #2b2b2b;
   --btn-selected-color: #999;
 
   --modal-overlay-opacity: 0.6;
+  --dialog-min-width: 30%;
   --dialog-icon-size: 50px;
-  --dialog-border-radius: 3px;
+  --dialog-border-radius: var(--default-border-radius);
   --dialog-highlight-color: #c5c5c5;
 }
 
@@ -82,18 +91,98 @@ button.toggle.selected {
 }
 
 
-form,
-form fieldset {
-  margin: var(--spacing-default);
-  padding: var(--spacing-default);
+/**
+ * Example form markup:
+ * <form>
+ *     <fieldset>
+ *         <ul>
+ *             <li>
+ *                 <label for="member-name">Name</label>
+ *                 <input id="member-name" name="name" type="text"/>
+ *             </li>
+ *             <li>
+ *                 <label for="member-type">Type</label>
+ *                 <select id="member-type" name="type">
+ *                     <option value="adult" selected>Adult</option>
+ *                     <option value="junior">Junior</option>
+ *                 </select>
+ *             </li>
+ *         </ul>
+ *     </fieldset>
+ * </form>
+ */
+form li {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  justify-content: space-between;
+  margin: var(--form-spacing) 0;
 }
-form fieldset {
+form li > label:first-of-type {
+  flex: 0 0 auto;
+}
+form li > label:first-of-type ~ * {
+  flex: 1 0 var(--form-input-min-width);
+  max-width: var(--form-input-preferred-width);
+}
+form li > label:first-of-type ~ input[type=number] {
+  flex-basis: var(--form-input-number-min-width);
+  max-width: var(--form-input-number-preferred-width);
+}
+
+form,
+fieldset {
+  margin: var(--form-spacing);
+  padding: var(--form-spacing);
+}
+fieldset {
+  border: 1px solid var(--form-border-color);
   border-radius: var(--form-border-radius);
+}
+fieldset:focus-within {
+  border-color: var(--form-focus-border-color);
+}
+
+label {
+  margin-right: var(--form-spacing);
+}
+input,
+textarea,
+select {
+  padding: var(--form-spacing);
+  border-top-left-radius: var(--form-border-radius);
   border: 1px solid var(--form-border-color);
 }
-form label,
-form input {
-  margin: var(--spacing-default);
+input,
+textarea {
+  border-bottom-right-radius: var(--form-border-radius);
+}
+select {
+  /* Looks slightly better on desktop due to the drop-down button. Looks like shit on Android... oh well */
+  border-right: none;
+}
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--form-focus-border-color);
+}
+input:disabled,
+textarea:disabled,
+select:disabled {
+  background-color: var(--form-disabled-color);
+  text-align: right;
+}
+
+/**
+ * Get rid of the spin buttons on disabled numeric input elements
+ */
+input[type=number]:disabled {
+  -moz-appearance: textfield;
+}
+input[type=number]:disabled::-webkit-outer-spin-button,
+input[type=number]:disabled::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 
@@ -270,7 +359,6 @@ body #content {
 .modal-overlay .modal {
   z-index: 1010;
   flex: 0 0 auto;
-  display: block;
   max-width: 100%;
   max-height: 100%;
   background-color: #fff;
@@ -282,6 +370,7 @@ body #content {
 .dialog {
   display: flex;
   flex-direction: column;
+  min-width: var(--dialog-min-width);
   border-radius: var(--dialog-border-radius);
   border: 1px solid var(--dialog-highlight-color);
 }
