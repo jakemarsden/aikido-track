@@ -1,6 +1,7 @@
-require(["app/dialog", "jquery", "datatables.net-dt"], (Dialog, $) => {
+require(["app/dialog", "app/member", "jquery", "datatables.net-dt"], (Dialog, Member, $) => {
     "use strict";
 
+    /** @type {Member} */
     let selectedMember;
 
     $(onLoad);
@@ -14,12 +15,8 @@ require(["app/dialog", "jquery", "datatables.net-dt"], (Dialog, $) => {
         const elemMemberTable = $("table.members");
 
         const dlgMemberDetails = new Dialog.FormDialog("#dlg-member-details", false);
-        dlgMemberDetails.onFormPopulate = function (form) {
-            populateMemberDetailsForm(selectedMember, this, form);
-        };
-        dlgMemberDetails.onFormSubmit = function (form) {
-            onMemberDetailsFormSubmission(form);
-        };
+        dlgMemberDetails.onFormPopulate = function (form) { populateMemberDetailsForm(selectedMember, this, form); };
+        dlgMemberDetails.onFormSubmit = function (form) { onMemberDetailsFormSubmission(form); };
         dlgMemberDetails.init();
 
         const memberTable = elemMemberTable.dataTable({
@@ -59,13 +56,14 @@ require(["app/dialog", "jquery", "datatables.net-dt"], (Dialog, $) => {
             order: [[2, "asc"]]
         });
 
-        btnCreateMember.click(() => onMemberEditButtonClick({ id: null }));
+        btnCreateMember.click(() => onMemberEditButtonClick(new Member()));
         memberTable.on("click", "button.edit", function () {
             const rowElem = $(this).closest("tr");
             const row = memberTable.api().row(rowElem);
             onMemberEditButtonClick(row.data());
         });
 
+        /** @param {!Member} member */
         function onMemberEditButtonClick(member) {
             selectedMember = member;
             dlgMemberDetails.open();
@@ -73,7 +71,7 @@ require(["app/dialog", "jquery", "datatables.net-dt"], (Dialog, $) => {
     }
 
     /**
-     * @param {!{id: string, firstName: string, lastName: string, birthDate: string}} member
+     * @param {!Member} member
      * @param {!Dialog.FormDialog} dlg
      * @param {!jQuery} form
      */
@@ -97,17 +95,15 @@ require(["app/dialog", "jquery", "datatables.net-dt"], (Dialog, $) => {
         form.find("input[name=birthDate]").val(member.birthDate);
     }
 
-    /**
-     * @param {!jQuery} form
-     */
+    /** @param {!jQuery} form */
     function onMemberDetailsFormSubmission(form) {
-        const member = {
-            id: form.find("input[name=id]").val(),
-            firstName: form.find("input[name=firstName]").val(),
-            lastName: form.find("input[name=lastName]").val(),
-            type: form.find("select[name=type] option:checked").val(),
-            birthDate: form.find("input[name=birthDate]").val()
-        };
+        const member = new Member();
+        member.id = form.find("input[name=id]").val();
+        member.firstName = form.find("input[name=firstName]").val();
+        member.lastName = form.find("input[name=lastName]").val();
+        member.type = form.find("select[name=type] option:checked").val();
+        member.birthDate = form.find("input[name=birthDate]").val();
+
         window.console.debug("onMemberDetailsFormSubmission: member=" + JSON.stringify(member));
     }
 
