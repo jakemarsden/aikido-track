@@ -33,7 +33,7 @@ define(["handlebars", "jquery"], (Handlebars, $) => {
                     callback(template);
                     return template;
                 })
-                .catch(reason => console.warn("Unable to load template '" + name + "': " + reason))
+                .catch(reason => window.console.warn("Unable to load template '" + name + "': " + reason))
                 .catch(failureCallback);
     }
 
@@ -48,13 +48,13 @@ define(["handlebars", "jquery"], (Handlebars, $) => {
      * @param names A list of the names of the templates to preload
      */
     function preloadTemplates(names) {
-        for (var i = 0; i < names.length; i++) {
+        for (let i = 0; i < names.length; i++) {
             getOrLoadFromCache(names[i]);
         }
     }
 
     function getOrLoadFromCache(name) {
-        var template = templateCache.get(name);
+        let template = templateCache.get(name);
         if (template === undefined) {
             template = loadAndCompile(name);
             templateCache.set(name, template);

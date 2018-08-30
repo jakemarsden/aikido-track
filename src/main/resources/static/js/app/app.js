@@ -1,7 +1,7 @@
-require(["dialog", "jquery", "datatables.net-dt"], (Dialog, $) => {
+require(["app/dialog", "jquery", "datatables.net-dt"], (Dialog, $) => {
     "use strict";
 
-    var selectedMember = undefined;
+    let selectedMember;
 
     $(onLoad);
 
@@ -10,14 +10,13 @@ require(["dialog", "jquery", "datatables.net-dt"], (Dialog, $) => {
             $(this).toggleClass("selected");
         });
 
+        const btnCreateMember = $("table.members thead button.add");
         const elemMemberTable = $("table.members");
         const dlgMemberDetails = Dialog.createWithForm("#dlg-member-details", {
             startEditable: false,
             onFormPopulate: (dlg, form) => populateMemberDetailsForm(selectedMember, dlg, form),
             onFormSubmit: (dlg, form) => onMemberDetailsFormSubmission(form)
         });
-        const btnCreateMember = $("table.members thead button.add")
-                .click(() => onMemberEditButtonClick({ id: null }));
 
         const memberTable = elemMemberTable.dataTable({
             dom: "t",
@@ -34,7 +33,7 @@ require(["dialog", "jquery", "datatables.net-dt"], (Dialog, $) => {
                     orderable: false,
                     data: (row, type, set, meta) => null,
                     render: (data, type, row, meta) => {
-                        if (type === undefined || type != "display") {
+                        if (type === undefined || type !== "display") {
                             return data;
                         }
                         const editBtn = $("<button/>")
@@ -50,16 +49,17 @@ require(["dialog", "jquery", "datatables.net-dt"], (Dialog, $) => {
                 {
                     data: "type",
                     render: (data, type, row, meta) =>
-                            (type == "display") ? firstCharToUpperCase(data) : data
+                            (type === "display") ? firstCharToUpperCase(data) : data
                 }
             ],
             order: [[2, "asc"]]
         });
+
+        btnCreateMember.click(() => onMemberEditButtonClick({ id: null }));
         memberTable.on("click", "button.edit", function () {
-            const elem = $(this);
-            const row = memberTable.api().row(elem.closest("tr"));
-            const member = row.data();
-            onMemberEditButtonClick(member);
+            const rowElem = $(this).closest("tr");
+            const row = memberTable.api().row(rowElem);
+            onMemberEditButtonClick(row.data());
         });
 
         function onMemberEditButtonClick(member) {
@@ -96,7 +96,7 @@ require(["dialog", "jquery", "datatables.net-dt"], (Dialog, $) => {
             type: form.find("select[name=type] option:checked").val(),
             birthDate: form.find("input[name=birthDate]").val()
         };
-        console.debug("onMemberDetailsFormSubmission: member=" + JSON.stringify(member));
+        window.console.debug("onMemberDetailsFormSubmission: member=" + JSON.stringify(member));
     }
 
     function firstCharToUpperCase(str) {
