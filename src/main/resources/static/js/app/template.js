@@ -4,16 +4,15 @@
  *
  * Example usage:
  *
- * // Register and start preloading template even before onLoad
+ * // Register and start preloading the template ASAP
  * const testTmpl = Template.register("test", ["partial1", "partial2"]);
  * ...
  * $(onLoad);
  * function onLoad() {
- *     // Wait for the template to finsh loading
- *     testTmpl.resolve(tmpl => {
- *         // Render the template with a context and add it to the DOM
- *         tmpl.renderInto($("body"), testCtx);
- *     });
+ *     // Ensure the template has finished loading
+ *     testTmpl.resolve(tmpl =>
+ *             // Render the template with a context and add it to the DOM
+ *             tmpl.renderInto($("body"), testCtx));
  * }
  */
 define(["handlebars", "jquery"], (Handlebars, $) => {
@@ -23,15 +22,17 @@ define(["handlebars", "jquery"], (Handlebars, $) => {
         /**
          * @param {string} name
          * @param {string[]} partials
-         * @param {Promise<Template>} promise
+         * @param {function():Promise<Template>} promiseFactory
          * @see {@link Template#register} to obtain an instance
          * @protected
          */
-        constructor(name, partials, promise) {
+        constructor(name, partials, promiseFactory) {
             this.name = name;
             this.partials = partials;
             /** @private */
-            this._promise = promise;
+            this._promise = undefined;
+            /** @private */
+            this._promiseFactory = promiseFactory;
         }
 
         /**
@@ -39,12 +40,18 @@ define(["handlebars", "jquery"], (Handlebars, $) => {
          * {@link #resolveAsPromise} are faster. It is not usually necessary to preload a template manually as
          * templates are preloaded when {@link Template#register}ed by default.
          */
-        preload() { this._promise.then(it => it); }
+        preload() {
+            if (this._promise === undefined) {
+                this._promise = this._promiseFactory();
+                this._promiseFactory = undefined; // Don't need it anymore
+            }
+        }
 
         /**
          * @param {Template~onTemplateResolved} callback
          */
         resolve(callback) {
+            this.preload();
             this._promise
                     .then(tmpl => {
                         callback(tmpl);
@@ -57,6 +64,7 @@ define(["handlebars", "jquery"], (Handlebars, $) => {
          * @return Promise<Template>
          */
         resolveAsPromise() {
+            this.preload();
             // It's important to wrap the Promise for safety. Otherwise, the caller could chain a success callback
             // which returns something other than the original Template. This would fuck up our internal
             // Promise<Template.Def> cache and future calls to #resolve or #resloveAsPromise could behave unexpectedly
@@ -78,6 +86,7 @@ define(["handlebars", "jquery"], (Handlebars, $) => {
     class Template {
         /**
          * @param {Handlebars~template} template
+         * @see {@link Template.Def#resolve} or {@link Template.Def#resolveAsPromise} to obtain an instance
          * @private
          */
         constructor(template) {
@@ -93,9 +102,7 @@ define(["handlebars", "jquery"], (Handlebars, $) => {
          * @static
          */
         static register(name, partials, preload) {
-            if (partials == null) {
-                partials = [];
-            }
+            partials = partials == null ? [] : partials.slice();
             preload = preload !== false;
 
             validateName(name, false);
@@ -104,9 +111,10 @@ define(["handlebars", "jquery"], (Handlebars, $) => {
             let templateDef = templateDefCache.get(name);
             if (templateDef === undefined) {
                 // Template isn't yet in the cache, we'd better make one
-                const templatePromise = fetchHandlebarsTemplateWithRequiredPartials(name, partials)
-                        .then(tmpl => new Template(tmpl));
-                templateDef = new Template.Def(name, partials, templatePromise);
+                const templatePromiseFactory = () =>
+                        fetchHandlebarsTemplateWithRequiredPartials(name, partials)
+                                .then(tmpl => new Template(tmpl));
+                templateDef = new Template.Def(name, partials, templatePromiseFactory);
                 templateDefCache.set(name, templateDef);
 
             } else if (!shallowArrayEquals(templateDef.partials, partials)) {
@@ -125,9 +133,7 @@ define(["handlebars", "jquery"], (Handlebars, $) => {
          * @param {Handlebars~context} ctx The context to render the template with
          * @return {string} The rendered template
          */
-        render(ctx) {
-            return this._template(ctx);
-        }
+        render(ctx) { return this._template(ctx); }
 
         /**
          * @param {Handlebars~context} ctx The context to render the template with
@@ -164,6 +170,7 @@ define(["handlebars", "jquery"], (Handlebars, $) => {
      *         specified partials before resolving to the loaded template
      */
     function fetchHandlebarsTemplateWithRequiredPartials(name, partials) {
+        /** @type {(Promise<Handlebars~partial>|Promise<Handlebars~template>)[]} */
         const promises = partials.map(fetchHandlebarsPartial);
         promises.push(fetchHandlebarsTemplate(name));
 
@@ -176,7 +183,6 @@ define(["handlebars", "jquery"], (Handlebars, $) => {
      * @return {Promise<Handlebars~template>}
      */
     function fetchHandlebarsTemplate(name) {
-        validateName(name, false);
         return fetchHandlebarsSource("/template/" + name + ".hbs")
                 .then(source => Handlebars.compile(source));
     }
@@ -186,7 +192,6 @@ define(["handlebars", "jquery"], (Handlebars, $) => {
      * @return {Promise<Handlebars~partial>}
      */
     function fetchHandlebarsPartial(name) {
-        validateName(name, true);
         return fetchHandlebarsSource("/template/partial/" + name + ".hbs")
                 .then(source => Handlebars.registerPartial(name, source));
     }
@@ -238,14 +243,8 @@ define(["handlebars", "jquery"], (Handlebars, $) => {
     return Template;
 
     /** @typedef {Object} Handlebars~context */
-    /**
-     * @typedef {function(Handlebars~context):string} Handlebars~partial
-     * @private
-     */
-    /**
-     * @typedef {function(Handlebars~context):string} Handlebars~template
-     * @private
-     */
+    /** @typedef {undefined} Handlebars~partial */
+    /** @typedef {function(Handlebars~context):string} Handlebars~template */
 
     /**
      * @callback Template~onTemplateResolved
