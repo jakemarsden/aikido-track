@@ -3,6 +3,7 @@ require(["app/dialog", "app/member", "jquery", "datatables.net-dt"], (Dialog, Me
 
     /** @type {Member} */
     let selectedMember;
+    let memberTable;
 
     $(onLoad);
 
@@ -19,11 +20,12 @@ require(["app/dialog", "app/member", "jquery", "datatables.net-dt"], (Dialog, Me
         dlgMemberDetails.onFormSubmit = function (form) { onMemberDetailsFormSubmission(form); };
         dlgMemberDetails.init();
 
-        const memberTable = elemMemberTable.dataTable({
-            dom: "t",
+        memberTable = elemMemberTable.dataTable({
+            dom: "tr",
             ajax: {
-                url: "/api/member/all",
+                url: "/api/member",
                 method: "GET",
+                cache: false,
                 contentType: "application/json;charset=UTF-8",
                 dataType: "json",
                 dataSrc: ""
@@ -53,7 +55,8 @@ require(["app/dialog", "app/member", "jquery", "datatables.net-dt"], (Dialog, Me
                             (type === "display") ? firstCharToUpperCase(data) : data
                 }
             ],
-            order: [[2, "asc"]]
+            order: [[2, "asc"]],
+            processing: true
         });
 
         btnCreateMember.click(() => onMemberEditButtonClick(new Member()));
@@ -98,13 +101,76 @@ require(["app/dialog", "app/member", "jquery", "datatables.net-dt"], (Dialog, Me
     /** @param {!jQuery} form */
     function onMemberDetailsFormSubmission(form) {
         const member = new Member();
-        member.id = form.find("input[name=id]").val();
-        member.firstName = form.find("input[name=firstName]").val();
-        member.lastName = form.find("input[name=lastName]").val();
-        member.type = form.find("select[name=type] option:checked").val();
-        member.birthDate = form.find("input[name=birthDate]").val();
+        member.id = cleanInputValue(form, "input[name=id]");
+        member.firstName = cleanInputValue(form, "input[name=firstName]");
+        member.lastName = cleanInputValue(form, "input[name=lastName]");
+        member.type = cleanInputValue(form, "select[name=type] > option:checked");
+        member.birthDate = cleanInputValue(form, "input[name=birthDate]");
 
-        window.console.debug("onMemberDetailsFormSubmission: member=" + JSON.stringify(member));
+        const update = member.id !== null;
+        window.console.debug(
+                "onMemberDetailsFormSubmission: update=" + update + ", member=" + member.toString());
+
+        const opts = {
+            url: update ? ("/api/member/" + member.id) : "/api/member",
+            method: "POST",
+            contentType: "application/json;charset=UTF-8",
+            dataType: "json",
+            data: member.toJson()
+        };
+        $.ajax(opts)
+                .then(response => {
+                    const memberResp = new Member();
+                    Object.assign(memberResp, response);
+
+                    window.console.debug(
+                            "onMemberDetailsFormSubmission: update=" + update + ", response=" + memberResp.toString());
+
+                    const tableApi = memberTable.api();
+                    if (update) {
+                        // TODO: What a fucking mess... find a better way to get hold of the row which was edited
+                        let existingRow;
+                        tableApi.rows().every(rowIdx => {
+                            if (existingRow === undefined && tableApi.row(rowIdx).data().id === memberResp.id) {
+                                existingRow = tableApi.row(rowIdx);
+                            }
+                        });
+                        if (existingRow === undefined) {
+                            throw new Error("Unable to find table row for member: " + memberResp.toString());
+                        }
+                        existingRow.data(memberResp);
+
+                    } else {
+                        tableApi.row.add(memberResp);
+                    }
+                    tableApi.draw();
+                })
+                .catch(reason => {
+                    const msg = "Unable to " + (update ? "update" : "add") + member.toString() + ": " + reason;
+                    throw new Error(msg);
+                });
+    }
+
+    /**
+     * @param {jQuery} $form
+     * @param {string} selector
+     * @return {(string|null)}
+     */
+    function cleanInputValue($form, selector) {
+        const value = $form.find(selector).val();
+        return stripToNull(value);
+    }
+
+    /**
+     * @param {?string} str
+     * @return {(string|null)} str
+     */
+    function stripToNull(str) {
+        if (str == null) {
+            return null;
+        }
+        str = str.trim();
+        return str.length === 0 ? null : str;
     }
 
     /**

@@ -116,7 +116,10 @@ define(["jquery"], $ => {
             this._updateFormEditMode();
         }
 
-        /** @protected */
+        /**
+         * FIXME: Form values don't reset when edit mode is disabled (maybe re-call {@link #onFormPopulate} somewhere)
+         * @protected
+         */
         _updateFormEditMode() {
             const mode = this.formEditMode;
             this.formElem.find("> fieldset").prop("disabled", !mode);

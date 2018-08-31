@@ -4,11 +4,11 @@ define([], () => {
     /** @class Member */
     class Member {
         /**
-         * @param {string} [id=]
-         * @param {string} [firstName=]
-         * @param {string} [lastName=]
-         * @param {string} [type=]
-         * @param {string} [birthDate=]
+         * @param {?string} id
+         * @param {?string} firstName
+         * @param {?string} lastName
+         * @param {?string} type
+         * @param {?string} birthDate
          */
         constructor(id, firstName, lastName, type, birthDate) {
             this.id = id;
@@ -18,9 +18,20 @@ define([], () => {
             this.birthDate = birthDate;
         }
 
+        /** @return {string} */
+        toString() {
+            return "Member[id=" + this.id + ", firstName=" + this.firstName + ", lastName=" + this.lastName +
+                    ", type=" + this.type + ", birthDate=" + this.birthDate + "]";
+        }
+
+        /** @return {string} */
+        toJson() {
+            return JSON.stringify(this);
+        }
+
         /**
-         * @param {!object} obj
-         * @return {!Member}
+         * @param {object} obj
+         * @return {Member}
          * @static
          */
         static fromJson(obj) {

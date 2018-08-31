@@ -6,6 +6,7 @@ import com.jakemarsden.aikidotrack.service.MemberService
 import groovy.transform.PackageScope
 import org.apache.commons.lang3.Validate
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -25,7 +26,7 @@ class ApiController {
         this.memberService = memberService
     }
 
-    @GetMapping('/member/all')
+    @GetMapping('/member')
     List<MemberModel> getMembers() {
         memberService.getAllMembers()
                 .stream()
@@ -33,12 +34,43 @@ class ApiController {
                 .collect toList()
     }
 
+    @GetMapping('/member/{id}')
+    MemberModel getMemberById(@PathVariable String id) {
+        Validate.notEmpty id
+        Validate.isTrue id.isLong()
+        memberService.getMember(id as Long)
+                .map { MemberModel.ofEntity it }
+                .orElseThrow { new NotFoundException("$Member.simpleName not found: $id") }
+    }
+
+    /**
+     * Create a new member
+     */
     @PostMapping('/member')
     MemberModel postMember(@RequestBody MemberModel model) {
         Validate.notNull model
-        Validate.notNull model.firstName
-        Validate.notNull model.type
+        Validate.isTrue model.id == null
+        Validate.notBlank model.firstName
+        Validate.notBlank model.type
         def member = new Member()
+        model.asEntity member
+        member = memberService.saveMember member
+        MemberModel.ofEntity member
+    }
+
+    /**
+     * Update an existing member
+     */
+    @PostMapping('/member/{id}')
+    MemberModel postMemberById(@PathVariable String id, @RequestBody MemberModel model) {
+        Validate.notEmpty id
+        Validate.isTrue id.isLong()
+        Validate.notNull model
+        Validate.isTrue id == model.id
+        Validate.notBlank model.firstName
+        Validate.notBlank model.type
+        def member = memberService.getMember(id as Long)
+                .orElseThrow { new NotFoundException("$Member.simpleName not found: $id") }
         model.asEntity member
         member = memberService.saveMember member
         MemberModel.ofEntity member

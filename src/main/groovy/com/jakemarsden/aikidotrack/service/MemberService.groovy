@@ -20,6 +20,10 @@ class MemberService {
         memberRepo.findAll()
     }
 
+    Optional<Member> getMember(Long id) {
+        memberRepo.findById id
+    }
+
     Member saveMember(Member member) {
         Validate.notNull member
         memberRepo.save member
