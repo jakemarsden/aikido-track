@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+    <title>AikidoTrack</title>
+
+    <link rel="stylesheet" type="text/css" media="screen"
+          href="/webjars/datatables/1.10.19/css/jquery.dataTables.css"/>
+    <link rel="stylesheet" type="text/css" media="screen"
+          href="/webjars/datatables/1.10.19/css/dataTables.foundation.css"/>
+    <link rel="stylesheet" type="text/css" media="screen" href="/webjars/font-awesome/5.2.0/css/all.css"/>
+    <link rel="stylesheet" type="text/css" media="screen" href="/css/app.css"/>
+
+    <script type="text/javascript" src="/js/require-config.js"></script>
+    <script type="text/javascript" data-main="app/app" src="/webjars/requirejs/2.3.5/require.js"></script>
+</head>
+<body>
+
+<div id="header">
+    <h1>AikidoTrack</h1>
+</div>
+
+<div id="content">
+    <div id="center">
+        <table class="members display cell-border table-border">
+            <thead>
+            <tr>
+                <th class="control">
+                    <button class="add"><span class="fas fa-user-plus"></span></button>
+                </th>
+                <th>First name</th>
+                <th>Last name</th>
+                <th>Type</th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal-overlay">
+    <div id="dlg-member-details" class="modal dialog">
+        <div class="header">
+            <div class="icon"><span class="fas fa-user-edit"></span></div>
+            <div class="title">Member details</div>
+            <div class="control">
+                <button class="edit toggle"><span class="fas fa-edit"></span></button>
+            </div>
+        </div>
+        <div class="content">
+            <form>
+                <fieldset>
+                    <ul>
+                        <li>
+                            <label for="member-id">ID</label>
+                            <input id="member-id" name="id" type="number" disabled/>
+                        </li>
+                        <li>
+                            <label for="member-firstName">First name</label>
+                            <input id="member-firstName" name="firstName" type="text"/>
+                        </li>
+                        <li>
+                            <label for="member-lastName">Last name</label>
+                            <input id="member-lastName" name="lastName" type="text"/>
+                        </li>
+                        <li>
+                            <label for="member-type">Type</label>
+                            <select id="member-type" name="type">
+                                <option value="adult" selected>Adult</option>
+                                <option value="junior">Junior</option>
+                            </select>
+                        </li>
+                        <li>
+                            <label for="member-birthDate">Date of birth</label>
+                            <input id="member-birthDate" name="birthDate" type="date"/>
+                        </li>
+                    </ul>
+                </fieldset>
+            </form>
+        </div>
+        <div class="control">
+            <button class="confirm">Apply</button>
+            <button class="cancel">Cancel</button>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
