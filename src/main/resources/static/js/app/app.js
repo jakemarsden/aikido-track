@@ -2,7 +2,6 @@ require(["app/dialog", "app/member", "jquery", "datatables.net-dt"], (Dialog, Me
     "use strict";
 
     /** @type {Member} */
-    let selectedMember;
     let memberTable;
 
     $(onLoad);
@@ -16,7 +15,7 @@ require(["app/dialog", "app/member", "jquery", "datatables.net-dt"], (Dialog, Me
         const elemMemberTable = $("table.members");
 
         const dlgMemberDetails = new Dialog.FormDialog("#dlg-member-details", false);
-        dlgMemberDetails.onFormPopulate = function (form) { populateMemberDetailsForm(selectedMember, this, form); };
+        dlgMemberDetails.onFormPopulate = function (form, data) { populateMemberDetailsForm(this, form, data); };
         dlgMemberDetails.onFormSubmit = function (form) { onMemberDetailsFormSubmission(form); };
         dlgMemberDetails.init();
 
@@ -59,26 +58,20 @@ require(["app/dialog", "app/member", "jquery", "datatables.net-dt"], (Dialog, Me
             processing: true
         });
 
-        btnCreateMember.click(() => onMemberEditButtonClick(new Member()));
+        btnCreateMember.click(() => dlgMemberDetails.open(new Member()));
         memberTable.on("click", "button.edit", function () {
             const rowElem = $(this).closest("tr");
             const row = memberTable.api().row(rowElem);
-            onMemberEditButtonClick(row.data());
+            dlgMemberDetails.open(row.data());
         });
-
-        /** @param {!Member} member */
-        function onMemberEditButtonClick(member) {
-            selectedMember = member;
-            dlgMemberDetails.open();
-        }
     }
 
     /**
-     * @param {!Member} member
-     * @param {!Dialog.FormDialog} dlg
-     * @param {!jQuery} form
+     * @param {Dialog.FormDialog} dlg
+     * @param {jQuery} form
+     * @param {Member} member
      */
-    function populateMemberDetailsForm(member, dlg, form) {
+    function populateMemberDetailsForm(dlg, form, member) {
         if (member.id == null) {
             // Member doesn't exist yet (ie. we're creating a new member)
             dlg.iconElem.find("> *")
@@ -98,7 +91,7 @@ require(["app/dialog", "app/member", "jquery", "datatables.net-dt"], (Dialog, Me
         form.find("input[name=birthDate]").val(member.birthDate);
     }
 
-    /** @param {!jQuery} form */
+    /** @param {jQuery} form */
     function onMemberDetailsFormSubmission(form) {
         const member = new Member();
         member.id = cleanInputValue(form, "input[name=id]");
@@ -174,8 +167,8 @@ require(["app/dialog", "app/member", "jquery", "datatables.net-dt"], (Dialog, Me
     }
 
     /**
-     * @param {!string} str
-     * @return {!string}
+     * @param {string} str
+     * @return {string}
      */
     function firstCharToUpperCase(str) {
         return str.charAt(0).toUpperCase() + str.slice(1);
