@@ -1,4 +1,4 @@
-var require = {
+window.require = {
     baseUrl: "/js",
     paths: {
         handlebars: "/webjars/handlebars/4.0.11-1/handlebars",
