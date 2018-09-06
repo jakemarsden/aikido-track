@@ -1,6 +1,7 @@
 ### Application specific ####
+
 # Application runtime data, eg. DBs, log files...
-/data/
+/server-core/data/
 
 
 # Created by https://www.gitignore.io/api/git,java,gradle,intellij+all

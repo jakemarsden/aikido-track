@@ -51,9 +51,26 @@ dependencies {
     runtime group: 'org.webjars', name: 'webjars-locator'
 }
 
+final webappSources = "$projectDir/../webapp/src"
+final webappGeneratedResources = "$buildDir/generated-resources/main"
+
+task generateWebappResources(type: Copy) {
+    from webappSources
+    into webappGeneratedResources
+}
+
 sourceSets {
-    main.java.srcDirs = []
+    main {
+        java.srcDirs = []
+        output.dir webappGeneratedResources, builtBy: generateWebappResources
+    }
     test.java.srcDirs = []
+}
+
+bootRun {
+    // Alternative to bootRun.sourceResources(sourceSets.main) for webapp sources only
+    classpath = files([webappSources], classpath)
+            .filter { it != file(webappGeneratedResources) }
 }
 
 springBoot {
@@ -62,10 +79,6 @@ springBoot {
             time = null
         }
     }
-}
-
-bootRun {
-    sourceResources sourceSets.main
 }
 
 wrapper {
