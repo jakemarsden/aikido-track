@@ -1,9 +1,12 @@
 plugins {
     id 'groovy'
     id 'project-report'
-    id 'org.springframework.boot' version '2.0.3.RELEASE'
     id 'io.spring.dependency-management' version '1.0.6.RELEASE'
+    id 'org.springframework.boot' version '2.0.3.RELEASE'
 }
+
+final os = System.getProperty('os.name').toLowerCase()
+final webappDir = "$projectDir/../webapp"
 
 group 'com.jakemarsden'
 version '1.0-SNAPSHOT'
@@ -38,26 +41,29 @@ dependencies {
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-web'
 }
 
-final webappSources = "$projectDir/../webapp/dist"
-final webappGeneratedResources = "$buildDir/generated-resources/main"
+task compileWebapp(type: Exec) {
+    inputs.file "$webappDir/package-lock.json"
+    inputs.file "$webappDir/webapp.config.js"
+    inputs.dir "$webappDir/src"
+    outputs.dir "$webappDir/dist"
 
-task generateWebappResources(type: Copy) {
-    from webappSources
-    into webappGeneratedResources
+    executable = os.contains('windows') ? 'npm.cmd' : 'npm'
+    args = ['run', 'build']
+    workingDir webappDir
 }
 
 sourceSets {
     main {
         java.srcDirs = []
-        output.dir webappGeneratedResources, builtBy: generateWebappResources
+        output.dir "$webappDir/dist", builtBy: compileWebapp
     }
     test.java.srcDirs = []
 }
 
 bootRun {
-    // Alternative to bootRun.sourceResources(sourceSets.main) for webapp sources only
-    classpath = files([webappSources], classpath)
-            .filter { it != file(webappGeneratedResources) }
+    // Includes live reloading of webapp build output so rebuilding the webapp (ie. "npm run build") and refreshing the
+    // browser will give the updated content immediately
+    sourceResources sourceSets.main
 }
 
 springBoot {
