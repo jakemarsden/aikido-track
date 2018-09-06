@@ -223,13 +223,13 @@ table.dataTable thead > tr > td.sorting {
     background-position: center left;
 }
 table.dataTable thead .sorting {
-    background-image: url("/image/sort_both.png");
+    background-image: url("sort_both.png");
 }
 table.dataTable thead .sorting_asc {
-    background-image: url("/image/sort_asc.png");
+    background-image: url("sort_asc.png");
 }
 table.dataTable thead .sorting_desc {
-    background-image: url("/image/sort_desc.png");
+    background-image: url("sort_desc.png");
 }
 table.dataTable tbody tr {
     background-color: var(--table-row-color);
