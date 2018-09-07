@@ -8,6 +8,9 @@ plugins {
 final os = System.getProperty('os.name').toLowerCase()
 final webappDir = "$projectDir/../webapp"
 
+// Execute tasks for production using "./gradlew <tasks> -Penv=production"
+final isForProd = findProperty('env') == 'production'
+
 group 'com.jakemarsden'
 version '1.0-SNAPSHOT'
 sourceCompatibility = 1.8
@@ -42,13 +45,14 @@ dependencies {
 }
 
 task compileWebapp(type: Exec) {
+    inputs.property 'isForProd', isForProd
     inputs.file "$webappDir/package-lock.json"
     inputs.file "$webappDir/webapp.config.js"
     inputs.dir "$webappDir/src"
     outputs.dir "$webappDir/dist"
 
     executable = os.contains('windows') ? 'npm.cmd' : 'npm'
-    args = ['run', 'build']
+    args = ['run', isForProd ? 'build-for-prod' : 'build']
     workingDir webappDir
 }
 
@@ -67,6 +71,7 @@ bootRun {
 }
 
 springBoot {
+    mainClassName = 'com.jakemarsden.aikidotrack.AikidoTrackApplication'
     buildInfo {
         properties {
             time = null
