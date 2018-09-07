@@ -16,6 +16,9 @@ module.exports = function (env) {
     };
 
     return {
+        mode: isForProd ? 'production' : 'development',
+        devtool: isForProd ? 'source-map' : 'cheap-eval-source-map',
+
         entry: `./${dir.source}/common/index.js`,
 
         module: {
@@ -35,12 +38,18 @@ module.exports = function (env) {
                         { loader: MiniCssExtractPlugin.loader },
                         {
                             loader: 'css-loader',
-                            options: { sourceMap: true }
+                            options: { sourceMap: isForProd }
                         }
                     ]
                 },
                 {
                     test: /\.(gif|jpg|png|svg)$/,
+                    loader: 'image-webpack-loader',
+                    enforce: 'pre',
+                    options: { disable: !isForProd }
+                },
+                {
+                    test: /\.(gif|jpg|png)$/,
                     loader: 'url-loader',
                     options: {
                         name: '[name]-[hash].[ext]',
@@ -49,14 +58,24 @@ module.exports = function (env) {
                     }
                 },
                 {
-                    test: /.(eot|otf|svg|ttf|woff(2)?)(\?[a-z0-9]+)?$/,
+                    test: /\.svg(\?[a-z0-9]+)?$/,
+                    loader: 'svg-url-loader',
+                    options: {
+                        name: '[name]-[hash].[ext]',
+                        outputPath: 'font',
+                        noquotes: true,
+                        limit: maxInlineFileSize
+                    }
+                },
+                {
+                    test: /\.(eot|otf|ttf|woff(2)?)(\?[a-z0-9]+)?$/,
                     loader: 'url-loader',
                     options: {
                         name: '[name]-[hash].[ext]',
                         outputPath: 'font',
                         limit: maxInlineFileSize
                     }
-                },
+                }
             ]
         },
 
@@ -64,7 +83,7 @@ module.exports = function (env) {
             new CleanPlugin([dir.output]),
             new HtmlPlugin({ template: path.join(__dirname, dir.source, 'index.html') }),
             new MiniCssExtractPlugin({ fileName: '[name]-[contenthash].css' }),
-            new UglifyJsPlugin({ sourceMap: true }),
+            new UglifyJsPlugin({ sourceMap: isForProd }),
             new webpack.HashedModuleIdsPlugin()
         ],
 
@@ -72,8 +91,6 @@ module.exports = function (env) {
             filename: '[name]-[contenthash].bundle.js',
             path: path.resolve(__dirname, dir.output)
         },
-
-        devtool: isForProd ? 'source-map' : 'cheap-eval-source-map',
 
         optimization: {
             runtimeChunk: 'single',
@@ -92,6 +109,7 @@ module.exports = function (env) {
                     }
                 }
             },
+            minimize: isForProd,
             minimizer: [
                 new OptimizeCssAssetsPlugin({}),
                 new UglifyJsPlugin({
