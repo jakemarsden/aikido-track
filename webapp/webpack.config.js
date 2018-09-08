@@ -17,7 +17,7 @@ module.exports = function (env) {
 
     return {
         mode: isForProd ? 'production' : 'development',
-        devtool: isForProd ? 'source-map' : 'cheap-eval-source-map',
+        devtool: isForProd ? 'source-map' : 'eval-source-map',
 
         entry: `./${dir.source}/common/index.js`,
 
@@ -33,12 +33,16 @@ module.exports = function (env) {
                     }
                 },
                 {
+                    test: /\.hbs$/,
+                    loader: 'handlebars-loader'
+                },
+                {
                     test: /\.css$/,
                     use: [
                         { loader: MiniCssExtractPlugin.loader },
                         {
                             loader: 'css-loader',
-                            options: { sourceMap: isForProd }
+                            options: { sourceMap: true }
                         }
                     ]
                 },
@@ -83,12 +87,12 @@ module.exports = function (env) {
             new CleanPlugin([dir.output]),
             new HtmlPlugin({ template: path.join(__dirname, dir.source, 'index.html') }),
             new MiniCssExtractPlugin({ fileName: '[name]-[contenthash].css' }),
-            new UglifyJsPlugin({ sourceMap: isForProd }),
             new webpack.HashedModuleIdsPlugin()
         ],
 
         output: {
             filename: '[name]-[contenthash].bundle.js',
+            sourceMapFilename: 'source-map/[file].map',
             path: path.resolve(__dirname, dir.output)
         },
 
@@ -115,7 +119,11 @@ module.exports = function (env) {
                 new UglifyJsPlugin({
                     cache: true,
                     parallel: true,
-                    sourceMap: true
+                    sourceMap: true,
+                    uglifyOptions: {
+                        compress: isForProd,
+                        mangle: isForProd
+                    }
                 })
             ]
         }
