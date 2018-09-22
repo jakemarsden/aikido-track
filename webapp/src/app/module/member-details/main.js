@@ -36,9 +36,7 @@ window.addEventListener('load', () => {
     function repopulateMemberDetailsTable() {
         tblMemberDetails.clearRows();
         ENDPOINT_GET_MEMBERS.execute()
-                .then(members =>
-                        members.forEach(member =>
-                                tblMemberDetails.insertMemberRow(member)));
+                .then(members => tblMemberDetails.appendMemberRows(members));
     }
 });
 
@@ -88,27 +86,13 @@ class MemberDetailsTable extends AikDataTable {
         return row.member_;
     }
 
-    /**
-     * @param {Member} member
-     * @param {number} [idx=-1]
-     */
-    insertMemberRow(member, idx) {
-        if (idx === undefined) {
-            idx = -1;
-        }
-        const row = this.tbody_.insertRow(idx);
-        this.renderMemberRow_(member, row);
-    }
-
-    /**
-     * @param {Member} member
-     * @param {(HTMLTableRowElement|number)} row
-     */
-    updateMemberRow(member, row) {
-        if (typeof row === 'number') {
-            row = this.root_.rows.item(row);
-        }
-        this.renderMemberRow_(member, row);
+    /** @param {Array<Member>} members */
+    appendMemberRows(members) {
+        members.forEach(member => {
+            const row = this.tbody_.insertRow(-1);
+            this.renderMemberRow_(member, row);
+        });
+        this.sort();
     }
 
     /**
