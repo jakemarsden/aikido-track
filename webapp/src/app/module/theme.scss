@@ -1,0 +1,10 @@
+// Must be imported before any MDC components to work properly
+
+// Colours stolen from https://getmdl.io/customize/index.html
+$color-blue-gray: #607d8b;
+$color-deep-purple: #7c4dff;
+
+// See: ~@material/theme/_variables.scss
+// See: https://github.com/material-components/material-components-web/tree/master/packages/mdc-theme#non-sass-customization
+$mdc-theme-primary: $color-blue-gray;
+$mdc-theme-secondary: $color-deep-purple;

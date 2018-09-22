@@ -7,6 +7,7 @@ const CompressionPlugin = require('compression-webpack-plugin');
 const HtmlPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = function (env) {
@@ -28,7 +29,7 @@ module.exports = function (env) {
     if (isForProd) {
         const compressionPlugin = new CompressionPlugin({
             algorithm: 'gzip',
-            cache: true,
+            cache: !isForProd,
             compressionOptions: { level: zlib.constants.Z_BEST_COMPRESSION },
             filename: '[path].gz',
             include: /\.(css|js)$/,
@@ -41,8 +42,9 @@ module.exports = function (env) {
             .map(it => {
                 const [name, entryPoint] = it;
                 return new HtmlPlugin({
-                    chunks: [name],
+                    chunks: [name, 'vendor'],
                     filename: `${name}.html`,
+                    inject: 'head',
                     template: path.join(path.dirname(entryPoint), `${path.basename(entryPoint, '.js')}.html`)
                 });
             })
@@ -53,7 +55,7 @@ module.exports = function (env) {
         minimizer: [
             new OptimizeCssAssetsPlugin({ cssProcessor: cssnano }),
             new UglifyJsPlugin({
-                cache: true,
+                cache: !isForProd,
                 extractComments: {
                     // Separate license comments from the main bundle and add a comment explaining where to find them
                     condition: /^\**!|@css_on|@license|@preserve/,
@@ -72,7 +74,7 @@ module.exports = function (env) {
             cacheGroups: {
                 commons: {
                     chunks: 'all',
-                    name: 'vendors',
+                    name: 'vendor',
                     test: /[\\/]node_modules[\\/]/
                 }
             }
@@ -86,6 +88,7 @@ module.exports = function (env) {
 
     const rules = [
         {
+            // Stylesheets
             test: /\.s?css$/,
             use: [
                 MiniCssExtractPlugin.loader,
@@ -103,15 +106,47 @@ module.exports = function (env) {
                         implementation: require('node-sass'),
                         includePaths: [dir.libs],
                         precision: 4,
-                        sourceComments: !isForProd, // Insert a comment for each selector marking which file originally defined it
+                        sourceComments: !isForProd, // Insert a comment for each selector marking which file originally
+                                                    // defined it
                         sourceMap: true // 'resolve-url-loader' requires source maps to do its job
                     }
+                }
+            ]
+        },
+        {
+            // Fonts
+            test: /\.(eot|otf|ttf|woff|woff2)$/,
+            use: [
+                {
+                    loader: 'file-loader',
+                    options: {
+                        name: '[name].[ext]',
+                        outputPath: 'font'
+                    }
+                }
+            ]
+        },
+        {
+            // Images
+            test: /\.(gif|jpe?g|png|svg)$/,
+            use: [
+                {
+                    loader: 'file-loader',
+                    options: {
+                        name: '[name].[ext]',
+                        outputPath: 'image'
+                    }
+                },
+                {
+                    loader: 'image-webpack-loader',
+                    options: { disable: !isForProd },
                 }
             ]
         }
     ];
 
-    return {
+    const speedMeasurePlugin = new SpeedMeasurePlugin({ outputFormat: 'human' });
+    return speedMeasurePlugin.wrap({
         devtool: 'source-map',
         entry,
         mode: isForProd ? 'production' : 'development',
@@ -119,5 +154,5 @@ module.exports = function (env) {
         optimization,
         output,
         plugins
-    };
+    });
 };

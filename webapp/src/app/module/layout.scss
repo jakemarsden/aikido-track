@@ -1,0 +1,51 @@
+@import 'theme.scss';
+@import '~@material/tab/mdc-tab';
+@import '~@material/tab-bar/mdc-tab-bar';
+@import '~@material/tab-indicator/mdc-tab-indicator';
+@import '~@material/tab-scroller/mdc-tab-scroller';
+@import '~@material/top-app-bar/mdc-top-app-bar';
+@import '~@material/typography/mdc-typography';
+@import '~material-design-icons/iconfont/material-icons';
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+fieldset {
+    display: flex;
+    flex-flow: row wrap;
+    padding: 10px;
+    border-radius: 2px;
+
+    & > .mdc-select,
+    & > .mdc-text-field {
+        flex: 1 1 auto;
+        min-width: 6em;
+        margin: 10px 5px;
+    }
+    & > .mdc-select--short,
+    & > .mdc-text-field--short {
+        flex: 0 0 4em;
+    }
+    & > .line-break {
+        flex: 0 0 100%;
+    }
+}
+
+.mdc-dialog__body {
+    padding: 0 24px;
+}
+
+.mdc-dialog__body--scrollable {
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.aik-top-app-bar__title-icon {
+    @extend .mdc-top-app-bar__navigation-icon;
+    img {
+        width: 36px;
+        height: 36px;
+    }
+}
