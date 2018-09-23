@@ -1,4 +1,3 @@
-import 'material-design-lite/material.js';
 import {ENDPOINT_CREATE_OR_UPDATE_MEMBER, ENDPOINT_GET_MEMBERS} from '../../endpoint/member-endpoint.js'
 import {AikDataFormDialog} from "../../ui-component/data-form-dialog/aik-data-form-dialog.js";
 import {AikDataTable} from "../../ui-component/data-table/aik-data-table.js";

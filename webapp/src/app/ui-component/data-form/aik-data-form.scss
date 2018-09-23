@@ -1,0 +1,24 @@
+@import '~@material/notched-outline/mdc-notched-outline';
+@import '~@material/select/mdc-select';
+@import '~@material/textfield/mdc-text-field';
+
+.aik-data-form fieldset {
+    display: flex;
+    flex-flow: row wrap;
+    padding: 10px;
+    border-radius: 4px;
+
+    & > .mdc-select,
+    & > .mdc-text-field {
+        flex: 1 1 auto;
+        min-width: 6em;
+        margin: 10px 5px;
+    }
+    & > .mdc-select--short,
+    & > .mdc-text-field--short {
+        flex: 0 0 4em;
+    }
+    & > .line-break {
+        flex: 0 0 100%;
+    }
+}

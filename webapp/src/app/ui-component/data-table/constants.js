@@ -1,4 +1,5 @@
 export const cssClasses = {
+    ROOT: 'mdl-data-table',
     HEADER_SORTABLE: 'mdl-data-table__header--sortable',
     HEADER_SORTED_ASC: 'mdl-data-table__header--sorted-ascending',
     HEADER_SORTED_DESC: 'mdl-data-table__header--sorted-descending'

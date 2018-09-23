@@ -1,4 +1,6 @@
-export const cssClasses = {};
+export const cssClasses = {
+    ROOT: 'aik-data-form'
+};
 
 export const numbers = {};
 

@@ -1,4 +1,5 @@
 import MDCComponent from "@material/base/component.js";
+import 'material-design-lite/material.js';
 import AikDataTableFoundation from "./foundation.js";
 
 export class AikDataTable extends MDCComponent {

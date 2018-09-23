@@ -1,12 +1,4 @@
 @import '~@material/button/mdc-button';
-@import '~@material/dialog/mdc-dialog';
-@import '~@material/notched-outline/mdc-notched-outline';
-@import '~@material/select/mdc-select';
-@import '~@material/textfield/mdc-text-field';
-@import '~material-design-lite/src/data-table/data-table';
-@import '~material-design-lite/src/shadow/shadow';
+@import '../../ui-component/data-form-dialog/aik-data-form-dialog';
+@import '../../ui-component/data-table/aik-data-table';
 @import '../layout';
-
-#aik-member-details-table {
-    width: 100%;
-}

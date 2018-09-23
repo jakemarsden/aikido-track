@@ -1,85 +1,14 @@
+// Must be imported before any @material components
 @import 'theme.scss';
-@import '~@material/tab/mdc-tab';
-@import '~@material/tab-bar/mdc-tab-bar';
-@import '~@material/tab-indicator/mdc-tab-indicator';
-@import '~@material/tab-scroller/mdc-tab-scroller';
+
 @import '~@material/top-app-bar/mdc-top-app-bar';
 @import '~@material/typography/mdc-typography';
 @import '~material-design-icons/iconfont/material-icons';
+@import '../ui-component/tab-bar/aik-tab-bar';
 
 body {
     margin: 0;
     padding: 0;
-}
-
-fieldset {
-    display: flex;
-    flex-flow: row wrap;
-    padding: 10px;
-    border-radius: 2px;
-
-    & > .mdc-select,
-    & > .mdc-text-field {
-        flex: 1 1 auto;
-        min-width: 6em;
-        margin: 10px 5px;
-    }
-    & > .mdc-select--short,
-    & > .mdc-text-field--short {
-        flex: 0 0 4em;
-    }
-    & > .line-break {
-        flex: 0 0 100%;
-    }
-}
-
-.mdc-dialog__body {
-    padding: 0 24px;
-}
-
-.mdc-dialog__body--scrollable {
-    overflow-x: hidden;
-    overflow-y: auto;
-}
-
-// Override rules from ~material-design-lite/src/data-table/data-table to fix header appearance
-.mdl-data-table {
-    $header-icon-size: $data-table-header-sort-icon-size;
-    $header-color: $data-table-header-color;
-    $header-color-hover: $data-table-header-sorted-color;
-
-    tr:first-of-type td {
-        border-top-width: 2px;
-    }
-
-    th {
-        // Avoid accidentally selecting header text while attempting to sort
-        user-select: none;
-    }
-    th.mdl-data-table__header--sortable {
-        &::before {
-            display: inline-block;
-            width: $header-icon-size;
-            margin-right: 0;
-            content: ' ';
-        }
-        &::before,
-        &.mdl-data-table__header--sorted-ascending,
-        &.mdl-data-table__header--sorted-descending {
-            color: $header-color;
-        }
-        &:hover,
-        &:hover::before {
-            color: $header-color-hover;
-            cursor: pointer;
-        }
-        &.mdl-data-table__header--sorted-ascending::before {
-            content: '\e5d8';
-        }
-        &.mdl-data-table__header--sorted-descending::before {
-            content: '\e5db';
-        }
-    }
 }
 
 .aik-top-app-bar__title-icon {
