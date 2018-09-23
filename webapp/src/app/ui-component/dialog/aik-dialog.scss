@@ -1,0 +1,11 @@
+@import '~@material/button/mdc-button';
+@import '~@material/dialog/mdc-dialog';
+
+.mdc-dialog__body {
+    padding: 24px;
+}
+
+.mdc-dialog__body--scrollable {
+    overflow-x: hidden;
+    overflow-y: auto;
+}

@@ -1,0 +1,20 @@
+// Must be imported before any @material components
+@import 'theme.scss';
+
+@import '~@material/top-app-bar/mdc-top-app-bar';
+@import '~@material/typography/mdc-typography';
+@import '~material-design-icons/iconfont/material-icons';
+@import '../ui-component/tab-bar/aik-tab-bar';
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.aik-top-app-bar__title-icon {
+    @extend .mdc-top-app-bar__navigation-icon;
+    img {
+        width: 36px;
+        height: 36px;
+    }
+}
