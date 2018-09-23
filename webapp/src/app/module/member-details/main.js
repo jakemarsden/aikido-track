@@ -30,7 +30,7 @@ window.addEventListener('load', () => {
         dlgMemberDetails.openWith(member, event);
     });
 
-    repopulateMemberDetailsTable(tblMemberDetails);
+    repopulateMemberDetailsTable();
 
     function repopulateMemberDetailsTable() {
         tblMemberDetails.clearRows();

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+
+<meta http-equiv="Content-Type" content="text/html" charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>AikidoTrack</title>
+<link rel="shortcut icon" href="/image/app-icon-dark.png"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500"/>
+
+</head>
+
+
+<body class="mdc-typography">
+
+<header id="aik-top-app-bar" class="mdc-top-app-bar mdc-top-app-bar--dense mdc-top-app-bar--fixed">
+    <div class="mdc-top-app-bar__row">
+        <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
+            <a href="/" class="aik-top-app-bar__title-icon"><img src="/image/app-icon-light.png"/></a>
+            <span class="mdc-top-app-bar__title">AikidoTrack</span>
+        </section>
+        <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar"></section>
+    </div>
+</header>
+<div class="mdc-top-app-bar--dense-fixed-adjust"></div>
+
+<div id="aik-top-tab-bar" class="mdc-tab-bar" role="tablist">
+    <div class="mdc-tab-scroller">
+        <div class="mdc-tab-scroller__scroll-area">
+            <div class="mdc-tab-scroller__scroll-content">
+                <a class="mdc-tab" href="/" tabindex="0" role="tab" aria-selected="true">
+                    <span class="mdc-tab__content">
+                        <span class="mdc-tab__icon material-icons">people</span>
+                        <span class="mdc-tab__text-label">Member details</span>
+                    </span>
+                    <span class="mdc-tab-indicator">
+                        <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
+                    </span>
+                    <span class="mdc-tab__ripple"></span>
+                </a>
+                <a class="mdc-tab mdc-tab--active" href="/attendance.html" tabindex="0" role="tab" aria-selected="true">
+                    <span class="mdc-tab__content">
+                        <span class="mdc-tab__icon material-icons">people</span>
+                        <span class="mdc-tab__text-label">Attendance</span>
+                    </span>
+                    <span class="mdc-tab-indicator mdc-tab-indicator--active">
+                        <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
+                    </span>
+                    <span class="mdc-tab__ripple"></span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form id="aik-attendance-date-form" class="aik-data-form">
+    <fieldset class="aik-data-form__fieldset aik-data-form__fieldset--hidden">
+        <div id="aik-attendance-date-form__date"
+                class="mdc-text-field mdc-text-field--outlined mdc-text-field--with-leading-icon">
+            <i class="material-icons mdc-text-field__icon">event</i>
+            <input id="aik-attendance-date-form__date__input"
+                    class="mdc-text-field__input"
+                    name="date"
+                    type="date"
+                    required/>
+            <label for="aik-attendance-date-form__date__input"
+                    class="mdc-floating-label mdc-floating-label--float-above">
+                Date
+            </label>
+            <div class="mdc-notched-outline mdc-notched-outline--notched">
+                <svg>
+                    <path class="mdc-notched-outline__path" d=""></path>
+                </svg>
+            </div>
+            <div class="mdc-notched-outline__idle"></div>
+        </div>
+    </fieldset>
+</form>
+
+<ul id="aik-attendance-register-list" class="mdc-list mdc-list--data-form" aria-orientation="vertical"></ul>
+
+<template id="aik-tmpl-attendance-register-list-item">
+    <li class="aik-attendance-register-list-item mdc-list-item">
+        <span class="mdc-list-item__text">
+            <span class="aik-attendance-register-list-item__full-name mdc-list-item__primary-text">Test Adultson</span>
+            <span class="aik-attendance-register-list-item__type mdc-list-item__secondary-text">Adult</span>
+        </span>
+
+        <form class="aik-attendance-register-list-item__form aik-data-form mdc-list-item__meta">
+            <fieldset class="aik-data-form__fieldset aik-data-form__fieldset--hidden">
+                <div class="mdc-text-field mdc-text-field--dense mdc-text-field--short mdc-text-field--outlined">
+                    <input id="aik-attendance-register-list-item__sessions__input"
+                            class="mdc-text-field__input"
+                            name="sessions"
+                            type="number"
+                            value="0"
+                            min="0"
+                            step="1"
+                            required/>
+                    <label for="aik-attendance-register-list-item__sessions__input"
+                            class="mdc-floating-label mdc-floating-label--float-above">
+                        Sessions
+                    </label>
+                    <div class="mdc-notched-outline mdc-notched-outline--notched">
+                        <svg>
+                            <path class="mdc-notched-outline__path"/>
+                        </svg>
+                    </div>
+                    <div class="mdc-notched-outline__idle"></div>
+                </div>
+
+                <div class="mdc-text-field mdc-text-field--dense mdc-text-field--short mdc-text-field--outlined">
+                    <input id="aik-attendance-register-list-item__hours__input"
+                            class="mdc-text-field__input"
+                            name="hours"
+                            type="number"
+                            value="0"
+                            min="0"
+                            step="0.25"
+                            required/>
+                    <label for="aik-attendance-register-list-item__hours__input"
+                            class="mdc-floating-label mdc-floating-label--float-above">
+                        Hours
+                    </label>
+                    <div class="mdc-notched-outline mdc-notched-outline--notched">
+                        <svg>
+                            <path class="mdc-notched-outline__path"/>
+                        </svg>
+                    </div>
+                    <div class="mdc-notched-outline__idle"></div>
+                </div>
+            </fieldset>
+        </form>
+    </li>
+</template>
+
+</body>
+</html>

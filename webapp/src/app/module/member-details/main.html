@@ -38,6 +38,16 @@
                     </span>
                     <span class="mdc-tab__ripple"></span>
                 </a>
+                <a class="mdc-tab" href="/attendance.html" tabindex="0" role="tab" aria-selected="true">
+                    <span class="mdc-tab__content">
+                        <span class="mdc-tab__icon material-icons">people</span>
+                        <span class="mdc-tab__text-label">Attendance</span>
+                    </span>
+                    <span class="mdc-tab-indicator">
+                        <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
+                    </span>
+                    <span class="mdc-tab__ripple"></span>
+                </a>
             </div>
         </div>
     </div>
@@ -73,7 +83,7 @@
 
         <section id="aik-member-details-dialog__body" class="mdc-dialog__body mdc-dialog__body--scrollable">
             <form id="aik-member-details-form" class="aik-data-form">
-                <fieldset>
+                <fieldset class="aik-data-form__fieldset">
                     <legend>Basic info</legend>
 
                     <div id="aik-member-details-form__id"
@@ -155,10 +165,11 @@
                                 class="mdc-text-field__input"
                                 name="birth-date"
                                 type="date"/>
-                        <label for="aik-member-details-form__birth-date__input" class="mdc-floating-label">
+                        <label for="aik-member-details-form__birth-date__input"
+                                class="mdc-floating-label mdc-floating-label--float-above">
                             Date of birth
                         </label>
-                        <div class="mdc-notched-outline">
+                        <div class="mdc-notched-outline mdc-notched-outline--notched">
                             <svg>
                                 <path class="mdc-notched-outline__path" d=""></path>
                             </svg>
