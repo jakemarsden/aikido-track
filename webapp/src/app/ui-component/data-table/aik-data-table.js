@@ -6,10 +6,6 @@ export class AikDataTable extends MDCComponent {
         return new AikDataTable(root);
     }
 
-    initialSyncWithDOM() {
-        this.sort();
-    }
-
     /**
      * @param {number} columnIdx
      * @return {number}
