@@ -53,12 +53,7 @@ fieldset {
     }
 
     th {
-        // Fucking vendor prefixes... avoid accidentally selecting header text while attempting to sort
-        -webkit-touch-callout: none;
-        -webkit-user-select: none;
-        -khtml-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
+        // Avoid accidentally selecting header text while attempting to sort
         user-select: none;
     }
     th.mdl-data-table__header--sortable {

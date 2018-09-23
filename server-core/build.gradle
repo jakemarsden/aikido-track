@@ -46,8 +46,10 @@ dependencies {
 
 task compileWebapp(type: Exec) {
     inputs.property 'isForProd', isForProd
+    inputs.file "$webappDir/package.json"
     inputs.file "$webappDir/package-lock.json"
-    inputs.file "$webappDir/webapp.config.js"
+    inputs.file "$webappDir/postcss.config.js"
+    inputs.file "$webappDir/webpack.config.js"
     inputs.dir "$webappDir/src"
     outputs.dir "$webappDir/dist"
 

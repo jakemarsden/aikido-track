@@ -97,6 +97,9 @@ module.exports = function (env) {
                     options: { sourceMap: isForProd }
                 },
                 {
+                    loader: 'postcss-loader'
+                },
+                {
                     // See: https://webpack.js.org/loaders/sass-loader/#problems-with-url-
                     loader: 'resolve-url-loader'
                 },
