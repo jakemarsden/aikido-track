@@ -64,7 +64,9 @@
             <th class="mdl-data-table__cell--non-numeric mdl-data-table__header--sortable">Type</th>
         </tr>
         </thead>
-        <tbody></tbody>
+        <tbody>
+        <!-- Populated by #aik-tmpl-member-details-table__row -->
+        </tbody>
     </table>
 
     <button id="aik-member-details-add-member" class="mdc-button mdc-button--raised">Add member</button>
@@ -195,6 +197,14 @@
     </div>
     <div class="mdc-dialog__backdrop"></div>
 </aside>
+
+<template id="aik-tmpl-member-details-table__row">
+    <tr>
+        <td class="mdl-data-table__cell--non-numeric aik-member-data-table__first-name"></td>
+        <td class="mdl-data-table__cell--non-numeric aik-member-data-table__last-name"></td>
+        <td class="mdl-data-table__cell--non-numeric aik-member-data-table__type"></td>
+    </tr>
+</template>
 
 </body>
 </html>

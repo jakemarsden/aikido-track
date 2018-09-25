@@ -2,9 +2,28 @@ import MDCComponent from "@material/base/component.js";
 import 'material-design-lite/material.js';
 import AikDataTableFoundation from "./foundation.js";
 
+/** @template TRowData */
 export class AikDataTable extends MDCComponent {
     static attachTo(root) {
         return new AikDataTable(root);
+    }
+
+    /**
+     * @param {!Element} root
+     * @param {F=} foundation
+     * @param {HTMLTemplateElement=} rowTmpl Pass `undefined` if you don't wish to make use of {@link #appendDataRow}
+     * @param {...?} args
+     */
+    constructor(root, foundation = undefined, rowTmpl = undefined, ...args) {
+        super(root, foundation, rowTmpl, ...args);
+    }
+
+    /** @param {HTMLTemplateElement} rowTmpl */
+    initialize(rowTmpl) {
+        /** @type {function():DocumentFragment} */
+        this.rowFactory_ = (rowTmpl == null) ?
+                () => { throw new TypeError(`This AikDataTable wasn't created with a row template: ${rowTmpl}`); } :
+                () => document.importNode(rowTmpl.content, true);
     }
 
     /**
@@ -38,9 +57,32 @@ export class AikDataTable extends MDCComponent {
         this.foundation_.sort();
     }
 
+    /** @param {(HTMLTableRowElement|DocumentFragment)} row */
+    appendRow(row) {
+        this.tbody_.appendChild(row);
+    }
+
+    /** @param {TRowData} rowData */
+    appendDataRow(rowData) {
+        const rowFrag = this.rowFactory_();
+        this.renderDataRow(rowData, rowFrag);
+        this.appendRow(rowFrag);
+    }
+
     /**
-     * Remove all data rows while preserving everything in the <thead/>
+     * Can be overridden by subclasses to implement row rendering logic. The default behaviour is to just render the
+     * template fragment as-is
+     *
+     * @param {TRowData} data
+     * @param {DocumentFragment} frag
+     * @protected
      */
+    renderDataRow(data, frag) {
+        // Attach the original row data to the element for later use
+        frag.querySelector('tr').rowData_ = data;
+    }
+
+    /** Remove all data rows while preserving everything in the <thead/> */
     clearRows() {
         const tbody = this.tbody_;
         while (tbody.hasChildNodes()) {
@@ -106,7 +148,11 @@ export class AikDataTable extends MDCComponent {
 
             notifyHeaderClick: header =>
                     this.emit(AikDataTableFoundation.strings.HEADER_CLICK_EVENT, { targetHeader: header }),
-            notifyRowClick: row => this.emit(AikDataTableFoundation.strings.ROW_CLICK_EVENT, { targetRow: row }),
+            notifyRowClick: (row, rowData) =>
+                    this.emit(AikDataTableFoundation.strings.ROW_CLICK_EVENT, {
+                        targetRow: row,
+                        targetRowData: rowData
+                    }),
 
             registerHeaderInteractionHandler: (event, handler) => this.thead_.addEventListener(event, handler),
             deregisterHeaderInteractionHandler: (event, handler) => this.thead_.removeEventListener(event, handler),

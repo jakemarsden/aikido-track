@@ -29,7 +29,7 @@ export default class AikDataTableFoundation extends MDCFoundation {
             reorderRows: (rowIdxs) => {},
 
             notifyHeaderClick: header => {},
-            notifyRowClick: row => {},
+            notifyRowClick: (row, rowData) => {},
             registerHeaderInteractionHandler: (event, handler) => {},
             deregisterHeaderInteractionHandler: (event, handler) => {},
             registerRowInteractionHandler: (event, handler) => {},
@@ -200,6 +200,7 @@ export default class AikDataTableFoundation extends MDCFoundation {
         if (targetRow === null) {
             return;
         }
-        this.adapter_.notifyRowClick(targetRow);
+        const targetRowData = targetRow.rowData_;
+        this.adapter_.notifyRowClick(targetRow, targetRowData);
     }
 }
