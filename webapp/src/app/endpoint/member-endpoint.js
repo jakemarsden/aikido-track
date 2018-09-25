@@ -156,4 +156,11 @@ export const ENDPOINT_UPDATE_MEMBER = new UpdateMemberRestEndpoint();
 export const ENDPOINT_CREATE_OR_UPDATE_MEMBER =
         new CreateOrUpdateMemberRestEndpoint(ENDPOINT_CREATE_MEMBER, ENDPOINT_UPDATE_MEMBER);
 
-/** @typedef {{id: string, firstName: string, lastName: string, type: string, birthDate: string}} Member */
+/**
+ * @typedef {Object} Member
+ * @property {string} id
+ * @property {string} type
+ * @property {string} firstName
+ * @property {string} lastName
+ * @property {string} birthDate
+ */

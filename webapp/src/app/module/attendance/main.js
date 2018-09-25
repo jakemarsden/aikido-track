@@ -1,73 +1,108 @@
-import {MDCList} from "@material/list";
-import {DateTime} from 'luxon';
-import {ENDPOINT_GET_MEMBERS} from "../../endpoint/member-endpoint.js";
+import {MDCRipple} from "@material/ripple";
+import {DateTime, Duration} from "luxon";
+import {ENDPOINT_CREATE_OR_UPDATE_SESSION, ENDPOINT_GET_SESSIONS_BY_DATE} from "../../endpoint/session-endpoint.js";
 import {AikDataForm} from "../../ui-component/data-form/aik-data-form.js";
-import {firstCharToUpper, join} from "../../util/string-utils.js";
 import '../layout.js';
 import './main.scss';
+import {SessionDetailsDataTable} from "./session-details-data-table.js";
+import {SessionDetailsFormDialog} from "./session-details-form-dialog.js";
 
 window.addEventListener('load', () => {
     const now = DateTime.local();
-    let nextRegisterItemId = 0;
+    new SessionUi(now).initialize();
+});
 
-    const frmDate = new AikDataForm(document.querySelector('#aik-attendance-date-form'));
-    const lstRegisterElem = document.querySelector('#aik-attendance-register-list');
-    const lstRegister = new MDCList(lstRegisterElem);
-    /** @type HTMLTemplateElement */
-    const tmplRegisterItem = document.querySelector('#aik-tmpl-attendance-register-list-item');
-
-    // Initialise date input to today's date
-    frmDate.fields.get('date').value = now.toISODate();
-    repopulateAttendanceRegister();
-
-    function repopulateAttendanceRegister() {
-        while (lstRegisterElem.hasChildNodes()) {
-            lstRegisterElem.removeChild(lstRegisterElem.lastChild);
-        }
-        ENDPOINT_GET_MEMBERS.execute()
-                .then(members =>
-                        members.sort(memberComparator)
-                                .map(member => renderAttendanceItem(member))
-                                .forEach(memberElem => lstRegisterElem.appendChild(memberElem)))
+class SessionUi {
+    constructor() {
+        /** @private */
+        this.addSessionBtnHandler_ = event => this.handleAddSessionBtn_(event);
+        /** @private */
+        this.dateChangeHandler_ = event => this.repopulateSessionTable();
+        /** @private */
+        this.sessionTableSelectionHandler_ = event => this.sessionDialog_.showWith(event, event.detail.targetRowData);
+        /** @private */
+        this.sessionFormSubmitHandler_ = event => this.handleSessionFormSubmit_(event);
     }
 
-    function renderAttendanceItem(member) {
-        // Clone the template
-        const frag = document.importNode(tmplRegisterItem.content, true);
+    initialize() {
+        /**
+         * @type {HTMLButtonElement}
+         * @private
+         */
+        this.btnAddSession_ = document.querySelector('#aik-session-details-add-session-btn');
+        /** @private */
+        this.btnRipples_ = [
+            new MDCRipple(this.btnAddSession_),
+            new MDCRipple(document.querySelector('#aik-attendance-date-form__apply-btn'))
+        ];
+        /** @private */
+        this.dateForm_ = new AikDataForm(document.querySelector('#aik-attendance-date-form'));
+        /** @private */
+        this.sessionTable_ =
+                new SessionDetailsDataTable(document.querySelector('#aik-session-details-table'), undefined,
+                        document.querySelector('#aik-tmpl-session-details-table__row'));
+        /** @private */
+        this.sessionDialog_ = new SessionDetailsFormDialog(document.querySelector('#aik-session-details-dialog'));
 
-        // Add <input/> and <label/> associations
-        const baseId = 'aik-attendance-register-list-item';
-        const uniqId = `${baseId}-${nextRegisterItemId++}`;
-        frag.querySelector(`.${baseId}`).id = uniqId;
-        frag.querySelector(`#${baseId}__sessions__input`).id = `${uniqId}__sessions__input`;
-        frag.querySelector(`#${baseId}__hours__input`).id = `${uniqId}__hours__input`;
-        frag.querySelector(`label[for=${baseId}__sessions__input]`).htmlFor = `${uniqId}__sessions__input`;
-        frag.querySelector(`label[for=${baseId}__hours__input]`).htmlFor = `${uniqId}__hours__input`;
+        this.btnAddSession_.addEventListener('click', this.addSessionBtnHandler_);
+        this.dateForm_.listen('AikDataForm:submit', this.dateChangeHandler_);
+        this.sessionTable_.listen('AikDataTable:rowClick', this.sessionTableSelectionHandler_);
+        this.sessionDialog_.form.listen('AikDataForm:submit', this.sessionFormSubmitHandler_);
 
-        // Populate content
-        frag.querySelector(`.${baseId}__full-name`).textContent = join([member.firstName, member.lastName], ' ');
-        frag.querySelector(`.${baseId}__type`).textContent = firstCharToUpper(member.type);
-        new AikDataForm(frag.querySelector(`.${baseId}__form`));
+        this.dateForm_.fields.get('date').value = DateTime.local().toISODate();
+        this.repopulateSessionTable();
+    }
 
-        return frag;
+    destroy() {
+        this.btnAddSession_.removeEventListener('click', this.addSessionBtnHandler_);
+        this.dateForm_.unlisten('AikDataForm:submit', this.dateChangeHandler_);
+        this.sessionTable_.unlisten('AikDataTable:rowClick', this.sessionTableSelectionHandler_);
+        this.sessionDialog_.form.unlisten('AikDataForm:submit', this.sessionFormSubmitHandler_);
+
+        this.btnRipples_.forEach(ripple => ripple.destroy());
+        this.dateForm_.destroy();
+        this.sessionTable_.destroy();
+        this.sessionDialog_.destroy();
+    }
+
+    repopulateSessionTable() {
+        const rawDate = this.dateForm_.fields.get('date').value;
+        const date = DateTime.fromISO(rawDate);
+
+        this.sessionTable_.clearRows();
+        ENDPOINT_GET_SESSIONS_BY_DATE.execute(date)
+                .then(sessions => {
+                    sessions.forEach(session => this.sessionTable_.appendDataRow(session));
+                    this.sessionTable_.sort();
+                });
     }
 
     /**
-     * @param {Member} a
-     * @param {Member} b
-     * @return {number}
+     * @param {Event} event
+     * @private
      */
-    function memberComparator(a, b) {
-        let result;
-        if ((result = (a.lastName || '').localeCompare(b.lastName || '')) !== 0) {
-            return result;
-        }
-        if ((result = (a.firstName || '').localeCompare(b.firstName || '')) !== 0) {
-            return result;
-        }
-        if ((result = (a.type || '').localeCompare(b.type || '')) !== 0) {
-            return result;
-        }
-        return 0;
+    handleAddSessionBtn_(event) {
+        const session = {
+            id: null,
+            type: null,
+            dateTime: null,
+            duration: null,
+            attendance: null
+        };
+        const date = this.dateForm_.fields.get('date').value;
+        this.sessionDialog_.showWith(event, session, DateTime.fromISO(date), Duration.fromObject({ minutes: 60 }));
     }
-});
+
+    /**
+     * @param {Event} event
+     * @private
+     */
+    handleSessionFormSubmit_(event) {
+        const session = this.sessionDialog_.parseSession();
+        this.sessionTable_.clearRows();
+
+        ENDPOINT_CREATE_OR_UPDATE_SESSION.execute(session)
+                // Fuck it, just repopulate the entire table...
+                .then(session => this.repopulateSessionTable());
+    }
+}

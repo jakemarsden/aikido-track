@@ -15,9 +15,13 @@ abstract class Identifiable {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
-    Long id
+    private Long id
 
     @PackageScope
     Identifiable() {
+    }
+
+    Long getId() {
+        return id
     }
 }

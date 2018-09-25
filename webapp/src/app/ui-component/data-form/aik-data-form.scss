@@ -5,6 +5,7 @@
 .aik-data-form__fieldset {
     display: flex;
     flex-flow: row wrap;
+    align-items: center;
     padding: 10px;
     border-radius: 4px;
 
@@ -25,8 +26,6 @@
     }
 }
 
-.aik-data-form__fieldset--hidden {
-    margin: 0;
-    padding: 0;
+.aik-data-form__fieldset--no-decoration {
     border: none;
 }
