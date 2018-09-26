@@ -1,7 +1,12 @@
 @import '~@material/button/mdc-button';
 @import '~@material/dialog/mdc-dialog';
 
+.mdc-dialog__surface {
+    max-height: calc(100% - 30px);
+}
+
 .mdc-dialog__body {
+    max-height: unset;
     padding: 24px;
 }
 
