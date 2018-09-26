@@ -4,6 +4,7 @@ import {ENDPOINT_CREATE_OR_UPDATE_SESSION, ENDPOINT_GET_SESSIONS_BY_DATE} from "
 import {AikDataForm} from "../../ui-component/data-form/aik-data-form.js";
 import '../layout.js';
 import './main.scss';
+import {SessionAttendanceDataTable} from "./session-attendance-data-table.js";
 import {SessionDetailsDataTable} from "./session-details-data-table.js";
 import {SessionDetailsFormDialog} from "./session-details-form-dialog.js";
 
@@ -15,11 +16,11 @@ window.addEventListener('load', () => {
 class SessionUi {
     constructor() {
         /** @private */
-        this.addSessionBtnHandler_ = event => this.handleAddSessionBtn_(event);
+        this.addSessionBtnHandler_ = event => this.showSessionDialog(event, null);
         /** @private */
         this.dateChangeHandler_ = event => this.repopulateSessionTable();
         /** @private */
-        this.sessionTableSelectionHandler_ = event => this.sessionDialog_.showWith(event, event.detail.targetRowData);
+        this.sessionTableSelectionHandler_ = event => this.showSessionDialog(event, event.detail.targetRowData);
         /** @private */
         this.sessionFormSubmitHandler_ = event => this.handleSessionFormSubmit_(event);
     }
@@ -42,12 +43,17 @@ class SessionUi {
                 new SessionDetailsDataTable(document.querySelector('#aik-session-details-table'), undefined,
                         document.querySelector('#aik-tmpl-session-details-table__row'));
         /** @private */
-        this.sessionDialog_ = new SessionDetailsFormDialog(document.querySelector('#aik-session-details-dialog'));
+        const sessionAttendanceTable =
+                new SessionAttendanceDataTable(document.querySelector('#aik-session-attendance-table'), undefined,
+                        document.querySelector('#aik-tmpl-session-attendance-table__row'));
+        /** @private */
+        this.sessionDialog_ = new SessionDetailsFormDialog(
+                document.querySelector('#aik-session-details-dialog'), undefined, sessionAttendanceTable);
 
         this.btnAddSession_.addEventListener('click', this.addSessionBtnHandler_);
         this.dateForm_.listen('AikDataForm:submit', this.dateChangeHandler_);
-        this.sessionTable_.listen('AikDataTable:rowClick', this.sessionTableSelectionHandler_);
         this.sessionDialog_.form.listen('AikDataForm:submit', this.sessionFormSubmitHandler_);
+        this.sessionTable_.listen('AikDataTable:rowClick', this.sessionTableSelectionHandler_);
 
         this.dateForm_.fields.get('date').value = DateTime.local().toISODate();
         this.repopulateSessionTable();
@@ -79,18 +85,24 @@ class SessionUi {
 
     /**
      * @param {Event} event
-     * @private
+     * @param {(Session|null)} session Pass `null` if a new {@link Session} is to be created
      */
-    handleAddSessionBtn_(event) {
-        const session = {
-            id: null,
-            type: null,
-            dateTime: null,
-            duration: null,
-            attendance: null
-        };
-        const date = this.dateForm_.fields.get('date').value;
-        this.sessionDialog_.showWith(event, session, DateTime.fromISO(date), Duration.fromObject({ minutes: 60 }));
+    showSessionDialog(event, session) {
+        let date;
+        let duration;
+        if (session === null) {
+            session = {
+                id: null,
+                type: null,
+                dateTime: null,
+                duration: null,
+                attendance: null
+            };
+            const rawDate = this.dateForm_.fields.get('date').value;
+            date = DateTime.fromISO(rawDate);
+            duration = Duration.fromObject({ minutes: 60 });
+        }
+        this.sessionDialog_.showWith(event, session, date, duration);
     }
 
     /**

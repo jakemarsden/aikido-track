@@ -96,6 +96,7 @@
     <!-- Populated by #aik-tmpl-session-details-table__row -->
     </tbody>
 </table>
+
 <button id="aik-session-details-add-session-btn" class="mdc-button mdc-button--raised">Add session</button>
 
 <aside id="aik-session-details-dialog"
@@ -220,6 +221,26 @@
                     </div>
                 </fieldset>
 
+                <fieldset class="aik-data-form__fieldset">
+                    <legend>Attendance</legend>
+
+                    <table id="aik-session-attendance-table" class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
+                        <thead>
+                        <tr>
+                            <th class="mdl-data-table__cell--non-numeric mdl-data-table__header--sortable">First name
+                            </th>
+                            <th class="mdl-data-table__cell--non-numeric mdl-data-table__header--sortable mdl-data-table__header--sorted-ascending">
+                                Last name
+                            </th>
+                            <th>Present</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <!-- Populated by #aik-tmpl-session-attendance-table__row -->
+                        </tbody>
+                    </table>
+                </fieldset>
+
             </form>
         </section>
 
@@ -244,7 +265,36 @@
         <td class="mdl-data-table__cell--non-numeric aik-session-data-table__type"></td>
         <td class="mdl-data-table__cell--non-numeric aik-session-data-table__time"></td>
         <td class="aik-session-data-table__duration"></td>
-        <td class="aik-session-data-table__attendance-count"></td>
+        <td>
+            <span class="aik-session-data-table__attendance-present-count"></span>
+            /
+            <span class="aik-session-data-table__attendance-total-count"></span>
+        </td>
+    </tr>
+</template>
+
+<template id="aik-tmpl-session-attendance-table__row">
+    <tr>
+        <td class="mdl-data-table__cell--non-numeric aik-member-data-table__first-name"></td>
+        <td class="mdl-data-table__cell--non-numeric aik-member-data-table__last-name"></td>
+        <td>
+            <div class="aik-session-attendance-data-table__attendance mdc-switch">
+                <div class="mdc-switch__track"></div>
+                <div class="mdc-switch__thumb-underlay">
+                    <div class="mdc-switch__thumb">
+                        <input id="aik-session-attendance-table__attendance__switch__native-control"
+                                class="mdc-switch__native-control"
+                                name="attendance"
+                                type="checkbox"
+                                role="switch"/>
+                    </div>
+                </div>
+            </div>
+            <label for="aik-session-attendance-table__attendance__switch__native-control"
+                    class="aik-data-form__label--hidden">
+                Present
+            </label>
+        </td>
     </tr>
 </template>
 

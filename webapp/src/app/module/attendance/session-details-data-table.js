@@ -7,7 +7,9 @@ const strings = {
     SESSION_DATE_SELECTOR: '.aik-session-data-table__date',
     SESSION_TIME_SELECTOR: '.aik-session-data-table__time',
     SESSION_DURATION_SELECTOR: '.aik-session-data-table__duration',
-    SESSION_ATTENDANCE_COUNT_SELECTOR: '.aik-session-data-table__attendance-count'
+    SESSION_ATTENDANCE_PRESENT_COUNT_SELECTOR: '.aik-session-data-table__attendance-present-count',
+    SESSION_ATTENDANCE_ABSENT_COUNT_SELECTOR: '.aik-session-data-table__attendance-absent-count',
+    SESSION_ATTENDANCE_TOTAL_COUNT_SELECTOR: '.aik-session-data-table__attendance-total-count'
 };
 
 /**
@@ -30,8 +32,10 @@ export class SessionDetailsDataTable extends AikDataTable {
         const date = data.dateTime && data.dateTime.toISODate();
         const time = data.dateTime && data.dateTime.toISOTime({ includeOffset: false, suppressSeconds: true });
         const duration = data.duration && data.duration.as('minutes');
-        const attendanceCount = data.attendance &&
-                (data.attendance.instructors.length + data.attendance.presentMembers.length);
+        const presentCount = (data.attendance &&
+                (data.attendance.instructors.length + data.attendance.presentMembers.length)) || 0;
+        const absentCount = (data.attendance && data.attendance.absentMembers.length) || 0;
+        const totalCount = presentCount + absentCount;
 
         const values = {
             [strings.SESSION_ID_SELECTOR]: data.id,
@@ -39,7 +43,9 @@ export class SessionDetailsDataTable extends AikDataTable {
             [strings.SESSION_DATE_SELECTOR]: date,
             [strings.SESSION_TIME_SELECTOR]: time,
             [strings.SESSION_DURATION_SELECTOR]: duration,
-            [strings.SESSION_ATTENDANCE_COUNT_SELECTOR]: attendanceCount
+            [strings.SESSION_ATTENDANCE_PRESENT_COUNT_SELECTOR]: presentCount,
+            [strings.SESSION_ATTENDANCE_ABSENT_COUNT_SELECTOR]: absentCount,
+            [strings.SESSION_ATTENDANCE_TOTAL_COUNT_SELECTOR]: totalCount
         };
         Object.entries(values).forEach(([selector, value]) =>
                 frag.querySelectorAll(selector).forEach(elem => elem.textContent = value));

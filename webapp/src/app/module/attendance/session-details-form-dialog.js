@@ -1,11 +1,37 @@
 import Duration from "luxon/src/duration.js";
 import {AikDataFormDialog} from "../../ui-component/data-form-dialog/aik-data-form-dialog.js";
 import {fromIsoDateAndTime} from "../../util/date-time-utils.js";
+import {SessionAttendanceDataTable} from "./session-attendance-data-table.js";
 
-/**
- * @package
- */
+/** @package*/
 export class SessionDetailsFormDialog extends AikDataFormDialog {
+    /**
+     * @param {!Element} root
+     * @param {F=} foundation
+     * @param {SessionAttendanceDataTable} attendanceTable
+     * @param {...?} args
+     */
+    constructor(root, foundation = undefined, attendanceTable, ...args) {
+        super(root, foundation, attendanceTable, ...args);
+    }
+
+    /** @param {SessionAttendanceDataTable} attendanceTable */
+    initialize(attendanceTable) {
+        super.initialize();
+        /** @private */
+        this.attendanceTable_ = attendanceTable;
+    }
+
+    destroy() {
+        this.attendanceTable_.destroy();
+        super.destroy();
+    }
+
+    /** @return {SessionAttendanceDataTable} */
+    get attendanceTable() {
+        return this.attendanceTable_;
+    }
+
     /**
      * @param {Event} event
      * @param {Session} session
@@ -34,6 +60,12 @@ export class SessionDetailsFormDialog extends AikDataFormDialog {
         fields.get('date').value = date || (defaultDate && defaultDate.toISODate());
         fields.get('time').value = time || null;
         fields.get('duration').value = duration || (defaultDuration && defaultDuration.as('minutes'));
+
+        this.attendanceTable_.clearRows();
+        if (session.attendance != null) {
+            this.attendanceTable_.appendAttendanceDataRows(session.attendance);
+            this.attendanceTable_.sort();
+        }
     }
 
     /** @return {Session} */
@@ -47,7 +79,11 @@ export class SessionDetailsFormDialog extends AikDataFormDialog {
             type: fields.get('type').value || null,
             dateTime: date && time && fromIsoDateAndTime(date, time),
             duration: duration && Duration.fromObject({ minutes: duration }) || null,
-            attendance: null
+            attendance: {
+                instructors: [],
+                presentMembers: [],
+                absentMembers: []
+            }
         };
     }
 }

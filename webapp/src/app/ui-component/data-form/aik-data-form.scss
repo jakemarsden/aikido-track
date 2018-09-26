@@ -29,3 +29,10 @@
 .aik-data-form__fieldset--no-decoration {
     border: none;
 }
+
+/**
+ * For controls with invisible labels (but labels are still required to support screen readers etc.)
+ */
+.aik-data-form__label--hidden {
+    display: none;
+}

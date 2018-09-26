@@ -62,11 +62,16 @@ export class AikDataTable extends MDCComponent {
         this.tbody_.appendChild(row);
     }
 
-    /** @param {TRowData} rowData */
+    /**
+     * @param {TRowData} rowData
+     * @return {HTMLTableRowElement} The rendered row
+     */
     appendDataRow(rowData) {
         const rowFrag = this.rowFactory_();
+        const tr = rowFrag.querySelector('tr');
         this.renderDataRow(rowData, rowFrag);
         this.appendRow(rowFrag);
+        return tr;
     }
 
     /**
