@@ -60,6 +60,8 @@ class SessionService {
         final presentMemberIds = session.attendance.stream()
                 .map { it.member.id }
                 .collect toSet()
-        memberRepo.findAllByIdNotIn presentMemberIds
+        presentMemberIds.empty ?
+                memberRepo.findAll() :
+                memberRepo.findAllByIdNotIn(presentMemberIds)
     }
 }
