@@ -1,6 +1,10 @@
 import {MDCRipple} from "@material/ripple";
 import {DateTime, Duration} from "luxon";
-import {ENDPOINT_CREATE_OR_UPDATE_SESSION, ENDPOINT_GET_SESSIONS_BY_DATE} from "../../endpoint/session-endpoint.js";
+import {
+    ENDPOINT_CREATE_OR_UPDATE_SESSION,
+    ENDPOINT_GET_SESSION_ATTENDANCE,
+    ENDPOINT_GET_SESSIONS_BY_DATE
+} from "../../endpoint/session-endpoint.js";
 import {AikDataForm} from "../../ui-component/data-form/aik-data-form.js";
 import {DataTable} from "../../ui-component/data-table/data-table.js";
 import '../layout.js';
@@ -92,18 +96,24 @@ class SessionUi {
         let date;
         let duration;
         if (session === null) {
+            // Create new session
             session = {
                 id: null,
                 type: null,
                 dateTime: null,
-                duration: null,
-                attendance: null
+                duration: null
             };
             const rawDate = this.dateForm_.fields.get('date').value;
             date = DateTime.fromISO(rawDate);
             duration = Duration.fromObject({ minutes: 60 });
+
+            this.sessionDialog_.showWith(event, session, null, date, duration);
+
+        } else {
+            // Update existing session
+            ENDPOINT_GET_SESSION_ATTENDANCE.execute(session)
+                    .then(attendance => this.sessionDialog_.showWith(event, session, attendance, date, duration));
         }
-        this.sessionDialog_.showWith(event, session, date, duration);
     }
 
     /**
@@ -112,6 +122,7 @@ class SessionUi {
      */
     handleSessionFormSubmit_(event) {
         const session = this.sessionDialog_.parseSession();
+        const attendance = this.sessionDialog_.parseAttendance();
         this.sessionTable_.clearRows();
 
         ENDPOINT_CREATE_OR_UPDATE_SESSION.execute(session)

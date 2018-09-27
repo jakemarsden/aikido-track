@@ -43,19 +43,22 @@ export class SessionDetailsFormDialog extends AikDataFormDialog {
     /**
      * @param {Event} event
      * @param {Session} session
+     * @param {(SessionAttendance|null)} attendance
      * @param {(DateTime|null)} [defaultDate=null]
      * @param {(Duration|null)} [defaultDuration=null]
      */
-    showWith(event, session, defaultDate = null, defaultDuration = null) {
+    showWith(event, session, attendance, defaultDate = null, defaultDuration = null) {
         this.lastFocusedTarget = event.target;
         this.populateSession(session, defaultDate, defaultDuration);
+        this.populateAttendance(attendance);
         this.show();
     }
 
     /**
-     *  @param {Session} session
-     *  @param {(DateTime|null)} defaultDate
-     *  @param {(Duration|null)} defaultDuration
+     * @param {Session} session
+     * @param {(DateTime|null)} defaultDate
+     * @param {(Duration|null)} defaultDuration
+     * @protected
      */
     populateSession(session, defaultDate, defaultDuration) {
         const date = (session.dateTime && session.dateTime.toISODate());
@@ -68,13 +71,13 @@ export class SessionDetailsFormDialog extends AikDataFormDialog {
         fields.get('date').value = date || (defaultDate && defaultDate.toISODate());
         fields.get('time').value = time || null;
         fields.get('duration').value = duration || (defaultDuration && defaultDuration.as('minutes'));
-        this.populateSessionAttendance(session.attendance);
     }
 
     /**
      * @param {(SessionAttendance|null)} attendance
+     * @protected
      */
-    populateSessionAttendance(attendance) {
+    populateAttendance(attendance) {
         const table = this.attendanceTable_;
         table.clearRows();
         if (attendance == null) {
@@ -105,12 +108,23 @@ export class SessionDetailsFormDialog extends AikDataFormDialog {
             id: fields.get('id').value || null,
             type: fields.get('type').value || null,
             dateTime: date && time && fromIsoDateAndTime(date, time),
-            duration: duration && Duration.fromObject({ minutes: duration }) || null,
-            attendance: {
-                instructors: [],
-                presentMembers: [],
-                absentMembers: []
-            }
+            duration: duration && Duration.fromObject({ minutes: duration }) || null
         };
+    }
+
+    /**
+     * @return {SessionAttendance}
+     */
+    parseAttendance() {
+        const instructors = [];
+        const presentMembers = [];
+        const absentMembers = [];
+        /**
+         * @type {!Array<MemberAttendanceDataRow>}
+         */
+        const attendances = this.attendanceTable_.rows;
+        attendances.forEach(it => (it.presentSwitch.checked ? presentMembers : absentMembers).push(it.data.member));
+
+        return { instructors, presentMembers, absentMembers };
     }
 }

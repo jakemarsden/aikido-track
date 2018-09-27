@@ -21,15 +21,14 @@ final class SessionModel {
     LocalDate date
     LocalTime time
     Duration duration
-    SessionAttendanceModel attendance
 
-    static SessionModel ofEntity(Session entity, SessionAttendanceModel attendance) {
+    static SessionModel ofEntity(Session entity) {
         if (entity == null) {
             return null
         }
         new SessionModel(
                 id: entity.id, type: lowerCase(entity.type as String), date: entity.date, time: entity.time,
-                duration: entity.duration, attendance: attendance)
+                duration: entity.duration)
     }
 
     @PackageScope

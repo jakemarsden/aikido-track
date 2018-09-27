@@ -90,7 +90,7 @@ class ApiController {
         Validate.notNull date
         final sessions = sessionService.getSessionsOn date
         sessions.stream()
-                .map { entityToModel it }
+                .map { SessionModel.ofEntity it }
                 .collect toList()
     }
 
@@ -110,13 +110,22 @@ class ApiController {
                         .orElseThrow { new NotFoundException("$Session.simpleName not found: $model.id") }
         model.asEntity session
         session = sessionService.saveSession session
-        SessionModel.ofEntity session, null
+        SessionModel.ofEntity session
     }
 
-    private SessionModel entityToModel(Session session) {
+    @GetMapping('/session/{id}/attendance')
+    SessionAttendanceModel getSessionAttendance(@PathVariable String id) {
+        Validate.notEmpty id
+        Validate.isTrue id.isLong()
+        final session = sessionService.getSession(id as Long)
+                .orElseThrow { new NotFoundException("$Session.simpleName not found: $id") }
+        sessionAttendanceModel session
+    }
+
+    private SessionAttendanceModel sessionAttendanceModel(Session session) {
         final instructors = sessionService.getSessionInstructors session
         final presentMembers = sessionService.getSessionPresentMembers session
         final absentMembers = sessionService.getSessionAbsentMembers session
-        SessionModel.ofEntity session, SessionAttendanceModel.ofEntity(instructors, presentMembers, absentMembers)
+        SessionAttendanceModel.ofEntity(instructors, presentMembers, absentMembers)
     }
 }

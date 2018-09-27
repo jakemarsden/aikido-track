@@ -1,9 +1,10 @@
 import {DateTime, Duration} from "luxon";
 import {fromIsoDateAndTime} from "../util/date-time-utils.js";
+import {IllegalStateError} from "../util/error.js";
 import {JQueryAjaxRestEndpoint} from "./endpoint.js";
 
 /**
- * @extends JQueryAjaxRestEndpoint<DateTime, Array<Session>>
+ * @extends {JQueryAjaxRestEndpoint<DateTime, Array<Session>>}
  * @private
  */
 class GetSessionsByDateRestEndpoint extends JQueryAjaxRestEndpoint {
@@ -36,7 +37,7 @@ class GetSessionsByDateRestEndpoint extends JQueryAjaxRestEndpoint {
 }
 
 /**
- * @extends JQueryAjaxRestEndpoint<Session, Session>
+ * @extends {JQueryAjaxRestEndpoint<Session, Session>}
  * @private
  */
 class CreateOrUpdateSessionRestEndpoint extends JQueryAjaxRestEndpoint {
@@ -71,6 +72,34 @@ class CreateOrUpdateSessionRestEndpoint extends JQueryAjaxRestEndpoint {
 }
 
 /**
+ * @extends {JQueryAjaxRestEndpoint<Session, SessionAttendance>}
+ */
+class GetSessionAttendanceRestEndpoint extends JQueryAjaxRestEndpoint {
+    constructor() { super(); }
+
+    /**
+     * @inheritDoc
+     * @protected
+     */
+    createRequestOpts(request, opts) {
+        if (request.id == null) {
+            throw new IllegalStateError(
+                    `Unable to get SessionAttendance for a session which hasn't yet been created: ${request}`);
+        }
+        super.createRequestOpts(request, opts);
+        opts.url = `/api/session/${request.id}/attendance`;
+    }
+
+    /**
+     * @inheritDoc
+     * @protected
+     */
+    createRequestJson(request) {
+        return undefined;
+    }
+}
+
+/**
  * @param {Session} session
  * @return {SerialisedSession}
  */
@@ -81,7 +110,6 @@ function createSessionRequest(session) {
     request.date = session.dateTime && session.dateTime.toISODate();
     request.time = session.dateTime && session.dateTime.toISOTime({ includeOffset: false });
     request.duration = session.duration && session.duration.toISO();
-    request.attendance = session.attendance;
     return request;
 }
 
@@ -95,7 +123,6 @@ function parseSessionResponse(response) {
     session.type = response.type;
     session.dateTime = response.date && response.time && fromIsoDateAndTime(response.date, response.time);
     session.duration = response.duration && Duration.fromISO(response.duration);
-    session.attendance = response.attendance;
     return session;
 }
 
@@ -115,11 +142,11 @@ export const ENDPOINT_GET_SESSIONS_BY_DATE = new GetSessionsByDateRestEndpoint()
 export const ENDPOINT_CREATE_OR_UPDATE_SESSION = new CreateOrUpdateSessionRestEndpoint();
 
 /**
- * @typedef {Object} SessionAttendance
- * @property {Array<Member>} instructors
- * @property {Array<Member>} presentMembers
- * @property {Array<Member>} absentMembers
+ * Retrieve {@link SessionAttendance} information about a given {@link Session}
+ *
+ * @type {RestEndpoint<Session, SessionAttendance>}
  */
+export const ENDPOINT_GET_SESSION_ATTENDANCE = new GetSessionAttendanceRestEndpoint();
 
 /**
  * @typedef {Object} Session
@@ -127,7 +154,6 @@ export const ENDPOINT_CREATE_OR_UPDATE_SESSION = new CreateOrUpdateSessionRestEn
  * @property {string} type
  * @property {DateTime} dateTime
  * @property {Duration} duration
- * @property {(SessionAttendance|null)} attendance
  */
 
 /**
@@ -137,5 +163,11 @@ export const ENDPOINT_CREATE_OR_UPDATE_SESSION = new CreateOrUpdateSessionRestEn
  * @property {string} date
  * @property {string} time
  * @property {string} duration
- * @property {(SessionAttendance|null)} attendance
+ */
+
+/**
+ * @typedef {Object} SessionAttendance
+ * @property {Array<Member>} instructors
+ * @property {Array<Member>} presentMembers
+ * @property {Array<Member>} absentMembers
  */
