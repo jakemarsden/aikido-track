@@ -45,9 +45,12 @@ export class AjaxRestEndpoint extends RestEndpoint {
     execute(request) {
         const jsonRequest = request === undefined ? undefined : this.createRequestJson(request);
         return this.executeAjax(request, jsonRequest)
-                .then(
-                        responseJson => this.parseResponseJson(responseJson),
-                        reason => new RestEndpointError(`Failed to execute ${this.name_}`, reason));
+                .catch(reason => {
+                    const err = new RestEndpointError(`Failed to execute ${this.name_}`, reason);
+                    console.error(err);
+                    throw err;
+                })
+                .then(responseJson => this.parseResponseJson(responseJson));
     }
 
     /**
@@ -107,7 +110,10 @@ export class JQueryAjaxRestEndpoint extends AjaxRestEndpoint {
             opts.data = requestJson;
         }
         this.createRequestOpts(request, opts);
-        return $.ajax(opts);
+        return new Promise((resolve, reject) =>
+                $.ajax(opts)
+                        .done((data, textStatus, jqXHR) => resolve(data))
+                        .fail((jqXHR, textStatus, errorThrown) => reject(jqXHR.responseText)));
     }
 
     /**
