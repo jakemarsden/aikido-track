@@ -1,6 +1,7 @@
 import {ENDPOINT_CREATE_OR_UPDATE_MEMBER, ENDPOINT_GET_MEMBERS} from '../../endpoint/member-endpoint.js'
 import {AikDataFormDialog} from "../../ui-component/data-form-dialog/aik-data-form-dialog.js";
-import {AikMemberDataTable} from "../../ui-component/member-data-table/aik-member-data-table.js";
+import {DataTable} from "../../ui-component/data-table/data-table.js";
+import {MemberDataRow} from "../../ui-component/member-data-table/member-data-row.js";
 import '../layout.js';
 import './main.scss';
 
@@ -8,9 +9,9 @@ window.addEventListener('load', () => {
     /** @type {HTMLButtonElement} */
     const btnAddMember = document.querySelector('#aik-member-details-add-member');
     const dlgMemberDetails = new MemberDetailsFormDialog(document.querySelector('#aik-member-details-dialog'));
-    const tblMemberDetails = new AikMemberDataTable(
-            document.querySelector('#aik-member-details-table'), undefined,
-            document.querySelector('#aik-tmpl-member-details-table__row'));
+    const tblMemberDetails = new DataTable(
+            document.querySelector('#aik-member-details-table'),
+            DataTable.templatedRowFactory(MemberDataRow.ctor, '#aik-tmpl-member-details-table__row'));
 
     btnAddMember.addEventListener('click', event => {
         const member = { id: null };
@@ -24,8 +25,8 @@ window.addEventListener('load', () => {
                 // Fuck it, just repopulate the entire table...
                 .then(member => repopulateMemberDetailsTable());
     });
-    tblMemberDetails.listen('AikDataTable:rowClick', event => {
-        const member = event.detail.targetRowData;
+    tblMemberDetails.listen(DataTable.Event.ROW_CLICK, event => {
+        const member = event.detail.row.data;
         dlgMemberDetails.openWith(member, event);
     });
 
@@ -35,7 +36,7 @@ window.addEventListener('load', () => {
         tblMemberDetails.clearRows();
         ENDPOINT_GET_MEMBERS.execute()
                 .then(members => {
-                    members.forEach(member => tblMemberDetails.appendDataRow(member));
+                    members.forEach(member => tblMemberDetails.appendRow(member));
                     tblMemberDetails.sort();
                 });
     }

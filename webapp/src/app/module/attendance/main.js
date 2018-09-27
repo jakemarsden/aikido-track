@@ -2,10 +2,11 @@ import {MDCRipple} from "@material/ripple";
 import {DateTime, Duration} from "luxon";
 import {ENDPOINT_CREATE_OR_UPDATE_SESSION, ENDPOINT_GET_SESSIONS_BY_DATE} from "../../endpoint/session-endpoint.js";
 import {AikDataForm} from "../../ui-component/data-form/aik-data-form.js";
+import {DataTable} from "../../ui-component/data-table/data-table.js";
 import '../layout.js';
 import './main.scss';
-import {SessionAttendanceDataTable} from "./session-attendance-data-table.js";
-import {SessionDetailsDataTable} from "./session-details-data-table.js";
+import {MemberAttendanceDataRow} from "./member-attendance-data-row.js";
+import {SessionDataRow} from "./session-data-row.js";
 import {SessionDetailsFormDialog} from "./session-details-form-dialog.js";
 
 window.addEventListener('load', () => {
@@ -20,7 +21,7 @@ class SessionUi {
         /** @private */
         this.dateChangeHandler_ = event => this.repopulateSessionTable();
         /** @private */
-        this.sessionTableSelectionHandler_ = event => this.showSessionDialog(event, event.detail.targetRowData);
+        this.sessionTableSelectionHandler_ = event => this.showSessionDialog(event, event.detail.row.data);
         /** @private */
         this.sessionFormSubmitHandler_ = event => this.handleSessionFormSubmit_(event);
     }
@@ -39,21 +40,21 @@ class SessionUi {
         /** @private */
         this.dateForm_ = new AikDataForm(document.querySelector('#aik-attendance-date-form'));
         /** @private */
-        this.sessionTable_ =
-                new SessionDetailsDataTable(document.querySelector('#aik-session-details-table'), undefined,
-                        document.querySelector('#aik-tmpl-session-details-table__row'));
+        this.sessionTable_ = new DataTable(
+                document.querySelector('#aik-session-details-table'),
+                DataTable.templatedRowFactory(SessionDataRow.ctor, '#aik-tmpl-session-details-table__row'));
         /** @private */
-        const sessionAttendanceTable =
-                new SessionAttendanceDataTable(document.querySelector('#aik-session-attendance-table'), undefined,
-                        document.querySelector('#aik-tmpl-session-attendance-table__row'));
+        const sessionAttendanceTable = new DataTable(
+                document.querySelector('#aik-session-attendance-table'),
+                DataTable.templatedRowFactory(MemberAttendanceDataRow.ctor, '#aik-tmpl-session-attendance-table__row'));
         /** @private */
         this.sessionDialog_ = new SessionDetailsFormDialog(
-                document.querySelector('#aik-session-details-dialog'), undefined, sessionAttendanceTable);
+                document.querySelector('#aik-session-details-dialog'), sessionAttendanceTable, undefined);
 
         this.btnAddSession_.addEventListener('click', this.addSessionBtnHandler_);
         this.dateForm_.listen('AikDataForm:submit', this.dateChangeHandler_);
+        this.sessionTable_.listen(DataTable.Event.ROW_CLICK, this.sessionTableSelectionHandler_);
         this.sessionDialog_.form.listen('AikDataForm:submit', this.sessionFormSubmitHandler_);
-        this.sessionTable_.listen('AikDataTable:rowClick', this.sessionTableSelectionHandler_);
 
         this.dateForm_.fields.get('date').value = DateTime.local().toISODate();
         this.repopulateSessionTable();
@@ -62,7 +63,7 @@ class SessionUi {
     destroy() {
         this.btnAddSession_.removeEventListener('click', this.addSessionBtnHandler_);
         this.dateForm_.unlisten('AikDataForm:submit', this.dateChangeHandler_);
-        this.sessionTable_.unlisten('AikDataTable:rowClick', this.sessionTableSelectionHandler_);
+        this.sessionTable_.unlisten(DataTable.Event.ROW_CLICK, this.sessionTableSelectionHandler_);
         this.sessionDialog_.form.unlisten('AikDataForm:submit', this.sessionFormSubmitHandler_);
 
         this.btnRipples_.forEach(ripple => ripple.destroy());
@@ -78,7 +79,7 @@ class SessionUi {
         this.sessionTable_.clearRows();
         ENDPOINT_GET_SESSIONS_BY_DATE.execute(date)
                 .then(sessions => {
-                    sessions.forEach(session => this.sessionTable_.appendDataRow(session));
+                    sessions.forEach(session => this.sessionTable_.appendRow(session));
                     this.sessionTable_.sort();
                 });
     }
