@@ -2,31 +2,38 @@ import $ from 'jquery';
 import {RestEndpointError} from '../util/error.js';
 
 /**
- * A `RestEndpoint<undefined, ?>` is an endpoint which doesn't require a request object (`undefined` should be passed
- * to its {@link RestEndpoint#execute} method)
+ * Baseclass for the endpoints the application may wish to execute
+ *
+ *  - `TReq` should represent an implementation of {@link AikRequest}
+ *  - `TResp` should represent an implementation of {@link AikResponse}
  *
  * @template TReq, TResp
  * @abstract
  */
 export class RestEndpoint {
-    /** @protected */
-    constructor() {}
 
     /**
-     * @param {TReq} request Pass `undefined` if the endpoint is of type `RestEndpoint<undefined, ?>` (ie. if it
-     *         doesn't take a request object)
-     * @return Promise<TResp>
+     * @protected
+     */
+    constructor() {
+    }
+
+    /**
+     * @param {TReq} request
+     * @return {Promise<TResp>}
      * @abstract
      */
-    execute(request) {}
+    execute(request) {
+    }
 }
 
 /**
- * @extends RestEndpoint<TReq, TResp>
+ * @extends {RestEndpoint<TReq, TResp>}
  * @template TReq, TResp
  * @abstract
  */
 export class AjaxRestEndpoint extends RestEndpoint {
+
     /**
      * @param {string} [name=] The name of the endpoint to use for logging. Defaults to the name of the concrete
      *         subclass
@@ -35,111 +42,158 @@ export class AjaxRestEndpoint extends RestEndpoint {
     constructor(name) {
         super();
         /**
-         * @type {string}
+         * @constant {string}
          * @private
          */
         this.name_ = name || this.constructor.name;
     }
 
-    /** @inheritDoc */
+    /**
+     * @inheritDoc
+     */
     execute(request) {
-        const jsonRequest = request === undefined ? undefined : this.createRequestJson(request);
-        return this.executeAjax(request, jsonRequest)
+        let requestTransport;
+        try {
+            requestTransport = this.serializeRequest(request);
+        } catch (err) {
+            throw new RestEndpointError(`Unable to serialize request for transport: ${request}`, err);
+        }
+        return this.executeAjax(request, requestTransport)
                 .catch(reason => {
                     const err = new RestEndpointError(`Failed to execute ${this.name_}`, reason);
                     console.error(err);
                     throw err;
                 })
-                .then(responseJson => this.parseResponseJson(responseJson));
+                .then(responseTransport => {
+                    try {
+                        return this.deserializeResponse(responseTransport);
+                    } catch (err) {
+                        throw new RestEndpointError(`Unable to deserialize response: ${responseTransport}`, err);
+                    }
+                });
     }
 
     /**
-     * @param {TReq} request The request object or `undefined` if no request object is required for the endpoint
-     * @param {string} requestJson
-     * @return {Promise<Object>}
+     * @param {TReq} request The request object
+     * @param {string} requestTransport The serialized request
+     * @return {Promise<Object>} A promise for the serialized response
      * @protected
      * @abstract
      */
-    executeAjax(request, requestJson) {}
-
-    /**
-     * The `TReq` request object needs to be serialised to a JSON string for transmission. This method defines how
-     * this is done. Can be overridden by subclasses
-     *
-     * @param {TReq} request The request object
-     * @return {string} The request JSON
-     * @protected
-     */
-    createRequestJson(request) {
-        return JSON.stringify(request);
+    executeAjax(request, requestTransport) {
     }
 
     /**
-     * The transmitted `TResp` response object needs to be deserialised from a JSON string. This method defines how
-     * this is done. Can be overridden by subclasses. Note that this method isn't *actually* passed a JSON string, but
-     * an Object created using `JSON.parse`
-     *
-     * @param {Object} responseJson
-     * @return {TResp}
+     * The `TReq` {@link AikRequest request object} needs to be serialised before transport. Subclasses may override
+     * this method to define how request serialization should occur
+     * @param {TReq} request The request object produced by the application
+     * @return {string} The serialized request ready for transport to the endpoint
      * @protected
      */
-    parseResponseJson(responseJson) {
-        return responseJson;
+    serializeRequest(request) {
+        switch (request.requestType) {
+            case RequestType.GET:
+                // HTTP GET requests don't have bodies so the default behaviour is not to include one. Generally
+                // subclasses should add any necessary info from the request object as URI query parameters
+                return undefined;
+            default:
+                return JSON.stringify(request);
+        }
+    }
+
+    /**
+     * The response needs to be deserialised to a `TResp` {@link AikResponse response object} after transport.
+     * Subclasses may override this method to define how response deserialization should occur
+     * @param {Object} responseTransport The serialized response retrieved from the endpoint
+     * @return {TResp} The deserialized response object ready for consumption by the application
+     * @protected
+     */
+    deserializeResponse(responseTransport) {
+        return responseTransport
     }
 }
 
 /**
- * @extends AjaxRestEndpoint<TReq, TResp>
+ * @extends {AjaxRestEndpoint<TReq, TResp>}
  * @template TReq, TResp
  * @abstract
  */
 export class JQueryAjaxRestEndpoint extends AjaxRestEndpoint {
-    /**
-     * @inheritDoc
-     * @protected
-     */
-    constructor(name) { super(name); }
 
     /**
      * @inheritDoc
      * @protected
      */
-    executeAjax(request, requestJson) {
+    executeAjax(request, requestTransport) {
         const opts = {};
-        if (requestJson !== undefined) {
-            opts.data = requestJson;
-        }
-        this.createRequestOpts(request, opts);
-        return new Promise((resolve, reject) =>
-                $.ajax(opts)
-                        .done((data, textStatus, jqXHR) => resolve(data))
-                        .fail((jqXHR, textStatus, errorThrown) => reject(jqXHR.responseText)));
+        this.createRequestOpts(opts, request, requestTransport);
+        return new Promise((resolve, reject) => {
+            $.ajax(opts)
+                    .fail((jqXhr, textStatus, errorThrown) => reject(jqXhr.responseText))
+                    .done((data, textStatus, jqXhr) => resolve(data));
+        });
     }
 
     /**
-     * Example implementation:
-     *
-     * ```JavaScript
-     * /** @extends JQueryAjaxRestEndpoint<MyRequestType, MyRestType>
-     * class MyRestEndpoint extends JQueryAjaxRestEndpoint {
-     *     // ...
-     *     createRequestOpts(request, requestJson, opts) {
-     *         super.createRequestOpts(request, requestJson, opts);
-     *         opts.url = `/api/member/${request.id}`;
-     *         // ...further customisation of opts if required
-     *     }
-     * }
-     * ```
-     *
-     * @param {TReq} request The request object or `undefined` if no request object is required for the endpoint
      * @param {Object} opts
+     * @param {TReq} request The request object
+     * @param {string} requestTransport The serialized request
      * @protected
      * @abstract
      */
-    createRequestOpts(request, opts) {
+    createRequestOpts(opts, request, requestTransport) {
+        switch (request.requestType) {
+            case RequestType.GET:
+                opts.method = 'GET';
+                break;
+            case RequestType.CREATE:
+            case RequestType.UPDATE:
+                opts.method = 'POST';
+                break;
+            default:
+                // Not necessarily an issue so long as the subclass knows what the hell to do with it because we sure
+                // as hell don't...
+                break;
+        }
         opts.cache = false;
+
+        opts.accepts = { 'json': 'application/json;charset=UTF-8' };
         opts.contentType = 'application/json;charset=UTF-8';
         opts.dataType = 'json';
-        opts.method = 'GET';
+        opts.data = requestTransport;
     }
 }
+
+/**
+ * Baseclass for the application's request objects
+ * @see com.jakemarsden.aikidotrack.controller.model.AikRequest
+ */
+export class AikRequest {
+
+    /**
+     * @param {RequestType} reqType
+     */
+    constructor(reqType) {
+        /**
+         * @constant {RequestType}
+         */
+        this.requestType = reqType;
+    }
+}
+
+/**
+ * Baseclass for the application's response objects
+ * @typedef {Object} AikResponse
+ * @property {RequestType} requestType
+ * @see com.jakemarsden.aikidotrack.controller.model.AikResponse
+ */
+
+/**
+ * @enum {string}
+ * @see com.jakemarsden.aikidotrack.controller.model.RequestType
+ */
+export const RequestType = {
+    GET: 'Get',
+    CREATE: 'Create',
+    UPDATE: 'Update'
+};

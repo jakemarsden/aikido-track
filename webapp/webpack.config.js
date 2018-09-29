@@ -19,6 +19,7 @@ module.exports = function (env) {
     };
 
     const entry = {
+        'attendance': `./${dir.source}/app/module/attendance/main.js`,
         'index': `./${dir.source}/app/module/member-details/main.js`
     };
 

@@ -2,23 +2,37 @@
 @import '~@material/select/mdc-select';
 @import '~@material/textfield/mdc-text-field';
 
-.aik-data-form fieldset {
+.aik-data-form__fieldset {
     display: flex;
     flex-flow: row wrap;
+    align-items: center;
     padding: 10px;
     border-radius: 4px;
 
-    & > .mdc-select,
-    & > .mdc-text-field {
+    .mdc-select,
+    .mdc-text-field {
         flex: 1 1 auto;
         min-width: 6em;
         margin: 10px 5px;
     }
-    & > .mdc-select--short,
-    & > .mdc-text-field--short {
+
+    .mdc-select--short,
+    .mdc-text-field--short {
         flex: 0 0 4em;
     }
-    & > .line-break {
+
+    .line-break {
         flex: 0 0 100%;
     }
+}
+
+.aik-data-form__fieldset--no-decoration {
+    border: none;
+}
+
+/**
+ * For controls with invisible labels (but labels are still required to support screen readers etc.)
+ */
+.aik-data-form__label--hidden {
+    display: none;
 }

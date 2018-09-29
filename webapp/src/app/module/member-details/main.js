@@ -1,41 +1,58 @@
-import {ENDPOINT_CREATE_OR_UPDATE_MEMBER, ENDPOINT_GET_MEMBERS} from '../../endpoint/member-endpoint.js'
+import {RequestType} from '../../endpoint/endpoint.js'
+import {
+    ENDPOINT_GET_MEMBERS,
+    ENDPOINT_POST_MEMBERS,
+    GetMembersRequest,
+    PostMembersRequest
+} from '../../endpoint/member-endpoint.js'
 import {AikDataFormDialog} from "../../ui-component/data-form-dialog/aik-data-form-dialog.js";
-import {AikDataTable} from "../../ui-component/data-table/aik-data-table.js";
-import {firstCharToUpper} from "../../util/string-utils.js";
+import {DataTable} from "../../ui-component/data-table/data-table.js";
+import {MemberDataRow} from "../../ui-component/member-data-table/member-data-row.js";
 import '../layout.js';
 import './main.scss';
 
 window.addEventListener('load', () => {
     /** @type {HTMLButtonElement} */
     const btnAddMember = document.querySelector('#aik-member-details-add-member');
-    /** @type {MemberDetailsFormDialog} */
     const dlgMemberDetails = new MemberDetailsFormDialog(document.querySelector('#aik-member-details-dialog'));
-    /** @type {MemberDetailsTable} */
-    const tblMemberDetails = new MemberDetailsTable(document.querySelector('#aik-member-details-table'));
+    const tblMemberDetails = new DataTable(
+            document.querySelector('#aik-member-details-table'),
+            DataTable.templatedRowFactory(MemberDataRow.ctor, '#aik-tmpl-member-details-table__row'));
 
     btnAddMember.addEventListener('click', event => {
-        const member = { id: null };
+        const member = {
+            id: null,
+            type: null,
+            firstName: null,
+            lastName: null,
+            birthDate: null
+        };
         dlgMemberDetails.openWith(member, event);
     });
     dlgMemberDetails.listen('MDCDialog:accept', event => {
         const member = dlgMemberDetails.parseMember();
-        tblMemberDetails.clearRows();
+        const reqType = member.id == null ? RequestType.CREATE : RequestType.UPDATE;
 
-        ENDPOINT_CREATE_OR_UPDATE_MEMBER.execute(member)
+        const req = new PostMembersRequest(reqType, [member]);
+        ENDPOINT_POST_MEMBERS.execute(req)
                 // Fuck it, just repopulate the entire table...
-                .then(member => repopulateMemberDetailsTable());
+                .then(resp => repopulateMemberDetailsTable());
     });
-    tblMemberDetails.listen('AikDataTable:rowClick', event => {
-        const member = tblMemberDetails.getMemberFromRow(event.detail.targetRow);
+    tblMemberDetails.listen(DataTable.Event.ROW_CLICK, event => {
+        const member = event.detail.row.data;
         dlgMemberDetails.openWith(member, event);
     });
 
-    repopulateMemberDetailsTable(tblMemberDetails);
+    repopulateMemberDetailsTable();
 
     function repopulateMemberDetailsTable() {
-        tblMemberDetails.clearRows();
-        ENDPOINT_GET_MEMBERS.execute()
-                .then(members => tblMemberDetails.appendMemberRows(members));
+        const req = new GetMembersRequest();
+        ENDPOINT_GET_MEMBERS.execute(req)
+                .then(resp => {
+                    tblMemberDetails.clearRows();
+                    resp.members.forEach(member => tblMemberDetails.appendRow(member));
+                    tblMemberDetails.sort();
+                });
     }
 });
 
@@ -70,42 +87,5 @@ class MemberDetailsFormDialog extends AikDataFormDialog {
             type: fields.get('type').value || null,
             birthDate: fields.get('birth-date').value || null
         };
-    }
-}
-
-class MemberDetailsTable extends AikDataTable {
-    /**
-     * @param {(HTMLTableRowElement|number)} row
-     * @return {Member}
-     */
-    getMemberFromRow(row) {
-        if (typeof row === 'number') {
-            row = this.root_.rows.item(row);
-        }
-        return row.member_;
-    }
-
-    /** @param {Array<Member>} members */
-    appendMemberRows(members) {
-        members.forEach(member => {
-            const row = this.tbody_.insertRow(-1);
-            this.renderMemberRow_(member, row);
-        });
-        this.sort();
-    }
-
-    /**
-     * @param {Member} member
-     * @param {HTMLTableRowElement} row
-     * @private
-     */
-    renderMemberRow_(member, row) {
-        row.member_ = member;
-        [member.firstName, member.lastName, firstCharToUpper(member.type)]
-                .forEach(data => {
-                    const cell = row.insertCell();
-                    cell.classList.add('mdl-data-table__cell--non-numeric');
-                    cell.textContent = data;
-                });
     }
 }
