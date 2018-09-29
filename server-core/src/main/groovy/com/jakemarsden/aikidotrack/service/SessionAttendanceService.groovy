@@ -3,6 +3,7 @@ package com.jakemarsden.aikidotrack.service
 import com.jakemarsden.aikidotrack.controller.model.MemberModel
 import com.jakemarsden.aikidotrack.controller.model.SessionAttendanceModel
 import com.jakemarsden.aikidotrack.domain.Member
+import com.jakemarsden.aikidotrack.domain.Session
 import com.jakemarsden.aikidotrack.domain.SessionAttendance
 import com.jakemarsden.aikidotrack.repository.MemberRepository
 import com.jakemarsden.aikidotrack.repository.SessionAttendanceRepository
@@ -57,38 +58,41 @@ class SessionAttendanceService {
     }
 
     void updateAttendances(String sessionId, List<SessionAttendanceModel> attendances) {
-        final List<SessionAttendance> entitiesToCreate = []
-        final List<SessionAttendance> entitiesToDelete = []
-
-        Validate.isTrue sessionId?.isLong(), "Invalid session ID '$sessionId': $attendances"
+        if (!sessionId?.isLong()) {
+            throw new IllegalArgumentException("Invalid session ID '$sessionId': attendances=$attendances")
+        }
         final session = sessionRepo.findById(sessionId as Long)
-                .orElseThrow { new IllegalArgumentException("Session with ID '$sessionId' not found: $attendances") }
-
-        final entities = attendanceRepo.findAllBySession(session)
-        attendances.stream()
-                .forEach { attendance ->
-                    final entity = entities.stream()
-                            .filter { it.member.id == attendance.member.id }
-                            .findAny()
-                    if (attendance.present && !entity.present) {
-                        if (!attendance.member.id?.isLong()) {
-                            throw new RuntimeException("Invalid member ID '$attendance.member.id': $attendances")
-                        }
-                        // TODO: Efficiency?? Never heard of it
-                        final memberEntity = memberRepo.findById(attendance.member.id as Long)
-                                .orElseThrow {
-                                    final msg = "Member with ID '$attendance.member.id' not found: $attendances"
-                                    new RuntimeException(msg)
-                        }
-                        entitiesToCreate.add new SessionAttendance(session: session, member: memberEntity)
-                    }
-                    if (!attendance.present && entity.present) {
-                        entitiesToDelete.add entity.get()
-                    }
+                .orElseThrow {
+                    new IllegalArgumentException("Session with ID '$sessionId' not found: attendances=$attendances")
                 }
 
-        attendanceRepo.deleteAll entitiesToDelete
-        attendanceRepo.saveAll entitiesToCreate
+        // TODO: Efficiency?? Never heard of it
+        attendances.stream()
+                .forEach { synchronizeAttendanceRecord session, it.member, it.present }
+    }
+
+    private void synchronizeAttendanceRecord(Session sessionEntity, MemberModel member, boolean present) {
+        if (!member.id?.isLong()) {
+            final msg = "Invalid member ID '$member.id' for member: " +
+                    "sessionEntity=$sessionEntity, member=$member, present=$present"
+            throw new IllegalArgumentException(msg)
+        }
+
+        final memberId = member.id as Long
+        final attendanceEntity = attendanceRepo.findBySessionIdAndMemberId sessionEntity.id, memberId
+
+        if (present && !attendanceEntity.present) {
+            final memberEntity = memberRepo.findById(memberId)
+                    .orElseThrow {
+                        final msg = "Member with ID '$memberId' not found: " +
+                                "sessionEntity=$sessionEntity, member=$member, present=$present"
+                        new IllegalStateException(msg)
+                    }
+            attendanceRepo.save new SessionAttendance(session: sessionEntity, member: memberEntity)
+        }
+        if (!present && attendanceEntity.present) {
+            attendanceRepo.delete attendanceEntity.get()
+        }
     }
 
     private static SessionAttendanceModel mapAttendance(Member entity, boolean present) {
