@@ -6,6 +6,7 @@ import groovy.transform.PackageScope
 import groovy.transform.ToString
 
 import static java.util.stream.Collectors.toList
+import static org.apache.commons.lang3.StringUtils.lowerCase
 
 @EqualsAndHashCode
 @ToString(includePackage = false, includeNames = true)
@@ -19,13 +20,13 @@ final class SessionAttendanceModel {
             List<Member> instructorEntities, List<Member> presentMemberEntities, List<Member> absentMemberEntities) {
 
         final instructors = instructorEntities.stream()
-                .map { MemberModel.ofEntity it }
+                .map { mapMember it }
                 .collect toList()
         final presentMembers = presentMemberEntities.stream()
-                .map { MemberModel.ofEntity it }
+                .map { mapMember it }
                 .collect toList()
         final absentMembers = absentMemberEntities.stream()
-                .map { MemberModel.ofEntity it }
+                .map { mapMember it }
                 .collect toList()
         new SessionAttendanceModel(
                 instructors: instructors, presentMembers: presentMembers, absentMembers: absentMembers)
@@ -33,5 +34,11 @@ final class SessionAttendanceModel {
 
     @PackageScope
     SessionAttendanceModel() {
+    }
+
+    private static MemberModel mapMember(Member entity) {
+        MemberModel.of(
+                entity.id as String, lowerCase(entity.type as String), entity.firstName, entity.lastName,
+                entity.birthDate)
     }
 }

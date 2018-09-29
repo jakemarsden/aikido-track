@@ -1,9 +1,11 @@
 package com.jakemarsden.aikidotrack.controller
 
-import com.jakemarsden.aikidotrack.controller.model.MemberModel
+import com.jakemarsden.aikidotrack.controller.model.GetMembersResponse
+import com.jakemarsden.aikidotrack.controller.model.PostMembersRequest
+import com.jakemarsden.aikidotrack.controller.model.PostMembersResponse
+import com.jakemarsden.aikidotrack.controller.model.RequestType
 import com.jakemarsden.aikidotrack.controller.model.SessionAttendanceModel
 import com.jakemarsden.aikidotrack.controller.model.SessionModel
-import com.jakemarsden.aikidotrack.domain.Member
 import com.jakemarsden.aikidotrack.domain.Session
 import com.jakemarsden.aikidotrack.service.MemberService
 import com.jakemarsden.aikidotrack.service.SessionService
@@ -36,53 +38,25 @@ class ApiController {
     }
 
     @GetMapping('/member')
-    List<MemberModel> getMembers() {
-        memberService.getAllMembers()
-                .stream()
-                .map { MemberModel.ofEntity it }
-                .collect toList()
+    GetMembersResponse getMembers() {
+        final members = memberService.getAllMembers()
+        GetMembersResponse.of members
     }
 
-    @GetMapping('/member/{id}')
-    MemberModel getMemberById(@PathVariable String id) {
-        Validate.notEmpty id
-        Validate.isTrue id.isLong()
-        memberService.getMember(id as Long)
-                .map { MemberModel.ofEntity it }
-                .orElseThrow { new NotFoundException("$Member.simpleName not found: $id") }
-    }
-
-    /**
-     * Create a new member
-     */
     @PostMapping('/member')
-    MemberModel postMember(@RequestBody MemberModel model) {
-        Validate.notNull model
-        Validate.isTrue model.id == null
-        Validate.notBlank model.firstName
-        Validate.notBlank model.type
-        def member = new Member()
-        model.asEntity member
-        member = memberService.saveMember member
-        MemberModel.ofEntity member
-    }
-
-    /**
-     * Update an existing member
-     */
-    @PostMapping('/member/{id}')
-    MemberModel postMemberById(@PathVariable String id, @RequestBody MemberModel model) {
-        Validate.notEmpty id
-        Validate.isTrue id.isLong()
-        Validate.notNull model
-        Validate.isTrue id == model.id
-        Validate.notBlank model.firstName
-        Validate.notBlank model.type
-        def member = memberService.getMember(id as Long)
-                .orElseThrow { new NotFoundException("$Member.simpleName not found: $id") }
-        model.asEntity member
-        member = memberService.saveMember member
-        MemberModel.ofEntity member
+    PostMembersResponse postMember(@RequestBody PostMembersRequest req) {
+        final members
+        switch (req.requestType) {
+            case RequestType.Create:
+                members = memberService.createMembers req.members
+                break
+            case RequestType.Update:
+                members = memberService.updateMembers req.members
+                break
+            default:
+                throw new IllegalArgumentException("Unsupported $RequestType.simpleName: $req.requestType")
+        }
+        PostMembersResponse.of req.requestType, members
     }
 
     @GetMapping('/session/{date}')

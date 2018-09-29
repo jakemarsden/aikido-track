@@ -8,14 +8,13 @@ import {JQueryAjaxRestEndpoint} from "./endpoint.js";
  * @private
  */
 class GetSessionsByDateRestEndpoint extends JQueryAjaxRestEndpoint {
-    constructor() { super(); };
 
     /**
      * @inheritDoc
      * @protected
      */
-    createRequestOpts(request, opts) {
-        super.createRequestOpts(request, opts);
+    createRequestOpts(opts, request, requestTransport) {
+        super.createRequestOpts(opts, request, requestTransport);
         opts.url = `/api/session/${request.toISODate()}`;
     }
 
@@ -23,7 +22,7 @@ class GetSessionsByDateRestEndpoint extends JQueryAjaxRestEndpoint {
      * @inheritDoc
      * @protected
      */
-    createRequestJson(request) {
+    serializeRequest(request) {
         return undefined;
     }
 
@@ -31,8 +30,9 @@ class GetSessionsByDateRestEndpoint extends JQueryAjaxRestEndpoint {
      * @inheritDoc
      * @protected
      */
-    parseResponseJson(responseJson) {
-        return responseJson.map(sessionResponseJson => parseSessionResponse(sessionResponseJson));
+    deserializeResponse(responseTransport) {
+        const response = super.deserializeResponse(responseTransport);
+        return response.map(session => parseSessionResponse(session));
     }
 }
 
@@ -41,14 +41,13 @@ class GetSessionsByDateRestEndpoint extends JQueryAjaxRestEndpoint {
  * @private
  */
 class CreateOrUpdateSessionRestEndpoint extends JQueryAjaxRestEndpoint {
-    constructor() { super(); };
 
     /**
      * @inheritDoc
      * @protected
      */
-    createRequestOpts(request, opts) {
-        super.createRequestOpts(request, opts);
+    createRequestOpts(opts, request, requestTransport) {
+        super.createRequestOpts(opts, request, requestTransport);
         opts.method = 'POST';
         opts.url = '/api/session';
     }
@@ -57,17 +56,18 @@ class CreateOrUpdateSessionRestEndpoint extends JQueryAjaxRestEndpoint {
      * @inheritDoc
      * @protected
      */
-    createRequestJson(request) {
-        const requestJson = createSessionRequest(request);
-        return super.createRequestJson(requestJson);
+    serializeRequest(request) {
+        const requestTransport = createSessionRequest(request);
+        return super.serializeRequest(requestTransport);
     }
 
     /**
      * @inheritDoc
      * @protected
      */
-    parseResponseJson(responseJson) {
-        return parseSessionResponse(responseJson);
+    deserializeResponse(responseTransport) {
+        const response = super.deserializeResponse(responseTransport);
+        return parseSessionResponse(response);
     }
 }
 
@@ -75,18 +75,17 @@ class CreateOrUpdateSessionRestEndpoint extends JQueryAjaxRestEndpoint {
  * @extends {JQueryAjaxRestEndpoint<Session, SessionAttendance>}
  */
 class GetSessionAttendanceRestEndpoint extends JQueryAjaxRestEndpoint {
-    constructor() { super(); }
 
     /**
      * @inheritDoc
      * @protected
      */
-    createRequestOpts(request, opts) {
+    createRequestOpts(opts, request, requestTransport) {
         if (request.id == null) {
             throw new IllegalStateError(
                     `Unable to get SessionAttendance for a session which hasn't yet been created: ${request}`);
         }
-        super.createRequestOpts(request, opts);
+        super.createRequestOpts(opts, request, requestTransport);
         opts.url = `/api/session/${request.id}/attendance`;
     }
 
@@ -94,7 +93,7 @@ class GetSessionAttendanceRestEndpoint extends JQueryAjaxRestEndpoint {
      * @inheritDoc
      * @protected
      */
-    createRequestJson(request) {
+    serializeRequest(request) {
         return undefined;
     }
 }
