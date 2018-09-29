@@ -1,9 +1,15 @@
 import {MDCRipple} from "@material/ripple";
 import {DateTime, Duration} from "luxon";
+import {RequestType} from "../../endpoint/endpoint.js";
 import {
-    ENDPOINT_CREATE_OR_UPDATE_SESSION,
-    ENDPOINT_GET_SESSION_ATTENDANCE,
-    ENDPOINT_GET_SESSIONS_BY_DATE
+    ENDPOINT_GET_SESSION_ATTENDANCES,
+    ENDPOINT_GET_SESSIONS,
+    ENDPOINT_POST_SESSION_ATTENDANCES,
+    ENDPOINT_POST_SESSIONS,
+    GetSessionAttendancesRequest,
+    GetSessionsRequest,
+    PostSessionAttendancesRequest,
+    PostSessionsRequest
 } from "../../endpoint/session-endpoint.js";
 import {AikDataForm} from "../../ui-component/data-form/aik-data-form.js";
 import {DataTable} from "../../ui-component/data-table/data-table.js";
@@ -78,12 +84,11 @@ class SessionUi {
 
     repopulateSessionTable() {
         const rawDate = this.dateForm_.fields.get('date').value;
-        const date = DateTime.fromISO(rawDate);
-
-        this.sessionTable_.clearRows();
-        ENDPOINT_GET_SESSIONS_BY_DATE.execute(date)
-                .then(sessions => {
-                    sessions.forEach(session => this.sessionTable_.appendRow(session));
+        const req = new GetSessionsRequest(DateTime.fromISO(rawDate));
+        ENDPOINT_GET_SESSIONS.execute(req)
+                .then(resp => {
+                    this.sessionTable_.clearRows();
+                    resp.sessions.forEach(session => this.sessionTable_.appendRow(session));
                     this.sessionTable_.sort();
                 });
     }
@@ -107,12 +112,13 @@ class SessionUi {
             date = DateTime.fromISO(rawDate);
             duration = Duration.fromObject({ minutes: 60 });
 
-            this.sessionDialog_.showWith(event, session, null, date, duration);
+            this.sessionDialog_.showWith(event, session, [], date, duration);
 
         } else {
             // Update existing session
-            ENDPOINT_GET_SESSION_ATTENDANCE.execute(session)
-                    .then(attendance => this.sessionDialog_.showWith(event, session, attendance, date, duration));
+            const req = new GetSessionAttendancesRequest(session.id);
+            ENDPOINT_GET_SESSION_ATTENDANCES.execute(req)
+                    .then(resp => this.sessionDialog_.showWith(event, session, resp.attendances, date, duration));
         }
     }
 
@@ -122,11 +128,19 @@ class SessionUi {
      */
     handleSessionFormSubmit_(event) {
         const session = this.sessionDialog_.parseSession();
-        const attendance = this.sessionDialog_.parseAttendance();
-        this.sessionTable_.clearRows();
+        const attendances = this.sessionDialog_.parseAttendance();
 
-        ENDPOINT_CREATE_OR_UPDATE_SESSION.execute(session)
-                // Fuck it, just repopulate the entire table...
-                .then(session => this.repopulateSessionTable());
+        const sessionsReqType = session.id == null ? RequestType.CREATE : RequestType.UPDATE;
+        const sessionsReq = new PostSessionsRequest(sessionsReqType, [session]);
+        const sessionsReqPromise = ENDPOINT_POST_SESSIONS.execute(sessionsReq);
+
+        const attendancesReq = new PostSessionAttendancesRequest(session.id, attendances);
+        const attendancesReqPromise = ENDPOINT_POST_SESSION_ATTENDANCES.execute(attendancesReq);
+
+        Promise.all([sessionsReqPromise, attendancesReqPromise])
+                .then(([sessionsResp, attendancesResp]) => {
+                    // Fuck it, just repopulate the entire table...
+                    this.repopulateSessionTable()
+                });
     }
 }

@@ -8,7 +8,7 @@ import {fromIsoDateAndTime} from "../../util/date-time-utils.js";
 export class SessionDetailsFormDialog extends AikDataFormDialog {
     /**
      * @param {!Element} root
-     * @param {!DataTable<MemberAttendanceDataRow~MemberAttendance>} attendanceTable
+     * @param {!DataTable<SessionAttendance>} attendanceTable
      * @param {F=} foundation
      * @param {...?} args
      */
@@ -17,12 +17,12 @@ export class SessionDetailsFormDialog extends AikDataFormDialog {
     }
 
     /**
-     * @param {DataTable<MemberAttendanceDataRow~MemberAttendance>} attendanceTable
+     * @param {DataTable<SessionAttendance>} attendanceTable
      */
     initialize(attendanceTable) {
         super.initialize();
         /**
-         * @type {DataTable<MemberAttendanceDataRow~MemberAttendance>}
+         * @type {DataTable<SessionAttendance>}
          * @private
          */
         this.attendanceTable_ = attendanceTable;
@@ -34,7 +34,7 @@ export class SessionDetailsFormDialog extends AikDataFormDialog {
     }
 
     /**
-     * @return {DataTable<MemberAttendanceDataRow~MemberAttendance>}
+     * @return {DataTable<SessionAttendance>}
      */
     get attendanceTable() {
         return this.attendanceTable_;
@@ -43,14 +43,14 @@ export class SessionDetailsFormDialog extends AikDataFormDialog {
     /**
      * @param {Event} event
      * @param {Session} session
-     * @param {(SessionAttendance|null)} attendance
+     * @param {Array<SessionAttendance>} attendances
      * @param {(DateTime|null)} [defaultDate=null]
      * @param {(Duration|null)} [defaultDuration=null]
      */
-    showWith(event, session, attendance, defaultDate = null, defaultDuration = null) {
+    showWith(event, session, attendances, defaultDate = null, defaultDuration = null) {
         this.lastFocusedTarget = event.target;
         this.populateSession(session, defaultDate, defaultDuration);
-        this.populateAttendance(attendance);
+        this.populateAttendance(attendances);
         this.show();
     }
 
@@ -74,26 +74,13 @@ export class SessionDetailsFormDialog extends AikDataFormDialog {
     }
 
     /**
-     * @param {(SessionAttendance|null)} attendance
+     * @param {Array<SessionAttendance>} attendances
      * @protected
      */
-    populateAttendance(attendance) {
-        const table = this.attendanceTable_;
-        table.clearRows();
-        if (attendance == null) {
-            return;
-        }
-        const wrap = (member, present) => ({ member, present });
-        attendance.instructors
-                .map(member => wrap(member, true))
-                .forEach(member => table.appendRow(member));
-        attendance.presentMembers
-                .map(member => wrap(member, true))
-                .forEach(member => table.appendRow(member));
-        attendance.absentMembers
-                .map(member => wrap(member, false))
-                .forEach(member => table.appendRow(member));
-        table.sort();
+    populateAttendance(attendances) {
+        this.attendanceTable_.clearRows();
+        attendances.forEach(attendance => this.attendanceTable_.appendRow(attendance));
+        this.attendanceTable_.sort();
     }
 
     /**
@@ -113,18 +100,13 @@ export class SessionDetailsFormDialog extends AikDataFormDialog {
     }
 
     /**
-     * @return {SessionAttendance}
+     * @return {Array<SessionAttendance>}
      */
     parseAttendance() {
-        const instructors = [];
-        const presentMembers = [];
-        const absentMembers = [];
         /**
          * @type {!Array<MemberAttendanceDataRow>}
          */
         const attendances = this.attendanceTable_.rows;
-        attendances.forEach(it => (it.presentSwitch.checked ? presentMembers : absentMembers).push(it.data.member));
-
-        return { instructors, presentMembers, absentMembers };
+        return attendances.map(it => ({ member: it.data.member, present: it.presentSwitch.checked }));
     }
 }

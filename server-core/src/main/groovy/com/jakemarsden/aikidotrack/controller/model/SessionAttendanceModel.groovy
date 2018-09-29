@@ -1,37 +1,29 @@
 package com.jakemarsden.aikidotrack.controller.model
 
-import com.jakemarsden.aikidotrack.domain.Member
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonProperty
 import groovy.transform.EqualsAndHashCode
-import groovy.transform.PackageScope
 import groovy.transform.ToString
-
-import static java.util.stream.Collectors.toList
+import org.apache.commons.lang3.Validate
 
 @EqualsAndHashCode
 @ToString(includePackage = false, includeNames = true)
 final class SessionAttendanceModel {
 
-    List<MemberModel> instructors
-    List<MemberModel> presentMembers
-    List<MemberModel> absentMembers
+    final MemberModel member
+    final boolean present
 
-    static SessionAttendanceModel ofEntity(
-            List<Member> instructorEntities, List<Member> presentMemberEntities, List<Member> absentMemberEntities) {
+    @JsonCreator
+    static SessionAttendanceModel of(
+            @JsonProperty('member') MemberModel member, @JsonProperty('present') Boolean present) {
 
-        final instructors = instructorEntities.stream()
-                .map { MemberModel.ofEntity it }
-                .collect toList()
-        final presentMembers = presentMemberEntities.stream()
-                .map { MemberModel.ofEntity it }
-                .collect toList()
-        final absentMembers = absentMemberEntities.stream()
-                .map { MemberModel.ofEntity it }
-                .collect toList()
-        new SessionAttendanceModel(
-                instructors: instructors, presentMembers: presentMembers, absentMembers: absentMembers)
+        Validate.notNull member
+        Validate.notNull present
+        new SessionAttendanceModel(member, present.booleanValue())
     }
 
-    @PackageScope
-    SessionAttendanceModel() {
+    private SessionAttendanceModel(MemberModel member, boolean present) {
+        this.member = member
+        this.present = present
     }
 }

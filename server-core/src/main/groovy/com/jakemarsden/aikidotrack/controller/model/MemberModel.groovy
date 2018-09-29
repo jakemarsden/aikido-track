@@ -1,54 +1,38 @@
 package com.jakemarsden.aikidotrack.controller.model
 
-import com.jakemarsden.aikidotrack.domain.Member
-import com.jakemarsden.aikidotrack.domain.MemberType
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonProperty
 import groovy.transform.EqualsAndHashCode
-import groovy.transform.PackageScope
 import groovy.transform.ToString
 import java.time.LocalDate
-
-import static org.apache.commons.lang3.StringUtils.lowerCase
+import org.apache.commons.lang3.Validate
 
 @EqualsAndHashCode
 @ToString(includePackage = false, includeNames = true)
 final class MemberModel {
 
-    String id
-    String firstName
-    String lastName
-    String type
-    LocalDate birthDate
+    final String id
+    final String type
+    final String firstName
+    final String lastName
+    final LocalDate birthDate
 
-    static MemberModel ofEntity(Member entity) {
-        if (entity == null) {
-            return null
-        }
-        new MemberModel(
-                id: entity.id, firstName: entity.firstName, lastName: entity.lastName,
-                type: lowerCase(entity.type as String), birthDate: entity.birthDate)
+    @JsonCreator
+    static MemberModel of(
+            @JsonProperty('id') String id, @JsonProperty('type') String type,
+            @JsonProperty('firstName') String firstName, @JsonProperty('lastName') String lastName,
+            @JsonProperty('birthDate') LocalDate birthDate) {
+
+        Validate.notBlank type
+        Validate.notEmpty firstName
+        new MemberModel(id, type, firstName, lastName, birthDate)
     }
 
-    @PackageScope
-    MemberModel() {
-    }
-
-    void asEntity(Member entity) {
-        entity.firstName = firstName
-        entity.lastName = lastName
-        entity.type = typeAsEntity
-        entity.birthDate = birthDate
-    }
-
-    private MemberType getTypeAsEntity() {
-        switch (type) {
-            case null:
-                return null
-            case "adult":
-                return MemberType.Adult
-            case "junior":
-                return MemberType.Junior
-            default:
-                throw new IllegalArgumentException("Unsupported $MemberType.simpleName: $type")
-        }
+    private MemberModel(String id, String type, String firstName, String lastName, LocalDate birthDate) {
+        this.id = id
+        this.type = type
+        this.firstName = firstName
+        this.lastName = lastName
+        this.birthDate = birthDate
     }
 }

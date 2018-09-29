@@ -7,7 +7,6 @@ import java.time.LocalTime
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.Enumerated
-import javax.persistence.OneToMany
 import javax.persistence.Table
 import javax.persistence.UniqueConstraint
 
@@ -28,7 +27,4 @@ final class Session extends Identifiable {
 
     @Column(nullable = false)
     Duration duration
-
-    @OneToMany(mappedBy = 'session')
-    List<SessionAttendance> attendance
 }

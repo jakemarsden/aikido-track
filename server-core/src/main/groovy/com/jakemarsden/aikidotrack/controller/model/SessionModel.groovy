@@ -1,65 +1,41 @@
 package com.jakemarsden.aikidotrack.controller.model
 
-
-import com.jakemarsden.aikidotrack.domain.Session
-import com.jakemarsden.aikidotrack.domain.SessionType
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonProperty
 import groovy.transform.EqualsAndHashCode
-import groovy.transform.PackageScope
 import groovy.transform.ToString
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalTime
-
-import static org.apache.commons.lang3.StringUtils.lowerCase
+import org.apache.commons.lang3.Validate
 
 @EqualsAndHashCode
 @ToString(includePackage = false, includeNames = true)
 final class SessionModel {
 
-    String id
-    String type
-    LocalDate date
-    LocalTime time
-    Duration duration
+    final String id
+    final String type
+    final LocalDate date
+    final LocalTime time
+    final Duration duration
 
-    static SessionModel ofEntity(Session entity) {
-        if (entity == null) {
-            return null
-        }
-        new SessionModel(
-                id: entity.id, type: lowerCase(entity.type as String), date: entity.date, time: entity.time,
-                duration: entity.duration)
+    @JsonCreator
+    static SessionModel of(
+            @JsonProperty('id') String id, @JsonProperty('type') String type, @JsonProperty('date') LocalDate date,
+            @JsonProperty('time') LocalTime time, @JsonProperty('duration') Duration duration) {
+
+        Validate.notBlank type
+        Validate.notNull date
+        Validate.notNull time
+        Validate.notNull duration
+        new SessionModel(id, type, date, time, duration)
     }
 
-    @PackageScope
-    SessionModel() {
-    }
-
-    void asEntity(Session entity) {
-        entity.type = typeAsEntity
-        entity.date = date
-        entity.time = time
-        entity.duration = duration
-    }
-
-    private SessionType getTypeAsEntity() {
-        switch (type) {
-            case null:
-                return null
-            case 'junior':
-                return SessionType.Junior
-            case 'beginner':
-                return SessionType.Beginner
-            case 'general':
-                return SessionType.General
-            case 'advanced':
-                return SessionType.Advanced
-            case 'iaido':
-                return SessionType.Iaido
-            case 'weapons':
-                return SessionType.Weapons
-            default:
-                throw new IllegalArgumentException("Unsupported $SessionType.simpleName: $type")
-        }
+    private SessionModel(String id, String type, LocalDate date, LocalTime time, Duration duration) {
+        this.id = id
+        this.type = type
+        this.date = date
+        this.time = time
+        this.duration = duration
     }
 }

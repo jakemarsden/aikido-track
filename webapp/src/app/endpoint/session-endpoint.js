@@ -1,55 +1,46 @@
 import {DateTime, Duration} from "luxon";
 import {fromIsoDateAndTime} from "../util/date-time-utils.js";
 import {IllegalStateError} from "../util/error.js";
-import {JQueryAjaxRestEndpoint} from "./endpoint.js";
+import {AikRequest, JQueryAjaxRestEndpoint, RequestType} from "./endpoint.js";
 
 /**
- * @extends {JQueryAjaxRestEndpoint<DateTime, Array<Session>>}
+ * @extends {JQueryAjaxRestEndpoint<GetSessionsRequest, GetSessionsResponse>}
  * @private
  */
-class GetSessionsByDateRestEndpoint extends JQueryAjaxRestEndpoint {
-    constructor() { super(); };
+class GetSessionsRestEndpoint extends JQueryAjaxRestEndpoint {
 
     /**
      * @inheritDoc
      * @protected
      */
-    createRequestOpts(request, opts) {
-        super.createRequestOpts(request, opts);
-        opts.url = `/api/session/${request.toISODate()}`;
+    createRequestOpts(opts, request, requestTransport) {
+        super.createRequestOpts(opts, request, requestTransport);
+        opts.url = request.date === null ? '/api/session' : `/api/session/${request.date.toISODate()}`;
     }
 
     /**
      * @inheritDoc
      * @protected
      */
-    createRequestJson(request) {
-        return undefined;
-    }
-
-    /**
-     * @inheritDoc
-     * @protected
-     */
-    parseResponseJson(responseJson) {
-        return responseJson.map(sessionResponseJson => parseSessionResponse(sessionResponseJson));
+    deserializeResponse(responseTransport) {
+        const response = super.deserializeResponse(responseTransport);
+        response.sessions = response.sessions.map(session => deserializeSession(session));
+        return response;
     }
 }
 
 /**
- * @extends {JQueryAjaxRestEndpoint<Session, Session>}
+ * @extends {JQueryAjaxRestEndpoint<PostSessionsRequest, PostSessionsResponse>}
  * @private
  */
-class CreateOrUpdateSessionRestEndpoint extends JQueryAjaxRestEndpoint {
-    constructor() { super(); };
+class PostSessionsRestEndpoint extends JQueryAjaxRestEndpoint {
 
     /**
      * @inheritDoc
      * @protected
      */
-    createRequestOpts(request, opts) {
-        super.createRequestOpts(request, opts);
-        opts.method = 'POST';
+    createRequestOpts(opts, request, requestTransport) {
+        super.createRequestOpts(opts, request, requestTransport);
         opts.url = '/api/session';
     }
 
@@ -57,96 +48,198 @@ class CreateOrUpdateSessionRestEndpoint extends JQueryAjaxRestEndpoint {
      * @inheritDoc
      * @protected
      */
-    createRequestJson(request) {
-        const requestJson = createSessionRequest(request);
-        return super.createRequestJson(requestJson);
+    serializeRequest(request) {
+        request.sessions = request.sessions.map(session => serializeSession(session));
+        return super.serializeRequest(request);
     }
 
     /**
      * @inheritDoc
      * @protected
      */
-    parseResponseJson(responseJson) {
-        return parseSessionResponse(responseJson);
+    deserializeResponse(responseTransport) {
+        const response = super.deserializeResponse(responseTransport);
+        response.sessions = response.sessions.map(session => deserializeSession(session));
+        return response;
     }
 }
 
 /**
- * @extends {JQueryAjaxRestEndpoint<Session, SessionAttendance>}
+ * @extends {JQueryAjaxRestEndpoint<GetSessionAttendancesRequest, GetSessionAttendancesResponse>}
+ * @private
  */
-class GetSessionAttendanceRestEndpoint extends JQueryAjaxRestEndpoint {
-    constructor() { super(); }
+class GetSessionAttendancesRestEndpoint extends JQueryAjaxRestEndpoint {
 
     /**
      * @inheritDoc
      * @protected
      */
-    createRequestOpts(request, opts) {
-        if (request.id == null) {
-            throw new IllegalStateError(
-                    `Unable to get SessionAttendance for a session which hasn't yet been created: ${request}`);
-        }
-        super.createRequestOpts(request, opts);
-        opts.url = `/api/session/${request.id}/attendance`;
+    createRequestOpts(opts, request, requestTransport) {
+        super.createRequestOpts(opts, request, requestTransport);
+        opts.url = `/api/session/${request.sessionId}/attendance`;
     }
+}
+
+/**
+ * @extends {JQueryAjaxRestEndpoint<PostSessionAttendancesRequest, PostSessionAttendancesResponse>}
+ * @private
+ */
+class PostSessionAttendancesRestEndpoint extends JQueryAjaxRestEndpoint {
 
     /**
      * @inheritDoc
      * @protected
      */
-    createRequestJson(request) {
-        return undefined;
+    createRequestOpts(opts, request, requestTransport) {
+        super.createRequestOpts(opts, request, requestTransport);
+        opts.url = `/api/session/attendance`;
     }
 }
 
 /**
  * @param {Session} session
- * @return {SerialisedSession}
+ * @return {Object}
  */
-function createSessionRequest(session) {
-    const request = {};
-    request.id = session.id;
-    request.type = session.type;
-    request.date = session.dateTime && session.dateTime.toISODate();
-    request.time = session.dateTime && session.dateTime.toISOTime({ includeOffset: false });
-    request.duration = session.duration && session.duration.toISO();
-    return request;
+function serializeSession(session) {
+    const sessionTransport = {};
+    sessionTransport.id = session.id;
+    sessionTransport.type = session.type;
+    sessionTransport.date = session.dateTime && session.dateTime.toISODate();
+    sessionTransport.time = session.dateTime && session.dateTime.toISOTime({ includeOffset: false });
+    sessionTransport.duration = session.duration && session.duration.toISO();
+    return sessionTransport;
 }
 
 /**
- * @param {SerialisedSession} response
+ * @param {Object} sessionTransport
  * @return {Session}
  */
-function parseSessionResponse(response) {
+function deserializeSession(sessionTransport) {
     const session = {};
-    session.id = response.id;
-    session.type = response.type;
-    session.dateTime = response.date && response.time && fromIsoDateAndTime(response.date, response.time);
-    session.duration = response.duration && Duration.fromISO(response.duration);
+    session.id = sessionTransport.id;
+    session.type = sessionTransport.type;
+    session.dateTime = sessionTransport.date && sessionTransport.time &&
+            fromIsoDateAndTime(sessionTransport.date, sessionTransport.time);
+    session.duration = sessionTransport.duration && Duration.fromISO(sessionTransport.duration);
     return session;
 }
 
 /**
- * Retrieve a list of all {@link Session}s on the given date
- *
- * @type {RestEndpoint<DateTime, Array<Session>>}
- * @constant
+ * @constant {RestEndpoint<GetSessionsRequest, GetSessionsResponse>}
  */
-export const ENDPOINT_GET_SESSIONS_BY_DATE = new GetSessionsByDateRestEndpoint();
+export const ENDPOINT_GET_SESSIONS = new GetSessionsRestEndpoint();
 
 /**
- * Either create or update a {@link Session} based on whether it has previously been created
- *
- * @type {RestEndpoint<Session, Session>}
+ * @constant {RestEndpoint<PostSessionsRequest, PostSessionsResponse>}
  */
-export const ENDPOINT_CREATE_OR_UPDATE_SESSION = new CreateOrUpdateSessionRestEndpoint();
+export const ENDPOINT_POST_SESSIONS = new PostSessionsRestEndpoint();
 
 /**
- * Retrieve {@link SessionAttendance} information about a given {@link Session}
- *
- * @type {RestEndpoint<Session, SessionAttendance>}
+ * @constant {RestEndpoint<GetSessionAttendancesRequest, GetSessionAttendancesResponse>}
  */
-export const ENDPOINT_GET_SESSION_ATTENDANCE = new GetSessionAttendanceRestEndpoint();
+export const ENDPOINT_GET_SESSION_ATTENDANCES = new GetSessionAttendancesRestEndpoint();
+
+/**
+ * @constant {RestEndpoint<PostSessionAttendancesRequest, PostSessionAttendancesResponse>}
+ */
+export const ENDPOINT_POST_SESSION_ATTENDANCES = new PostSessionAttendancesRestEndpoint();
+
+/**
+ * @see com.jakemarsden.aikidotrack.controller.model.GetSessionsRequest
+ */
+export class GetSessionsRequest extends AikRequest {
+
+    /**
+     * @param {(DateTime|null)} date `null` if you don't want to filter results by date
+     */
+    constructor(date) {
+        super(RequestType.GET);
+        /**
+         * @constant {(DateTime|null)} date
+         */
+        this.date = date || null;
+    }
+}
+
+/**
+ * @typedef {AikResponse} GetSessionsResponse
+ * @property {Array<Session>} sessions
+ * @see com.jakemarsden.aikidotrack.controller.model.GetSessionsResponse
+ */
+
+/**
+ * @see com.jakemarsden.aikidotrack.controller.model.PostSessionsRequest
+ */
+export class PostSessionsRequest extends AikRequest {
+
+    /**
+     * @param {RequestType} reqType
+     * @param {Array<Session>} sessions
+     */
+    constructor(reqType, sessions) {
+        super(reqType);
+        /**
+         * @constant {Array<Session>)
+         */
+        this.sessions = sessions;
+    }
+}
+
+/**
+ * @typedef {AikResponse} PostSessionsResponse
+ * @property {Array<Session>} sessions
+ * @see com.jakemarsden.aikidotrack.controller.model.PostSessionsResponse
+ */
+
+/**
+ * @see com.jakemarsden.aikidotrack.controller.model.GetSessionAttendancesRequest
+ */
+export class GetSessionAttendancesRequest extends AikRequest {
+
+    /**
+     * @param {string} sessionId
+     */
+    constructor(sessionId) {
+        super(RequestType.GET);
+        /**
+         * @constant {!string} sessionId
+         */
+        this.sessionId = sessionId
+    }
+}
+
+/**
+ * @typedef {AikResponse} GetSessionAttendancesResponse
+ * @property {Array<SessionAttendance>} attendances
+ * @see com.jakemarsden.aikidotrack.controller.model.GetSessionAttendancesResponse
+ */
+
+/**
+ * @see com.jakemarsden.aikidotrack.controller.model.PostSessionAttendancesRequest
+ */
+export class PostSessionAttendancesRequest extends AikRequest {
+
+    /**
+     * @param {string} sessionId
+     * @param {Array<SessionAttendance>} attendances
+     */
+    constructor(sessionId, attendances) {
+        super(RequestType.UPDATE);
+        /**
+         * @constant {string} sessionId
+         */
+        this.sessionId = sessionId;
+        /**
+         * @constant {Array<SessionAttendance>)
+         */
+        this.attendances = attendances;
+    }
+}
+
+/**
+ * @typedef {AikResponse} PostSessionAttendancesResponse
+ * @see com.jakemarsden.aikidotrack.controller.model.PostSessionAttendancesResponse
+ */
 
 /**
  * @typedef {Object} Session
@@ -157,17 +250,7 @@ export const ENDPOINT_GET_SESSION_ATTENDANCE = new GetSessionAttendanceRestEndpo
  */
 
 /**
- * @typedef {Object} SerialisedSession
- * @property {string} id
- * @property {string} type
- * @property {string} date
- * @property {string} time
- * @property {string} duration
- */
-
-/**
  * @typedef {Object} SessionAttendance
- * @property {Array<Member>} instructors
- * @property {Array<Member>} presentMembers
- * @property {Array<Member>} absentMembers
+ * @property {Member} member
+ * @property {boolean} present
  */
