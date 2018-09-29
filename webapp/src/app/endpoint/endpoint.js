@@ -93,6 +93,8 @@ export class AjaxRestEndpoint extends RestEndpoint {
     serializeRequest(request) {
         switch (request.requestType) {
             case RequestType.GET:
+                // HTTP GET requests don't have bodies so the default behaviour is not to include one. Generally
+                // subclasses should add any necessary info from the request object as URI query parameters
                 return undefined;
             default:
                 return JSON.stringify(request);

@@ -1,11 +1,14 @@
 package com.jakemarsden.aikidotrack.controller
 
 import com.jakemarsden.aikidotrack.controller.model.GetMembersResponse
+import com.jakemarsden.aikidotrack.controller.model.GetSessionsRequest
+import com.jakemarsden.aikidotrack.controller.model.GetSessionsResponse
 import com.jakemarsden.aikidotrack.controller.model.PostMembersRequest
 import com.jakemarsden.aikidotrack.controller.model.PostMembersResponse
+import com.jakemarsden.aikidotrack.controller.model.PostSessionsRequest
+import com.jakemarsden.aikidotrack.controller.model.PostSessionsResponse
 import com.jakemarsden.aikidotrack.controller.model.RequestType
 import com.jakemarsden.aikidotrack.controller.model.SessionAttendanceModel
-import com.jakemarsden.aikidotrack.controller.model.SessionModel
 import com.jakemarsden.aikidotrack.domain.Session
 import com.jakemarsden.aikidotrack.service.MemberService
 import com.jakemarsden.aikidotrack.service.SessionService
@@ -20,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
-import static java.util.stream.Collectors.toList
 import static org.springframework.format.annotation.DateTimeFormat.ISO
 
 @RestController
@@ -59,32 +61,33 @@ class ApiController {
         PostMembersResponse.of req.requestType, members
     }
 
+    @GetMapping('/session')
+    GetSessionsResponse getSessions() {
+        final sessions = sessionService.getAllSessions()
+        GetSessionsResponse.of sessions
+    }
+
     @GetMapping('/session/{date}')
-    List<SessionModel> getSessionsByDate(@PathVariable @DateTimeFormat(iso = ISO.DATE) LocalDate date) {
-        Validate.notNull date
-        final sessions = sessionService.getSessionsOn date
-        sessions.stream()
-                .map { SessionModel.ofEntity it }
-                .collect toList()
+    GetSessionsResponse getSessionsByDate(@PathVariable @DateTimeFormat(iso = ISO.DATE) LocalDate date) {
+        final req = GetSessionsRequest.filteredByDate date
+        final sessions = sessionService.getSessionsByDate req.date
+        GetSessionsResponse.of sessions
     }
 
     @PostMapping('/session')
-    SessionModel postSession(@RequestBody SessionModel model) {
-        if (model.id != null) {
-            Validate.notEmpty model.id
-            Validate.isTrue model.id.isLong()
+    PostSessionsResponse postSession(@RequestBody PostSessionsRequest req) {
+        final sessions
+        switch (req.requestType) {
+            case RequestType.Create:
+                sessions = sessionService.createSessions req.sessions
+                break
+            case RequestType.Update:
+                sessions = sessionService.updateSessions req.sessions
+                break
+            default:
+                throw new IllegalArgumentException("Unsupported $RequestType.simpleName: $req.requestType")
         }
-        Validate.notBlank model.type
-        Validate.notNull model.date
-        Validate.notNull model.time
-        Validate.notNull model.duration
-        def session = (model.id == null) ?
-                new Session() :
-                sessionService.getSession(model.id as Long)
-                        .orElseThrow { new NotFoundException("$Session.simpleName not found: $model.id") }
-        model.asEntity session
-        session = sessionService.saveSession session
-        SessionModel.ofEntity session
+        PostSessionsResponse.of req.requestType, sessions
     }
 
     @GetMapping('/session/{id}/attendance')

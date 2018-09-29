@@ -1,9 +1,12 @@
 import {MDCRipple} from "@material/ripple";
 import {DateTime, Duration} from "luxon";
+import {RequestType} from "../../endpoint/endpoint.js";
 import {
-    ENDPOINT_CREATE_OR_UPDATE_SESSION,
     ENDPOINT_GET_SESSION_ATTENDANCE,
-    ENDPOINT_GET_SESSIONS_BY_DATE
+    ENDPOINT_GET_SESSIONS,
+    ENDPOINT_POST_SESSIONS,
+    GetSessionsRequest,
+    PostSessionsRequest
 } from "../../endpoint/session-endpoint.js";
 import {AikDataForm} from "../../ui-component/data-form/aik-data-form.js";
 import {DataTable} from "../../ui-component/data-table/data-table.js";
@@ -78,12 +81,11 @@ class SessionUi {
 
     repopulateSessionTable() {
         const rawDate = this.dateForm_.fields.get('date').value;
-        const date = DateTime.fromISO(rawDate);
-
-        this.sessionTable_.clearRows();
-        ENDPOINT_GET_SESSIONS_BY_DATE.execute(date)
-                .then(sessions => {
-                    sessions.forEach(session => this.sessionTable_.appendRow(session));
+        const req = new GetSessionsRequest(DateTime.fromISO(rawDate));
+        ENDPOINT_GET_SESSIONS.execute(req)
+                .then(resp => {
+                    this.sessionTable_.clearRows();
+                    resp.sessions.forEach(session => this.sessionTable_.appendRow(session));
                     this.sessionTable_.sort();
                 });
     }
@@ -123,10 +125,13 @@ class SessionUi {
     handleSessionFormSubmit_(event) {
         const session = this.sessionDialog_.parseSession();
         const attendance = this.sessionDialog_.parseAttendance();
-        this.sessionTable_.clearRows();
 
-        ENDPOINT_CREATE_OR_UPDATE_SESSION.execute(session)
-                // Fuck it, just repopulate the entire table...
-                .then(session => this.repopulateSessionTable());
+        const reqType = session.id == null ? RequestType.CREATE : RequestType.UPDATE;
+        const req = new PostSessionsRequest(reqType, [session]);
+        ENDPOINT_POST_SESSIONS.execute(req)
+                .then(resp => {
+                    // Fuck it, just repopulate the entire table...
+                    this.repopulateSessionTable()
+                });
     }
 }
