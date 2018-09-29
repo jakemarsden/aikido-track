@@ -1,20 +1,22 @@
 package com.jakemarsden.aikidotrack.controller
 
 import com.jakemarsden.aikidotrack.controller.model.GetMembersResponse
+import com.jakemarsden.aikidotrack.controller.model.GetSessionAttendancesRequest
+import com.jakemarsden.aikidotrack.controller.model.GetSessionAttendancesResponse
 import com.jakemarsden.aikidotrack.controller.model.GetSessionsRequest
 import com.jakemarsden.aikidotrack.controller.model.GetSessionsResponse
 import com.jakemarsden.aikidotrack.controller.model.PostMembersRequest
 import com.jakemarsden.aikidotrack.controller.model.PostMembersResponse
+import com.jakemarsden.aikidotrack.controller.model.PostSessionAttendancesRequest
+import com.jakemarsden.aikidotrack.controller.model.PostSessionAttendancesResponse
 import com.jakemarsden.aikidotrack.controller.model.PostSessionsRequest
 import com.jakemarsden.aikidotrack.controller.model.PostSessionsResponse
 import com.jakemarsden.aikidotrack.controller.model.RequestType
-import com.jakemarsden.aikidotrack.controller.model.SessionAttendanceModel
-import com.jakemarsden.aikidotrack.domain.Session
 import com.jakemarsden.aikidotrack.service.MemberService
+import com.jakemarsden.aikidotrack.service.SessionAttendanceService
 import com.jakemarsden.aikidotrack.service.SessionService
 import groovy.transform.PackageScope
 import java.time.LocalDate
-import org.apache.commons.lang3.Validate
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -32,11 +34,15 @@ class ApiController {
 
     private final MemberService memberService
     private final SessionService sessionService
+    private final SessionAttendanceService attendanceService
 
     @PackageScope
-    ApiController(MemberService memberService, SessionService sessionService) {
+    ApiController(
+            MemberService memberService, SessionService sessionService, SessionAttendanceService attendanceService) {
+
         this.memberService = memberService
         this.sessionService = sessionService
+        this.attendanceService = attendanceService
     }
 
     @GetMapping('/member')
@@ -90,19 +96,22 @@ class ApiController {
         PostSessionsResponse.of req.requestType, sessions
     }
 
-    @GetMapping('/session/{id}/attendance')
-    SessionAttendanceModel getSessionAttendance(@PathVariable String id) {
-        Validate.notEmpty id
-        Validate.isTrue id.isLong()
-        final session = sessionService.getSession(id as Long)
-                .orElseThrow { new NotFoundException("$Session.simpleName not found: $id") }
-        sessionAttendanceModel session
+    @GetMapping('/session/{sessionId}/attendance')
+    GetSessionAttendancesResponse getSessionAttendances(@PathVariable String sessionId) {
+        final req = GetSessionAttendancesRequest.of sessionId
+        final attendances = attendanceService.getAttendances(req.sessionId)
+        GetSessionAttendancesResponse.of attendances
     }
 
-    private SessionAttendanceModel sessionAttendanceModel(Session session) {
-        final instructors = sessionService.getSessionInstructors session
-        final presentMembers = sessionService.getSessionPresentMembers session
-        final absentMembers = sessionService.getSessionAbsentMembers session
-        SessionAttendanceModel.ofEntity(instructors, presentMembers, absentMembers)
+    @PostMapping('/session/attendance')
+    PostSessionAttendancesResponse postSessionAttendances(@RequestBody PostSessionAttendancesRequest req) {
+        switch (req.requestType) {
+            case RequestType.Update:
+                attendanceService.updateAttendances req.sessionId, req.attendances
+                break
+            default:
+                throw new IllegalArgumentException("Unsupported $RequestType.simpleName: $req.requestType")
+        }
+        PostSessionAttendancesResponse.of req.requestType
     }
 }

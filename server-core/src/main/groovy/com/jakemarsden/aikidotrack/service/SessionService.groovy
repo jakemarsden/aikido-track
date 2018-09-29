@@ -1,10 +1,8 @@
 package com.jakemarsden.aikidotrack.service
 
 import com.jakemarsden.aikidotrack.controller.model.SessionModel
-import com.jakemarsden.aikidotrack.domain.Member
 import com.jakemarsden.aikidotrack.domain.Session
 import com.jakemarsden.aikidotrack.domain.SessionType
-import com.jakemarsden.aikidotrack.repository.MemberRepository
 import com.jakemarsden.aikidotrack.repository.SessionRepository
 import groovy.transform.PackageScope
 import java.time.LocalDate
@@ -12,18 +10,15 @@ import org.apache.commons.lang3.Validate
 import org.springframework.stereotype.Service
 
 import static java.util.stream.Collectors.toList
-import static java.util.stream.Collectors.toSet
 import static org.apache.commons.lang3.StringUtils.lowerCase
 
 @Service
 class SessionService {
 
-    private final MemberRepository memberRepo
     private final SessionRepository sessionRepo
 
     @PackageScope
-    SessionService(MemberRepository memberRepo, SessionRepository sessionRepo) {
-        this.memberRepo = memberRepo
+    SessionService(SessionRepository sessionRepo) {
         this.sessionRepo = sessionRepo
     }
 
@@ -80,37 +75,6 @@ class SessionService {
         updatedEntities.stream()
                 .map { mapSession it }
                 .collect toList()
-    }
-
-    Optional<Session> getSession(Long id) {
-        Validate.notNull id
-        sessionRepo.findById id
-    }
-
-    List<Member> getSessionInstructors(Session session) {
-        Validate.notNull session
-        session.attendance.stream()
-                .filter { it.instructor }
-                .map { it.member }
-                .collect toList()
-    }
-
-    List<Member> getSessionPresentMembers(Session session) {
-        Validate.notNull session
-        session.attendance.stream()
-                .filter { !it.instructor }
-                .map { it.member }
-                .collect toList()
-    }
-
-    List<Member> getSessionAbsentMembers(Session session) {
-        Validate.notNull session
-        final presentMemberIds = session.attendance.stream()
-                .map { it.member.id }
-                .collect toSet()
-        presentMemberIds.empty ?
-                memberRepo.findAll() :
-                memberRepo.findAllByIdNotIn(presentMemberIds)
     }
 
     private static SessionModel mapSession(Session entity) {

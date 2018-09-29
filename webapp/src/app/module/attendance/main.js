@@ -2,10 +2,13 @@ import {MDCRipple} from "@material/ripple";
 import {DateTime, Duration} from "luxon";
 import {RequestType} from "../../endpoint/endpoint.js";
 import {
-    ENDPOINT_GET_SESSION_ATTENDANCE,
+    ENDPOINT_GET_SESSION_ATTENDANCES,
     ENDPOINT_GET_SESSIONS,
+    ENDPOINT_POST_SESSION_ATTENDANCES,
     ENDPOINT_POST_SESSIONS,
+    GetSessionAttendancesRequest,
     GetSessionsRequest,
+    PostSessionAttendancesRequest,
     PostSessionsRequest
 } from "../../endpoint/session-endpoint.js";
 import {AikDataForm} from "../../ui-component/data-form/aik-data-form.js";
@@ -109,12 +112,13 @@ class SessionUi {
             date = DateTime.fromISO(rawDate);
             duration = Duration.fromObject({ minutes: 60 });
 
-            this.sessionDialog_.showWith(event, session, null, date, duration);
+            this.sessionDialog_.showWith(event, session, [], date, duration);
 
         } else {
             // Update existing session
-            ENDPOINT_GET_SESSION_ATTENDANCE.execute(session)
-                    .then(attendance => this.sessionDialog_.showWith(event, session, attendance, date, duration));
+            const req = new GetSessionAttendancesRequest(session.id);
+            ENDPOINT_GET_SESSION_ATTENDANCES.execute(req)
+                    .then(resp => this.sessionDialog_.showWith(event, session, resp.attendances, date, duration));
         }
     }
 
@@ -124,12 +128,17 @@ class SessionUi {
      */
     handleSessionFormSubmit_(event) {
         const session = this.sessionDialog_.parseSession();
-        const attendance = this.sessionDialog_.parseAttendance();
+        const attendances = this.sessionDialog_.parseAttendance();
 
-        const reqType = session.id == null ? RequestType.CREATE : RequestType.UPDATE;
-        const req = new PostSessionsRequest(reqType, [session]);
-        ENDPOINT_POST_SESSIONS.execute(req)
-                .then(resp => {
+        const sessionsReqType = session.id == null ? RequestType.CREATE : RequestType.UPDATE;
+        const sessionsReq = new PostSessionsRequest(sessionsReqType, [session]);
+        const sessionsReqPromise = ENDPOINT_POST_SESSIONS.execute(sessionsReq);
+
+        const attendancesReq = new PostSessionAttendancesRequest(session.id, attendances);
+        const attendancesReqPromise = ENDPOINT_POST_SESSION_ATTENDANCES.execute(attendancesReq);
+
+        Promise.all([sessionsReqPromise, attendancesReqPromise])
+                .then(([sessionsResp, attendancesResp]) => {
                     // Fuck it, just repopulate the entire table...
                     this.repopulateSessionTable()
                 });

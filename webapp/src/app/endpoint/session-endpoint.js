@@ -65,30 +65,34 @@ class PostSessionsRestEndpoint extends JQueryAjaxRestEndpoint {
 }
 
 /**
- * @extends {JQueryAjaxRestEndpoint<Session, SessionAttendance>}
+ * @extends {JQueryAjaxRestEndpoint<GetSessionAttendancesRequest, GetSessionAttendancesResponse>}
  * @private
  */
-class GetSessionAttendanceRestEndpoint extends JQueryAjaxRestEndpoint {
+class GetSessionAttendancesRestEndpoint extends JQueryAjaxRestEndpoint {
 
     /**
      * @inheritDoc
      * @protected
      */
     createRequestOpts(opts, request, requestTransport) {
-        if (request.id == null) {
-            throw new IllegalStateError(
-                    `Unable to get SessionAttendance for a session which hasn't yet been created: ${request}`);
-        }
         super.createRequestOpts(opts, request, requestTransport);
-        opts.url = `/api/session/${request.id}/attendance`;
+        opts.url = `/api/session/${request.sessionId}/attendance`;
     }
+}
+
+/**
+ * @extends {JQueryAjaxRestEndpoint<PostSessionAttendancesRequest, PostSessionAttendancesResponse>}
+ * @private
+ */
+class PostSessionAttendancesRestEndpoint extends JQueryAjaxRestEndpoint {
 
     /**
      * @inheritDoc
      * @protected
      */
-    serializeRequest(request) {
-        return undefined;
+    createRequestOpts(opts, request, requestTransport) {
+        super.createRequestOpts(opts, request, requestTransport);
+        opts.url = `/api/session/attendance`;
     }
 }
 
@@ -121,21 +125,24 @@ function deserializeSession(sessionTransport) {
 }
 
 /**
- * @type {RestEndpoint<GetSessionsRequest, GetSessionsResponse>}
+ * @constant {RestEndpoint<GetSessionsRequest, GetSessionsResponse>}
  */
 export const ENDPOINT_GET_SESSIONS = new GetSessionsRestEndpoint();
 
 /**
- * @type {RestEndpoint<PostSessionsRequest, PostSessionsResponse>}
+ * @constant {RestEndpoint<PostSessionsRequest, PostSessionsResponse>}
  */
 export const ENDPOINT_POST_SESSIONS = new PostSessionsRestEndpoint();
 
 /**
- * Retrieve {@link SessionAttendance} information about a given {@link Session}
- *
- * @type {RestEndpoint<Session, SessionAttendance>}
+ * @constant {RestEndpoint<GetSessionAttendancesRequest, GetSessionAttendancesResponse>}
  */
-export const ENDPOINT_GET_SESSION_ATTENDANCE = new GetSessionAttendanceRestEndpoint();
+export const ENDPOINT_GET_SESSION_ATTENDANCES = new GetSessionAttendancesRestEndpoint();
+
+/**
+ * @constant {RestEndpoint<PostSessionAttendancesRequest, PostSessionAttendancesResponse>}
+ */
+export const ENDPOINT_POST_SESSION_ATTENDANCES = new PostSessionAttendancesRestEndpoint();
 
 /**
  * @see com.jakemarsden.aikidotrack.controller.model.GetSessionsRequest
@@ -185,6 +192,56 @@ export class PostSessionsRequest extends AikRequest {
  */
 
 /**
+ * @see com.jakemarsden.aikidotrack.controller.model.GetSessionAttendancesRequest
+ */
+export class GetSessionAttendancesRequest extends AikRequest {
+
+    /**
+     * @param {string} sessionId
+     */
+    constructor(sessionId) {
+        super(RequestType.GET);
+        /**
+         * @constant {!string} sessionId
+         */
+        this.sessionId = sessionId
+    }
+}
+
+/**
+ * @typedef {AikResponse} GetSessionAttendancesResponse
+ * @property {Array<SessionAttendance>} attendances
+ * @see com.jakemarsden.aikidotrack.controller.model.GetSessionAttendancesResponse
+ */
+
+/**
+ * @see com.jakemarsden.aikidotrack.controller.model.PostSessionAttendancesRequest
+ */
+export class PostSessionAttendancesRequest extends AikRequest {
+
+    /**
+     * @param {string} sessionId
+     * @param {Array<SessionAttendance>} attendances
+     */
+    constructor(sessionId, attendances) {
+        super(RequestType.UPDATE);
+        /**
+         * @constant {string} sessionId
+         */
+        this.sessionId = sessionId;
+        /**
+         * @constant {Array<SessionAttendance>)
+         */
+        this.attendances = attendances;
+    }
+}
+
+/**
+ * @typedef {AikResponse} PostSessionAttendancesResponse
+ * @see com.jakemarsden.aikidotrack.controller.model.PostSessionAttendancesResponse
+ */
+
+/**
  * @typedef {Object} Session
  * @property {string} id
  * @property {string} type
@@ -194,7 +251,6 @@ export class PostSessionsRequest extends AikRequest {
 
 /**
  * @typedef {Object} SessionAttendance
- * @property {Array<Member>} instructors
- * @property {Array<Member>} presentMembers
- * @property {Array<Member>} absentMembers
+ * @property {Member} member
+ * @property {boolean} present
  */

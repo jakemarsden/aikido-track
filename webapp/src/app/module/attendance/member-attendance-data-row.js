@@ -4,12 +4,12 @@ import {MemberDataRow} from "../../ui-component/member-data-table/member-data-ro
 import {IllegalStateError} from "../../util/error.js";
 
 /**
- * @extends {DataRow<MemberAttendanceDataRow~MemberAttendance>}
+ * @extends {DataRow<SessionAttendance>}
  * @package
  */
 export class MemberAttendanceDataRow extends DataRow {
     /**
-     * @return {!DataRow~Ctor<MemberAttendanceDataRow~MemberAttendance>}
+     * @return {!DataRow~Ctor<SessionAttendance>}
      */
     static get ctor() {
         return (elem, data) => new MemberAttendanceDataRow(elem, data);
@@ -17,7 +17,7 @@ export class MemberAttendanceDataRow extends DataRow {
 
     /**
      * @param {!HTMLTableRowElement} elem
-     * @param {MemberAttendanceDataRow~MemberAttendance} data
+     * @param {SessionAttendance} data
      */
     constructor(elem, data) {
         super(elem, data);
@@ -90,9 +90,3 @@ const SELECTOR_BASE = 'aik-session-attendance-data-table';
 MemberAttendanceDataRow.Selector = {
     PRESENT_SWITCH: `.${SELECTOR_BASE}__attendance`
 };
-
-/**
- * @typedef {Object} MemberAttendanceDataRow~MemberAttendance
- * @property {!Member} member
- * @property {boolean} present
- */
