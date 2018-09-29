@@ -53,7 +53,7 @@ export class MemberAttendanceDataRow extends DataRow {
             return 1;
         }
         const cell = this.elem.cells.item(colIdx);
-        if (cell.classList.contains(MemberAttendanceDataRow.Selector.PRESENT_SWITCH)) {
+        if (cell.querySelector(MemberAttendanceDataRow.Selector.PRESENT_SWITCH) != null) {
             const present = this.presentSwitch_.checked;
             const otherPresent = other.presentSwitch_.checked;
             return otherPresent - present;
