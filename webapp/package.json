@@ -1,9 +1,14 @@
 {
     "name": "aikido-track",
-    "version": "0.1.0",
+    "version": "0.0.1-SNAPSHOT",
     "description": "",
     "author": "Jake Marsden",
     "private": true,
+    "license": "MIT",
+    "repository": {
+        "url": "https://github.com/jakemarsden/aikido-track.git",
+        "type": "git"
+    },
     "scripts": {
         "build": "webpack --progress",
         "build-for-prod": "webpack -p --env production --progress",
