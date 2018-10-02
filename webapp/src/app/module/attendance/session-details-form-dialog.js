@@ -41,13 +41,31 @@ export class SessionDetailsFormDialog extends AikDataFormDialog {
     }
 
     /**
+     * @return {boolean}
+     */
+    get attendanceFieldsetHidden() {
+        return this.root_
+                .querySelector(SessionDetailsFormDialog.Selector.ATTENDANCE_FIELDSET)
+                .classList.contains(SessionDetailsFormDialog.CssClass.HIDDEN);
+    }
+
+    /**
+     * @param {boolean} attendanceFieldsetHidden
+     */
+    set attendanceFieldsetHidden(attendanceFieldsetHidden) {
+        this.root_
+                .querySelector(SessionDetailsFormDialog.Selector.ATTENDANCE_FIELDSET)
+                .classList.toggle(SessionDetailsFormDialog.CssClass.HIDDEN, attendanceFieldsetHidden);
+    }
+
+    /**
      * @param {Event} event
      * @param {Session} session
-     * @param {Array<SessionAttendance>} attendances
+     * @param {(Array<SessionAttendance>|null)} attendances Pass `null` if there's no attendance info to edit
      * @param {(DateTime|null)} [defaultDate=null]
      * @param {(Duration|null)} [defaultDuration=null]
      */
-    showWith(event, session, attendances, defaultDate = null, defaultDuration = null) {
+    showWith(event, session, attendances = null, defaultDate = null, defaultDuration = null) {
         this.lastFocusedTarget = event.target;
         this.populateSession(session, defaultDate, defaultDuration);
         this.populateAttendance(attendances);
@@ -74,13 +92,16 @@ export class SessionDetailsFormDialog extends AikDataFormDialog {
     }
 
     /**
-     * @param {Array<SessionAttendance>} attendances
+     * @param {(Array<SessionAttendance>|null)} attendances
      * @protected
      */
     populateAttendance(attendances) {
         this.attendanceTable_.clearRows();
-        attendances.forEach(attendance => this.attendanceTable_.appendRow(attendance));
-        this.attendanceTable_.sort();
+        if (attendances !== null) {
+            attendances.forEach(attendance => this.attendanceTable_.appendRow(attendance));
+            this.attendanceTable_.sort();
+        }
+        this.attendanceFieldsetHidden = (attendances === null);
     }
 
     /**
@@ -110,3 +131,21 @@ export class SessionDetailsFormDialog extends AikDataFormDialog {
         return attendances.map(it => ({ member: it.data.member, present: it.presentSwitch.checked }));
     }
 }
+
+/**
+ * @constant
+ * @enum {string}
+ * @private
+ */
+SessionDetailsFormDialog.CssClass = {
+    HIDDEN: 'aik-data-form__fieldset--hidden'
+};
+
+/**
+ * @constant
+ * @enum {string}
+ * @private
+ */
+SessionDetailsFormDialog.Selector = {
+    ATTENDANCE_FIELDSET: '.aik-session-details-form__attendance-fieldset'
+};

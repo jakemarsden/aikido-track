@@ -112,7 +112,7 @@ class SessionUi {
             date = DateTime.fromISO(rawDate);
             duration = Duration.fromObject({ minutes: 60 });
 
-            this.sessionDialog_.showWith(event, session, [], date, duration);
+            this.sessionDialog_.showWith(event, session, null, date, duration);
 
         } else {
             // Update existing session
@@ -128,19 +128,35 @@ class SessionUi {
      */
     handleSessionFormSubmit_(event) {
         const session = this.sessionDialog_.parseSession();
-        const attendances = this.sessionDialog_.parseAttendance();
+        const updateExisting = session.id != null;
 
         const sessionsReqType = session.id == null ? RequestType.CREATE : RequestType.UPDATE;
         const sessionsReq = new PostSessionsRequest(sessionsReqType, [session]);
         const sessionsReqPromise = ENDPOINT_POST_SESSIONS.execute(sessionsReq);
 
-        const attendancesReq = new PostSessionAttendancesRequest(session.id, attendances);
-        const attendancesReqPromise = ENDPOINT_POST_SESSION_ATTENDANCES.execute(attendancesReq);
+        /**
+         * @type {Promise<(PostSessionAttendancesResponse|null)>}
+         */
+        let attendancesReqPromise;
+        if (updateExisting) {
+            // Attendance info may have changed
+            const attendances = this.sessionDialog_.parseAttendance();
+            const attendancesReq = new PostSessionAttendancesRequest(session.id, attendances);
+            attendancesReqPromise = ENDPOINT_POST_SESSION_ATTENDANCES.execute(attendancesReq);
+        } else {
+            // There's no attendance info to update
+            attendancesReqPromise = Promise.resolve(null);
+        }
 
         Promise.all([sessionsReqPromise, attendancesReqPromise])
-                .then(([sessionsResp, attendancesResp]) => {
+                .then(([sessionsResp, attendancesRespOrNull]) => {
                     // Fuck it, just repopulate the entire table...
                     this.repopulateSessionTable()
+
+                    if (!updateExisting) {
+                        // Show the dialog again so user can now update attendance
+                        this.showSessionDialog(event, sessionsResp.sessions[0]);
+                    }
                 });
     }
 }
