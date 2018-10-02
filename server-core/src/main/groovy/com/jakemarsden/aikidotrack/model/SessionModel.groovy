@@ -1,4 +1,4 @@
-package com.jakemarsden.aikidotrack.controller.model
+package com.jakemarsden.aikidotrack.model
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty

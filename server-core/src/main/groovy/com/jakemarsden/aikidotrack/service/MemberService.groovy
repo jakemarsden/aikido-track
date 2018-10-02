@@ -1,8 +1,8 @@
 package com.jakemarsden.aikidotrack.service
 
-import com.jakemarsden.aikidotrack.controller.model.MemberModel
 import com.jakemarsden.aikidotrack.domain.Member
 import com.jakemarsden.aikidotrack.domain.MemberType
+import com.jakemarsden.aikidotrack.model.MemberModel
 import com.jakemarsden.aikidotrack.repository.MemberRepository
 import groovy.transform.PackageScope
 import org.apache.commons.lang3.Validate
@@ -31,13 +31,13 @@ class MemberService {
     List<MemberModel> createMembers(List<MemberModel> members) {
         final entities = members.stream()
                 .map { member ->
-                    final msg = "Unable to create member with ID '$member.id' as it already has an ID: $member"
-                    Validate.isTrue member.id == null, msg
+            final msg = "Unable to create member with ID '$member.id' as it already has an ID: $member"
+            Validate.isTrue member.id == null, msg
 
-                    final entity = new Member()
-                    updateMemberEntity entity, member
-                    entity
-                }
+            final entity = new Member()
+            updateMemberEntity entity, member
+            entity
+        }
                 .collect toList()
 
         final createdEntities = memberRepo.saveAll entities
@@ -50,17 +50,17 @@ class MemberService {
         // TODO: Bulk updates? Who has time to write that shit? It's not like the user's time is important anyway...
         final entities = members.stream()
                 .map { member ->
-                    Validate.notNull member.id, "Invalid member ID: $member.id"
-                    Validate.isTrue member.id.isLong(), "Invalid member ID: $member.id"
-                    final entity = memberRepo.findById(member.id as Long)
-                            .orElseThrow {
-                                final msg = "Unable to update member with ID '$member.id' as it couldn't be found: " +
-                                        "$member"
-                                new IllegalArgumentException(msg)
-                            }
-                    updateMemberEntity entity, member
-                    entity
-                }
+            Validate.notNull member.id, "Invalid member ID: $member.id"
+            Validate.isTrue member.id.isLong(), "Invalid member ID: $member.id"
+            final entity = memberRepo.findById(member.id as Long)
+                    .orElseThrow {
+                final msg = "Unable to update member with ID '$member.id' as it couldn't be found: " +
+                        "$member"
+                new IllegalArgumentException(msg)
+            }
+            updateMemberEntity entity, member
+            entity
+        }
                 .collect toList()
 
         final updatedEntities = memberRepo.saveAll entities

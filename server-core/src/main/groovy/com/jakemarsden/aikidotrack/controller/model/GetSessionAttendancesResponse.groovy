@@ -3,6 +3,7 @@ package com.jakemarsden.aikidotrack.controller.model
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.jakemarsden.aikidotrack.model.SessionAttendanceModel
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 import org.apache.commons.lang3.Validate
