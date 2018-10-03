@@ -22,14 +22,6 @@ export class SessionDataRow extends DataRow {
 
         const s = SessionDataRow.Selector;
         /**
-         * @param {Session} data
-         * @param {T} def
-         * @param {function(it: SessionAttendance): T} fn
-         * @return {T} `def` if the {@link Session}'s attendance is `null`. Otherwise, the result of executing `fn`
-         * @template T
-         */
-        const withAttendance = (data, def, fn) => (data.attendance && fn(data.attendance)) || def;
-        /**
          * @constant {Object<string, DataRow~Renderer<Session>>}
          * @private
          */
@@ -40,13 +32,10 @@ export class SessionDataRow extends DataRow {
             [s.TIME]: (elem, data) =>
                     elem.textContent = data.dateTime.toISOTime({ includeOffset: false, suppressSeconds: true }),
             [s.DURATION]: (elem, data) => elem.textContent = data.duration.as('minutes'),
-            [s.ATTENDANCE_PRESENT_COUNT]: (elem, data) =>
-                    elem.textContent = withAttendance(data, 0, it => it.instructors.length + it.presentMembers.length),
-            [s.ATTENDANCE_ABSENT_COUNT]: (elem, data) =>
-                    elem.textContent = withAttendance(data, 0, it => it.absentMembers.length),
+            [s.ATTENDANCE_PRESENT_COUNT]: (elem, data) => elem.textContent = data.presentMemberCount,
+            [s.ATTENDANCE_ABSENT_COUNT]: (elem, data) => elem.textContent = data.absentMemberCount,
             [s.ATTENDANCE_TOTAL_COUNT]: (elem, data) =>
-                    elem.textContent = withAttendance(data, 0, it =>
-                            it.instructors.length + it.presentMembers.length + it.absentMembers.length)
+                    elem.textContent = data.presentMemberCount + data.absentMemberCount
         };
     }
 

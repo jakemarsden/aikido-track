@@ -5,6 +5,7 @@ import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalTime
 import javax.persistence.Column
+import javax.persistence.Embedded
 import javax.persistence.Entity
 import javax.persistence.Enumerated
 import javax.persistence.Table
@@ -27,4 +28,11 @@ final class Session extends Identifiable {
 
     @Column(nullable = false)
     Duration duration
+
+    /**
+     * Columns which <i>could</i> be calculated on demand but have been included here for simplicity and/or read
+     * performance at the cost of write performance
+     */
+    @Embedded
+    SessionStats stats
 }

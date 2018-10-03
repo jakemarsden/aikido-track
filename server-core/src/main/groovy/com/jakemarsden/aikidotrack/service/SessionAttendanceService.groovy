@@ -63,12 +63,20 @@ class SessionAttendanceService {
         }
         final session = sessionRepo.findById(sessionId as Long)
                 .orElseThrow {
-            new IllegalArgumentException("Session with ID '$sessionId' not found: attendances=$attendances")
-        }
+                    new IllegalArgumentException("Session with ID '$sessionId' not found: attendances=$attendances")
+                }
 
         // TODO: Efficiency?? Never heard of it
         attendances.stream()
                 .forEach { synchronizeAttendanceRecord session, it.member, it.present }
+
+        session.stats.presentMemberCount = attendances.stream()
+                .filter { it.present }
+                .count()
+        session.stats.absentMemberCount = attendances.stream()
+                .filter { !it.present }
+                .count()
+        sessionRepo.save session
     }
 
     private void synchronizeAttendanceRecord(Session sessionEntity, MemberModel member, boolean present) {
@@ -84,10 +92,10 @@ class SessionAttendanceService {
         if (present && !attendanceEntity.present) {
             final memberEntity = memberRepo.findById(memberId)
                     .orElseThrow {
-                final msg = "Member with ID '$memberId' not found: " +
-                        "sessionEntity=$sessionEntity, member=$member, present=$present"
-                new IllegalStateException(msg)
-            }
+                        final msg = "Member with ID '$memberId' not found: " +
+                                "sessionEntity=$sessionEntity, member=$member, present=$present"
+                        new IllegalStateException(msg)
+                    }
             attendanceRepo.save new SessionAttendance(session: sessionEntity, member: memberEntity)
         }
         if (!present && attendanceEntity.present) {

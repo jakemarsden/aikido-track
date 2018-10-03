@@ -1,6 +1,7 @@
 package com.jakemarsden.aikidotrack.service
 
 import com.jakemarsden.aikidotrack.domain.Session
+import com.jakemarsden.aikidotrack.domain.SessionStats
 import com.jakemarsden.aikidotrack.domain.SessionType
 import com.jakemarsden.aikidotrack.model.SessionModel
 import com.jakemarsden.aikidotrack.repository.SessionRepository
@@ -39,13 +40,13 @@ class SessionService {
     List<SessionModel> createSessions(List<SessionModel> sessions) {
         final entities = sessions.stream()
                 .map { session ->
-            final msg = "Unable to create session with ID '$session.id' as it already has an ID: $session"
-            Validate.isTrue session.id == null, msg
+                    final msg = "Unable to create session with ID '$session.id' as it already has an ID: $session"
+                    Validate.isTrue session.id == null, msg
 
-            final entity = new Session()
-            updateSessionEntity entity, session
-            entity
-        }
+                    final entity = new Session()
+                    updateSessionEntity entity, session
+                    entity
+                }
                 .collect toList()
 
         final createdEntities = sessionRepo.saveAll entities
@@ -58,17 +59,17 @@ class SessionService {
         // TODO: Bulk updates? Who has time to write that shit? It's not like the user's time is important anyway...
         final entities = sessions.stream()
                 .map { session ->
-            Validate.notNull session.id, "Invalid session ID: $session.id"
-            Validate.isTrue session.id.isLong(), "Invalid session ID: $session.id"
-            final entity = sessionRepo.findById(session.id as Long)
-                    .orElseThrow {
-                final msg = "Unable to update session with ID '$session.id' as it couldn't be " +
-                        "found: $session"
-                new IllegalArgumentException(msg)
-            }
-            updateSessionEntity entity, session
-            entity
-        }
+                    Validate.notNull session.id, "Invalid session ID: $session.id"
+                    Validate.isTrue session.id.isLong(), "Invalid session ID: $session.id"
+                    final entity = sessionRepo.findById(session.id as Long)
+                            .orElseThrow {
+                                final msg = "Unable to update session with ID '$session.id' as it couldn't be " +
+                                        "found: $session"
+                                new IllegalArgumentException(msg)
+                            }
+                    updateSessionEntity entity, session
+                    entity
+                }
                 .collect toList()
 
         final updatedEntities = sessionRepo.saveAll entities
@@ -78,8 +79,10 @@ class SessionService {
     }
 
     private static SessionModel mapSession(Session entity) {
+        final type = lowerCase(entity.type as String)
         SessionModel.of(
-                entity.id as String, lowerCase(entity.type as String), entity.date, entity.time, entity.duration)
+                entity.id as String, type, entity.date, entity.time, entity.duration, entity.stats.presentMemberCount,
+                entity.stats.absentMemberCount)
     }
 
     private static void updateSessionEntity(Session entity, SessionModel session) {
@@ -87,6 +90,7 @@ class SessionService {
         entity.date = session.date
         entity.time = session.time
         entity.duration = session.duration
+        entity.stats = entity.stats ?: new SessionStats(presentMemberCount: 0L, absentMemberCount: 0L)
     }
 
     private static SessionType parseSessionType(String type) {

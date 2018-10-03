@@ -107,6 +107,8 @@ function serializeSession(session) {
     sessionTransport.date = session.dateTime && session.dateTime.toISODate();
     sessionTransport.time = session.dateTime && session.dateTime.toISOTime({ includeOffset: false });
     sessionTransport.duration = session.duration && session.duration.toISO();
+    sessionTransport.presentMemberCount = null;
+    sessionTransport.absentMemberCount = null;
     return sessionTransport;
 }
 
@@ -121,6 +123,8 @@ function deserializeSession(sessionTransport) {
     session.dateTime = sessionTransport.date && sessionTransport.time &&
             fromIsoDateAndTime(sessionTransport.date, sessionTransport.time);
     session.duration = sessionTransport.duration && Duration.fromISO(sessionTransport.duration);
+    session.presentMemberCount = sessionTransport.presentMemberCount;
+    session.absentMemberCount = sessionTransport.absentMemberCount;
     return session;
 }
 
@@ -247,6 +251,8 @@ export class PostSessionAttendancesRequest extends AikRequest {
  * @property {string} type
  * @property {DateTime} dateTime
  * @property {Duration} duration
+ * @property {number} presentMemberCount
+ * @property {number} absentMemberCount
  */
 
 /**
