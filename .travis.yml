@@ -1,0 +1,23 @@
+sudo: false
+branches:
+  only:
+    - master
+language: java
+jdk: oraclejdk8
+before_install:
+  - export TZ=Pacific/Auckland
+  - nvm install 8.11.4
+  - npm install npm@6.4.1
+install:
+  - cd server-core && ./gradlew dependencyReport && cd ..
+  - cd webapp && npm install && cd ..
+script:
+  - cd server-core && ./gradlew build && cd ..
+  - cd webapp && npm run build-for-prod && cd ..
+deploy:
+  provider: heroku
+  api_key:
+    secure: $HEROKU_API_KEY
+  app: aikido-track
+  on: master
+  skip_cleanup: true
