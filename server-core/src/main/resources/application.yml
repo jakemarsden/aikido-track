@@ -2,6 +2,9 @@ server.port: 5000
 spring:
   jackson.serialization.indent_output: true
 
+  # Configure webapp location
+  resources.static-locations: file:./webapp/
+
   # Configure database connection
   datasource.url: jdbc:h2:./data/db
   jpa.hibernate.ddl-auto: update

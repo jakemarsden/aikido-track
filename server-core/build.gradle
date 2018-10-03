@@ -5,12 +5,6 @@ plugins {
     id 'org.springframework.boot' version '2.0.3.RELEASE'
 }
 
-final os = System.getProperty('os.name').toLowerCase()
-final webappDir = "$projectDir/../webapp"
-
-// Execute tasks for production using "./gradlew <tasks> -Penv=production"
-final isForProd = findProperty('env') == 'production'
-
 group 'com.jakemarsden'
 version '0.0.1-SNAPSHOT'
 sourceCompatibility = 1.8
@@ -44,32 +38,9 @@ dependencies {
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-web'
 }
 
-task compileWebapp(type: Exec) {
-    inputs.property 'isForProd', isForProd
-    inputs.file "$webappDir/package.json"
-    inputs.file "$webappDir/package-lock.json"
-    inputs.file "$webappDir/postcss.config.js"
-    inputs.file "$webappDir/webpack.config.js"
-    inputs.dir "$webappDir/src"
-    outputs.dir "$webappDir/dist"
-
-    executable = os.contains('windows') ? 'npm.cmd' : 'npm'
-    args = ['run', isForProd ? 'build-for-prod' : 'build']
-    workingDir webappDir
-}
-
 sourceSets {
-    main {
-        java.srcDirs = []
-        output.dir "$webappDir/dist", builtBy: compileWebapp
-    }
+    main.java.srcDirs = []
     test.java.srcDirs = []
-}
-
-bootRun {
-    // Includes live reloading of webapp build output so rebuilding the webapp (ie. "npm run build") and refreshing the
-    // browser will give the updated content immediately
-    sourceResources sourceSets.main
 }
 
 springBoot {
@@ -79,6 +50,13 @@ springBoot {
             time = null
         }
     }
+}
+
+bootRun {
+    // Override webapp location to use webpack output
+    //   Note: trailing slash is significant
+    final path = 'file:../webapp/dist/'
+    args = ["--spring.resources.static-locations=$path"]
 }
 
 wrapper {

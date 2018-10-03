@@ -14,7 +14,7 @@ module.exports = function (env) {
     const isForProd = env === 'production';
     const dir = {
         source: 'src',
-        output: 'dist/static',
+        output: 'dist',
         libs: 'node_modules'
     };
 
