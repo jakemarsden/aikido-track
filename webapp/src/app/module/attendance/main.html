@@ -4,7 +4,7 @@
 
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
-<title>AikidoTrack</title>
+<title>Attendance | AikidoTrack</title>
 <link rel="shortcut icon" href="/image/app-icon-dark.png"/>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500"/>
 
@@ -40,7 +40,7 @@
                 </a>
                 <a class="mdc-tab mdc-tab--active" href="/attendance.html" tabindex="0" role="tab" aria-selected="true">
                     <span class="mdc-tab__content">
-                        <span class="mdc-tab__icon material-icons">people</span>
+                        <span class="mdc-tab__icon material-icons">list</span>
                         <span class="mdc-tab__text-label">Attendance</span>
                     </span>
                     <span class="mdc-tab-indicator mdc-tab-indicator--active">
@@ -53,51 +53,56 @@
     </div>
 </div>
 
-<form id="aik-attendance-date-form" class="aik-data-form">
-    <fieldset class="aik-data-form__fieldset aik-data-form__fieldset--no-decoration">
-        <div id="aik-attendance-date-form__date"
-                class="mdc-text-field mdc-text-field--outlined mdc-text-field--with-leading-icon">
-            <i class="material-icons mdc-text-field__icon">event</i>
-            <input id="aik-attendance-date-form__date__input"
-                    class="mdc-text-field__input"
-                    name="date"
-                    type="date"
-                    required/>
-            <label for="aik-attendance-date-form__date__input"
-                    class="mdc-floating-label mdc-floating-label--float-above">
-                Date
-            </label>
-            <div class="mdc-notched-outline mdc-notched-outline--notched">
-                <svg>
-                    <path class="mdc-notched-outline__path" d=""></path>
-                </svg>
+<section>
+    <form id="aik-attendance-date-form" class="aik-data-form">
+        <fieldset class="aik-data-form__fieldset aik-data-form__fieldset--no-decoration">
+            <div id="aik-attendance-date-form__date"
+                    class="mdc-text-field mdc-text-field--outlined mdc-text-field--with-leading-icon">
+                <i class="material-icons mdc-text-field__icon">event</i>
+                <input id="aik-attendance-date-form__date__input"
+                        class="mdc-text-field__input"
+                        name="date"
+                        type="date"
+                        required/>
+                <label for="aik-attendance-date-form__date__input"
+                        class="mdc-floating-label mdc-floating-label--float-above">
+                    Date
+                </label>
+                <div class="mdc-notched-outline mdc-notched-outline--notched">
+                    <svg>
+                        <path class="mdc-notched-outline__path" d=""></path>
+                    </svg>
+                </div>
+                <div class="mdc-notched-outline__idle"></div>
             </div>
-            <div class="mdc-notched-outline__idle"></div>
-        </div>
 
-        <button id="aik-attendance-date-form__apply-btn" class="mdc-button mdc-button--raised" type="submit">
-            Apply
-        </button>
-    </fieldset>
-</form>
+            <button id="aik-attendance-date-form__apply-btn" class="mdc-button mdc-button--raised" type="submit">
+                Apply
+            </button>
+        </fieldset>
+    </form>
 
-<table id="aik-session-details-table" class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
-    <thead>
-    <tr>
-        <th class="mdl-data-table__cell--non-numeric mdl-data-table__header--sortable">Type</th>
-        <th class="mdl-data-table__cell--non-numeric mdl-data-table__header--sortable mdl-data-table__header--sorted-ascending">
-            Time
-        </th>
-        <th class="mdl-data-table__header--sortable">Duration (mins)</th>
-        <th class="mdl-data-table__header--sortable">Attendance</th>
-    </tr>
-    </thead>
-    <tbody>
-    <!-- Populated by #aik-tmpl-session-details-table__row -->
-    </tbody>
-</table>
+    <table id="aik-session-details-table" class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
+        <thead>
+        <tr>
+            <th class="mdl-data-table__cell--non-numeric mdl-data-table__header--sortable">Type</th>
+            <th class="mdl-data-table__cell--non-numeric mdl-data-table__header--sortable mdl-data-table__header--sorted-ascending">
+                Time
+            </th>
+            <th class="mdl-data-table__header--sortable">Duration (mins)</th>
+            <th class="mdl-data-table__header--sortable">Attendance</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Populated by #aik-tmpl-session-details-table__row -->
+        </tbody>
+    </table>
 
-<button id="aik-session-details-add-session-btn" class="mdc-button mdc-button--raised">Add session</button>
+    <button id="aik-session-details-add-session-btn" class="mdc-button mdc-button--raised">
+        <span class="mdc-button__icon material-icons" aria-hidden="true">add</span>
+        Add session
+    </button>
+</section>
 
 <aside id="aik-session-details-dialog"
         class="mdc-dialog"
