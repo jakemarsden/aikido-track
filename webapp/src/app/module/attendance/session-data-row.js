@@ -32,10 +32,7 @@ export class SessionDataRow extends DataRow {
             [s.TIME]: (elem, data) =>
                     elem.textContent = data.dateTime.toISOTime({ includeOffset: false, suppressSeconds: true }),
             [s.DURATION]: (elem, data) => elem.textContent = data.duration.as('minutes'),
-            [s.ATTENDANCE_PRESENT_COUNT]: (elem, data) => elem.textContent = data.presentMemberCount,
-            [s.ATTENDANCE_ABSENT_COUNT]: (elem, data) => elem.textContent = data.absentMemberCount,
-            [s.ATTENDANCE_TOTAL_COUNT]: (elem, data) =>
-                    elem.textContent = data.presentMemberCount + data.absentMemberCount
+            [s.ATTENDANCE_PRESENT_COUNT]: (elem, data) => elem.textContent = data.presentMemberCount
         };
     }
 
@@ -56,7 +53,5 @@ SessionDataRow.Selector = {
     DATE: `.${SELECTOR_BASE}__date`,
     TIME: `.${SELECTOR_BASE}__time`,
     DURATION: `.${SELECTOR_BASE}__duration`,
-    ATTENDANCE_PRESENT_COUNT: `.${SELECTOR_BASE}__attendance-present-count`,
-    ATTENDANCE_ABSENT_COUNT: `.${SELECTOR_BASE}__attendance-absent-count`,
-    ATTENDANCE_TOTAL_COUNT: `.${SELECTOR_BASE}__attendance-total-count`
+    ATTENDANCE_PRESENT_COUNT: `.${SELECTOR_BASE}__attendance-present-count`
 };

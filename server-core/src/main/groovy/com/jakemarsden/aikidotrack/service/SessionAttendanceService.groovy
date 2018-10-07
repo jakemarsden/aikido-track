@@ -73,9 +73,6 @@ class SessionAttendanceService {
         session.stats.presentMemberCount = attendances.stream()
                 .filter { it.present }
                 .count()
-        session.stats.absentMemberCount = attendances.stream()
-                .filter { !it.present }
-                .count()
         sessionRepo.save session
     }
 

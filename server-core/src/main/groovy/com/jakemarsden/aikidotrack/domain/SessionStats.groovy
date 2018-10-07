@@ -14,7 +14,4 @@ final class SessionStats {
 
     @Column(nullable = false)
     Long presentMemberCount
-
-    @Column(nullable = false)
-    Long absentMemberCount
 }

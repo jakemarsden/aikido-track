@@ -81,8 +81,7 @@ class SessionService {
     private static SessionModel mapSession(Session entity) {
         final type = lowerCase(entity.type as String)
         SessionModel.of(
-                entity.id as String, type, entity.date, entity.time, entity.duration, entity.stats.presentMemberCount,
-                entity.stats.absentMemberCount)
+                entity.id as String, type, entity.date, entity.time, entity.duration, entity.stats.presentMemberCount)
     }
 
     private static void updateSessionEntity(Session entity, SessionModel session) {
@@ -90,7 +89,7 @@ class SessionService {
         entity.date = session.date
         entity.time = session.time
         entity.duration = session.duration
-        entity.stats = entity.stats ?: new SessionStats(presentMemberCount: 0L, absentMemberCount: 0L)
+        entity.stats = entity.stats ?: new SessionStats(presentMemberCount: 0L)
     }
 
     private static SessionType parseSessionType(String type) {
