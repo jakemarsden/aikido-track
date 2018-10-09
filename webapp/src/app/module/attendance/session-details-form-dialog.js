@@ -1,34 +1,41 @@
 import Duration from "luxon/src/duration.js";
-import {AikDataFormDialog} from "../../ui-component/data-form-dialog/aik-data-form-dialog.js";
+import {DataFormDialog} from "../../ui-component/data-form-dialog/index.js";
 import {fromIsoDateAndTime} from "../../util/date-time-utils.js";
 
 /**
  * @package
  */
-export class SessionDetailsFormDialog extends AikDataFormDialog {
+export class SessionDetailsFormDialog extends DataFormDialog {
 
     /**
-     * @param {!Element} root
+     * @param {!Dialog} dialog
+     * @param {!DataForm} form
      * @param {!DataTable<SessionAttendance>} attendanceTable
-     * @param {F=} foundation
-     * @param {...?} args
+     * @param {...?} args Any additional arguments to pass to {@link #init}
      */
-    constructor(root, attendanceTable, foundation = undefined, ...args) {
-        super(root, foundation, attendanceTable, ...args);
+    constructor(dialog, form, attendanceTable, ...args) {
+        super(dialog, form, attendanceTable, ...args);
     }
 
     /**
-     * @param {DataTable<SessionAttendance>} attendanceTable
+     * @param {!Dialog} dialog
+     * @param {!DataForm} form
+     * @param {!DataTable<SessionAttendance>} attendanceTable
+     * @param {...?} args
+     * @protected
      */
-    initialize(attendanceTable) {
-        super.initialize();
+    init(dialog, form, attendanceTable, ...args) {
+        super.init(dialog, form, attendanceTable, ...args);
         /**
-         * @type {DataTable<SessionAttendance>}
+         * @constant {DataTable<SessionAttendance>}
          * @private
          */
         this.attendanceTable_ = attendanceTable;
     }
 
+    /**
+     * @protected
+     */
     destroy() {
         this.attendanceTable_.destroy();
         super.destroy();
@@ -47,7 +54,7 @@ export class SessionDetailsFormDialog extends AikDataFormDialog {
     get attendanceFieldsetHidden() {
         return this.root_
                 .querySelector(SessionDetailsFormDialog.Selector.ATTENDANCE_FIELDSET)
-                .classList.contains(SessionDetailsFormDialog.CssClass.HIDDEN);
+                .classList.contains(SessionDetailsFormDialog.CssClass.HIDDEN_FIELDSET);
     }
 
     /**
@@ -56,35 +63,33 @@ export class SessionDetailsFormDialog extends AikDataFormDialog {
     set attendanceFieldsetHidden(attendanceFieldsetHidden) {
         this.root_
                 .querySelector(SessionDetailsFormDialog.Selector.ATTENDANCE_FIELDSET)
-                .classList.toggle(SessionDetailsFormDialog.CssClass.HIDDEN, attendanceFieldsetHidden);
+                .classList.toggle(SessionDetailsFormDialog.CssClass.HIDDEN_FIELDSET, attendanceFieldsetHidden);
     }
 
     /**
-     * @param {Event} event
      * @param {Session} session
      * @param {(Array<SessionAttendance>|null)} attendances Pass `null` if there's no attendance info to edit
-     * @param {(DateTime|null)} [defaultDate=null]
-     * @param {(Duration|null)} [defaultDuration=null]
+     * @param {DateTime=} defaultDate
+     * @param {Duration=} defaultDuration
      */
-    showWith(event, session, attendances = null, defaultDate = null, defaultDuration = null) {
-        this.lastFocusedTarget = event.target;
+    show(session, attendances = null, defaultDate = null, defaultDuration = null) {
         this.populateSession(session, defaultDate, defaultDuration);
         this.populateAttendance(attendances);
-        this.show();
+        super.show();
     }
 
     /**
      * @param {Session} session
      * @param {(DateTime|null)} defaultDate
      * @param {(Duration|null)} defaultDuration
-     * @protected
+     * @private
      */
     populateSession(session, defaultDate, defaultDuration) {
         const date = (session.dateTime && session.dateTime.toISODate());
         const time = session.dateTime && session.dateTime.toISOTime({ includeOffset: false, suppressSeconds: true });
         const duration = (session.duration && session.duration.as('minutes'));
 
-        const fields = this.form.fields;
+        const fields = this.fields;
         fields.get('id').value = session.id || null;
         fields.get('type').value = session.type || null;
         fields.get('date').value = date || (defaultDate && defaultDate.toISODate());
@@ -94,7 +99,7 @@ export class SessionDetailsFormDialog extends AikDataFormDialog {
 
     /**
      * @param {(Array<SessionAttendance>|null)} attendances
-     * @protected
+     * @private
      */
     populateAttendance(attendances) {
         this.attendanceTable_.clearRows();
@@ -109,7 +114,7 @@ export class SessionDetailsFormDialog extends AikDataFormDialog {
      * @return {Session}
      */
     parseSession() {
-        const fields = this.form.fields;
+        const fields = this.fields;
         const date = fields.get('date').value || null;
         const time = fields.get('time').value || null;
         const duration = fields.get('duration').value || null;
@@ -134,16 +139,14 @@ export class SessionDetailsFormDialog extends AikDataFormDialog {
 }
 
 /**
- * @constant
  * @enum {string}
  * @private
  */
 SessionDetailsFormDialog.CssClass = {
-    HIDDEN: 'aik-data-form__fieldset--hidden'
+    HIDDEN_FIELDSET: 'aik-data-form__fieldset--hidden'
 };
 
 /**
- * @constant
  * @enum {string}
  * @private
  */

@@ -13,7 +13,9 @@ import {
 } from "../../endpoint/session-endpoint.js";
 import {Button} from '../../ui-component/button/index.js';
 import {DataForm} from "../../ui-component/data-form/index.js";
+import {DataFormDialog} from '../../ui-component/data-form-dialog/index.js';
 import {DataTable} from "../../ui-component/data-table/index.js";
+import {Dialog} from '../../ui-component/dialog/index.js';
 import {LayoutPage} from '../layout.js';
 import './main.scss';
 import {MemberAttendanceDataRow} from "./member-attendance-data-row.js";
@@ -55,16 +57,18 @@ class AttendancePage extends LayoutPage {
                 DataTable.templatedRowFactory(SessionDataRow.ctor, s.SESSION_DETAILS_TABLE_ROW_TMPL));
         this.addSessionBtn_ = new Button(root.querySelector(s.ADD_SESSION_BTN));
 
-        const sessionAttendanceTable = new DataTable(
-                root.querySelector(s.SESSION_ATTENDANCE_TABLE),
-                DataTable.templatedRowFactory(MemberAttendanceDataRow.ctor, s.SESSION_ATTENDANCE_TABLE_ROW_TMPL));
         this.sessionDialog_ = new SessionDetailsFormDialog(
-                root.querySelector(s.SESSION_DETAILS_DIALOG), sessionAttendanceTable);
+                new Dialog(root.querySelector(s.SESSION_DIALOG)),
+                new DataForm(root.querySelector(s.SESSION_DIALOG_FORM)),
+                new DataTable(
+                        root.querySelector(s.SESSION_DIALOG_ATTENDANCE_TABLE),
+                        DataTable.templatedRowFactory(
+                                MemberAttendanceDataRow.ctor, s.SESSION_DIALOG_ATTENDANCE_TABLE_ROW_TMPL)));
 
         this.dateForm_.listen(DataForm.Event.SUBMIT, this.dateChangeHandler_);
         this.sessionTable_.listen(DataTable.Event.ROW_CLICK, this.sessionTableSelectionHandler_);
         this.addSessionBtn_.listen(Button.Event.CLICK, this.addSessionBtnHandler_);
-        this.sessionDialog_.listen(MDCDialogFoundation.strings.ACCEPT_EVENT, this.sessionDialogAcceptHandler_);
+        this.sessionDialog_.listen(DataFormDialog.Event.ACCEPT, this.sessionDialogAcceptHandler_);
 
         this.dateForm_.fields.get('date').value = DateTime.local().toISODate();
         this.repopulateSessionTable();
@@ -77,7 +81,7 @@ class AttendancePage extends LayoutPage {
         this.dateForm_.unlisten(DataTable.Event.SUBMIT, this.dateChangeHandler_);
         this.sessionTable_.unlisten(DataTable.Event.ROW_CLICK, this.sessionTableSelectionHandler_);
         this.addSessionBtn_.unlisten(Button.Event.CLICK, this.addSessionBtnHandler_);
-        this.sessionDialog_.unlisten(MDCDialogFoundation.strings.ACCEPT_EVENT, this.sessionDialogAcceptHandler_);
+        this.sessionDialog_.unlisten(DataFormDialog.Event.ACCEPT, this.sessionDialogAcceptHandler_);
 
         this.dateForm_.destroy();
         this.dateFormAcceptBtn_.destroy();
@@ -118,13 +122,13 @@ class AttendancePage extends LayoutPage {
             date = DateTime.fromISO(rawDate);
             duration = Duration.fromObject({ minutes: 60 });
 
-            this.sessionDialog_.showWith(event, session, null, date, duration);
+            this.sessionDialog_.show(session, null, date, duration);
 
         } else {
             // Update existing session
             const req = new GetSessionAttendancesRequest(session.id);
             ENDPOINT_GET_SESSION_ATTENDANCES.execute(req)
-                    .then(resp => this.sessionDialog_.showWith(event, session, resp.attendances, date, duration));
+                    .then(resp => this.sessionDialog_.show(session, resp.attendances, date, duration));
         }
     }
 
@@ -177,9 +181,10 @@ AttendancePage.Selector = {
     SESSION_DETAILS_TABLE: '#aik-session-details-table',
     SESSION_DETAILS_TABLE_ROW_TMPL: '#aik-tmpl-session-details-table__row',
     ADD_SESSION_BTN: '#aik-session-details-add-session-btn',
-    SESSION_ATTENDANCE_TABLE: '#aik-session-attendance-table',
-    SESSION_ATTENDANCE_TABLE_ROW_TMPL: '#aik-tmpl-session-attendance-table__row',
-    SESSION_DETAILS_DIALOG: '#aik-session-details-dialog'
+    SESSION_DIALOG: '#aik-session-details-dialog',
+    SESSION_DIALOG_FORM: '#aik-session-details-form',
+    SESSION_DIALOG_ATTENDANCE_TABLE: '#aik-session-attendance-table',
+    SESSION_DIALOG_ATTENDANCE_TABLE_ROW_TMPL: '#aik-tmpl-session-attendance-table__row'
 };
 
 new AttendancePage(window);

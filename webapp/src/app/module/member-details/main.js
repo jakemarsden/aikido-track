@@ -7,7 +7,10 @@ import {
 } from '../../endpoint/member-endpoint.js';
 import {Button} from '../../ui-component/button/index.js';
 import {MemberDataRow} from "../../ui-component/data-table/member-data-row.js";
+import {DataForm} from "../../ui-component/data-form/index.js";
+import {DataFormDialog} from "../../ui-component/data-form-dialog/index.js";
 import {DataTable} from "../../ui-component/data-table/index.js";
+import {Dialog} from '../../ui-component/dialog/index.js';
 import {LayoutPage} from '../layout.js';
 import './main.scss';
 import {MemberDetailsFormDialog} from './member-details-form-dialog.js';
@@ -38,15 +41,17 @@ class MemberDetailsPage extends LayoutPage {
         const s = MemberDetailsPage.Selector;
         const root = this.root_;
 
-        this.addMemberBtn_ = new Button(root.querySelector(s.ADD_MEMBER_BTN));
-        this.memberDialog_ = new MemberDetailsFormDialog(root.querySelector(s.MEMBER_DIALOG));
         this.memberTable_ = new DataTable(
                 root.querySelector(s.MEMBER_TABLE),
                 DataTable.templatedRowFactory(MemberDataRow.ctor, s.MEMBER_TABLE_ROW_TMPL));
+        this.addMemberBtn_ = new Button(root.querySelector(s.ADD_MEMBER_BTN));
+        this.memberDialog_ = new MemberDetailsFormDialog(
+                new Dialog(root.querySelector(s.MEMBER_DIALOG)),
+                new DataForm(root.querySelector(s.MEMBER_DIALOG_FORM)));
 
-        this.addMemberBtn_.listen(Button.Event.CLICK, this.addMemberBtnClickHandler_);
-        this.memberDialog_.listen('MDCDialog:accept', this.memberDetailsDlgAcceptHandler_);
         this.memberTable_.listen(DataTable.Event.ROW_CLICK, this.memberDetailsTblRowClickHandler_);
+        this.addMemberBtn_.listen(Button.Event.CLICK, this.addMemberBtnClickHandler_);
+        this.memberDialog_.listen(DataFormDialog.Event.ACCEPT, this.memberDetailsDlgAcceptHandler_);
 
         this.repopulateMemberDetailsTable();
     }
@@ -55,13 +60,13 @@ class MemberDetailsPage extends LayoutPage {
      * @protected
      */
     destroy() {
-        this.addMemberBtn_.unlisten(Button.Event.CLICK, this.addMemberBtnClickHandler_);
-        this.memberDialog_.unlisten('MDCDialog:accept', this.memberDetailsDlgAcceptHandler_);
         this.memberTable_.unlisten(DataTable.Event.ROW_CLICK, this.memberDetailsTblRowClickHandler_);
+        this.addMemberBtn_.unlisten(Button.Event.CLICK, this.addMemberBtnClickHandler_);
+        this.memberDialog_.unlisten(DataFormDialog.Event.ACCEPT, this.memberDetailsDlgAcceptHandler_);
 
+        this.memberTable_.destroy();
         this.addMemberBtn_.destroy();
         this.memberDialog_.destroy();
-        this.memberTable_.destroy();
 
         super.destroy();
     }
@@ -87,7 +92,7 @@ class MemberDetailsPage extends LayoutPage {
             lastName: null,
             birthDate: null
         };
-        this.memberDialog_.openWith(member, event);
+        this.memberDialog_.show(member);
     }
 
     /**
@@ -108,7 +113,7 @@ class MemberDetailsPage extends LayoutPage {
      */
     handleMemberDetailsTblRowClick(event) {
         const member = event.detail.row.data;
-        this.memberDialog_.openWith(member, event);
+        this.memberDialog_.show(member);
     }
 }
 
@@ -119,10 +124,11 @@ const SELECTOR_BASE = 'aik-member-details';
  * @private
  */
 MemberDetailsPage.Selector = {
+    MEMBER_TABLE: `#${SELECTOR_BASE}-table`,
+    MEMBER_TABLE_ROW_TMPL: '#aik-tmpl-member-details-table__row',
     ADD_MEMBER_BTN: `#${SELECTOR_BASE}-add-member`,
     MEMBER_DIALOG: `#${SELECTOR_BASE}-dialog`,
-    MEMBER_TABLE: `#${SELECTOR_BASE}-table`,
-    MEMBER_TABLE_ROW_TMPL: '#aik-tmpl-member-details-table__row'
+    MEMBER_DIALOG_FORM: `#${SELECTOR_BASE}-form`
 };
 
 new MemberDetailsPage(window);

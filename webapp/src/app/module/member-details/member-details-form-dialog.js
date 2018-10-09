@@ -1,25 +1,24 @@
-import {AikDataFormDialog} from '../../ui-component/data-form-dialog/aik-data-form-dialog.js';
+import {DataFormDialog} from '../../ui-component/data-form-dialog/index.js';
 
 /**
  * @package
  */
-export class MemberDetailsFormDialog extends AikDataFormDialog {
+export class MemberDetailsFormDialog extends DataFormDialog {
 
     /**
      * @param {Member} member
-     * @param {Event} event
      */
-    openWith(member, event) {
-        this.lastFocusedTarget = event.target;
+    show(member) {
         this.populateMember(member);
-        this.show();
+        super.show();
     }
 
     /**
      * @param {Member} member
+     * @private
      */
     populateMember(member) {
-        const fields = this.form.fields;
+        const fields = this.fields;
         fields.get('id').value = member.id || null;
         fields.get('first-name').value = member.firstName || null;
         fields.get('last-name').value = member.lastName || null;
@@ -31,7 +30,7 @@ export class MemberDetailsFormDialog extends AikDataFormDialog {
      * @return {Member}
      */
     parseMember() {
-        const fields = this.form.fields;
+        const fields = this.fields;
         return {
             id: fields.get('id').value || null,
             firstName: fields.get('first-name').value || null,
