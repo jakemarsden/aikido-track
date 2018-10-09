@@ -6,8 +6,8 @@ import {
     PostMembersRequest
 } from '../../endpoint/member-endpoint.js'
 import {AikDataFormDialog} from "../../ui-component/data-form-dialog/aik-data-form-dialog.js";
-import {DataTable} from "../../ui-component/data-table/data-table.js";
-import {MemberDataRow} from "../../ui-component/member-data-table/member-data-row.js";
+import {MemberDataRow} from "../../ui-component/data-table/member-data-row.js";
+import {DataTable} from "../../ui-component/data-table/index.js";
 import '../layout.js';
 import './main.scss';
 

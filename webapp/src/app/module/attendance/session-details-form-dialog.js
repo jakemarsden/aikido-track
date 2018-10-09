@@ -6,6 +6,7 @@ import {fromIsoDateAndTime} from "../../util/date-time-utils.js";
  * @package
  */
 export class SessionDetailsFormDialog extends AikDataFormDialog {
+
     /**
      * @param {!Element} root
      * @param {!DataTable<SessionAttendance>} attendanceTable
@@ -128,7 +129,7 @@ export class SessionDetailsFormDialog extends AikDataFormDialog {
          * @type {!Array<MemberAttendanceDataRow>}
          */
         const attendances = this.attendanceTable_.rows;
-        return attendances.map(it => ({ member: it.data.member, present: it.presentSwitch.checked }));
+        return attendances.map(it => ({ member: it.data.member, present: it.present }));
     }
 }
 

@@ -12,7 +12,7 @@ import {
     PostSessionsRequest
 } from "../../endpoint/session-endpoint.js";
 import {AikDataForm} from "../../ui-component/data-form/aik-data-form.js";
-import {DataTable} from "../../ui-component/data-table/data-table.js";
+import {DataTable} from "../../ui-component/data-table/index.js";
 import '../layout.js';
 import './main.scss';
 import {MemberAttendanceDataRow} from "./member-attendance-data-row.js";
