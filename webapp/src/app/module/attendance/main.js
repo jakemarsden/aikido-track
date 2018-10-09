@@ -1,4 +1,4 @@
-import {MDCRipple} from "@material/ripple";
+import MDCDialogFoundation from '@material/dialog/foundation.js';
 import {DateTime, Duration} from "luxon";
 import {RequestType} from "../../endpoint/endpoint.js";
 import {
@@ -13,7 +13,7 @@ import {
 } from "../../endpoint/session-endpoint.js";
 import {Page} from '../../ui-component/base/index.js';
 import {Button} from '../../ui-component/button/index.js';
-import {AikDataForm} from "../../ui-component/data-form/aik-data-form.js";
+import {DataForm} from "../../ui-component/data-form/index.js";
 import {DataTable} from "../../ui-component/data-table/index.js";
 import '../layout.js';
 import './main.scss';
@@ -34,7 +34,7 @@ class AttendancePage extends Page {
         this.addSessionBtnHandler_ = event => this.showSessionDialog(event, null);
         this.dateChangeHandler_ = event => this.repopulateSessionTable();
         this.sessionTableSelectionHandler_ = event => this.showSessionDialog(event, event.detail.row.data);
-        this.sessionFormSubmitHandler_ = event => this.handleSessionFormSubmit_(event);
+        this.sessionDialogAcceptHandler_ = event => this.handleSessionDialogAccept_(event);
     }
 
     /**
@@ -42,9 +42,9 @@ class AttendancePage extends Page {
      */
     initDom() {
         const s = AttendancePage.Selector;
-        const root = this.root;
+        const root = this.root_;
 
-        this.dateForm_ = new AikDataForm(root.querySelector(s.DATE_FORM));
+        this.dateForm_ = new DataForm(root.querySelector(s.DATE_FORM));
         this.dateFormAcceptBtn_ = new Button(root.querySelector(s.DATE_FORM_ACCEPT_BTN));
 
         this.sessionTable_ = new DataTable(
@@ -58,10 +58,10 @@ class AttendancePage extends Page {
         this.sessionDialog_ = new SessionDetailsFormDialog(
                 root.querySelector(s.SESSION_DETAILS_DIALOG), sessionAttendanceTable);
 
-        this.dateForm_.listen('AikDataForm:submit', this.dateChangeHandler_);
+        this.dateForm_.listen(DataForm.Event.SUBMIT, this.dateChangeHandler_);
         this.sessionTable_.listen(DataTable.Event.ROW_CLICK, this.sessionTableSelectionHandler_);
         this.addSessionBtn_.listen(Button.Event.CLICK, this.addSessionBtnHandler_);
-        this.sessionDialog_.form.listen('AikDataForm:submit', this.sessionFormSubmitHandler_);
+        this.sessionDialog_.listen(MDCDialogFoundation.strings.ACCEPT_EVENT, this.sessionDialogAcceptHandler_);
 
         this.dateForm_.fields.get('date').value = DateTime.local().toISODate();
         this.repopulateSessionTable();
@@ -71,10 +71,10 @@ class AttendancePage extends Page {
      * @protected
      */
     destroy() {
-        this.dateForm_.unlisten('AikDataForm:submit', this.dateChangeHandler_);
+        this.dateForm_.unlisten(DataTable.Event.SUBMIT, this.dateChangeHandler_);
         this.sessionTable_.unlisten(DataTable.Event.ROW_CLICK, this.sessionTableSelectionHandler_);
         this.addSessionBtn_.unlisten(Button.Event.CLICK, this.addSessionBtnHandler_);
-        this.sessionDialog_.form.unlisten('AikDataForm:submit', this.sessionFormSubmitHandler_);
+        this.sessionDialog_.unlisten(MDCDialogFoundation.strings.ACCEPT_EVENT, this.sessionDialogAcceptHandler_);
 
         this.dateForm_.destroy();
         this.dateFormAcceptBtn_.destroy();
@@ -127,7 +127,7 @@ class AttendancePage extends Page {
      * @param {Event} event
      * @private
      */
-    handleSessionFormSubmit_(event) {
+    handleSessionDialogAccept_(event) {
         const session = this.sessionDialog_.parseSession();
         const updateExisting = session.id != null;
 

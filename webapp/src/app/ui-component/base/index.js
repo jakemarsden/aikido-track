@@ -103,7 +103,14 @@ export class Page {
         this.window_ = window;
 
         this.init(...args);
-        window.addEventListener('load', event => this.initDom());
+        window.addEventListener('load', event => {
+            /**
+             * @constant {!HTMLDocument}
+             * @protected
+             */
+            this.root_ = this.window_.document;
+            this.initDom();
+        });
         window.addEventListener('unload', event => this.destroy());
     }
 
@@ -111,7 +118,7 @@ export class Page {
      * @return {!HTMLDocument}
      */
     get root() {
-        return this.window_.document;
+        return this.root_;
     }
 
     /**

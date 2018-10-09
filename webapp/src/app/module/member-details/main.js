@@ -33,7 +33,7 @@ class MemberDetailsPage extends Page {
      */
     initDom() {
         const s = MemberDetailsPage.Selector;
-        const root = this.root;
+        const root = this.root_;
 
         this.addMemberBtn_ = new Button(root.querySelector(s.ADD_MEMBER_BTN));
         this.memberDialog_ = new MemberDetailsFormDialog(root.querySelector(s.MEMBER_DIALOG));

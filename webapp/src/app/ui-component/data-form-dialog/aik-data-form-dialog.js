@@ -1,5 +1,5 @@
 import {MDCDialog} from "@material/dialog/index.js";
-import {AikDataForm} from "../data-form/aik-data-form.js";
+import {DataForm} from "../data-form/index.js";
 import AikDataFormDialogFoundation from "./foundation.js";
 
 /**
@@ -77,8 +77,12 @@ export class AikDataFormDialog extends MDCDialog {
 
     initialize() {
         super.initialize();
-        /** @private */
-        this.form_ = new AikDataForm(this.root_.querySelector(AikDataFormDialogFoundation.strings.FORM_SELECTOR));
+
+        /**
+         * @constant {DataForm}
+         * @private
+         */
+        this.form_ = new DataForm(this.root_.querySelector(AikDataFormDialogFoundation.strings.FORM_SELECTOR));
     }
 
     destroy() {

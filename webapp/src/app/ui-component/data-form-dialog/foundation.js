@@ -1,5 +1,5 @@
 import MDCDialogFoundation from "@material/dialog/foundation.js";
-import AikDataFormFoundation from "../data-form/foundation.js";
+import {DataForm} from '../data-form/index.js';
 import {cssClasses, numbers, strings} from './constants.js';
 
 export default class AikFormDialogFoundation extends MDCDialogFoundation {
@@ -31,18 +31,14 @@ export default class AikFormDialogFoundation extends MDCDialogFoundation {
 
     open() {
         super.open();
-        this.adapter_.registerFormInteractionHandler(
-                AikDataFormFoundation.strings.SUBMIT_EVENT, this.formSubmitHandler_);
-        this.adapter_.registerFormInteractionHandler(
-                AikDataFormFoundation.strings.RESET_EVENT, this.formResetHandler_);
+        this.adapter_.registerFormInteractionHandler(DataForm.Event.SUBMIT, this.formSubmitHandler_);
+        this.adapter_.registerFormInteractionHandler(DataForm.Event.RESET, this.formResetHandler_);
     }
 
     close() {
         super.close();
-        this.adapter_.deregisterFormInteractionHandler(
-                AikDataFormFoundation.strings.SUBMIT_EVENT, this.formSubmitHandler_);
-        this.adapter_.deregisterFormInteractionHandler(
-                AikDataFormFoundation.strings.RESET_EVENT, this.formResetHandler_);
+        this.adapter_.deregisterFormInteractionHandler(DataForm.Event.SUBMIT, this.formSubmitHandler_);
+        this.adapter_.deregisterFormInteractionHandler(DataForm.Event.RESET, this.formResetHandler_);
         this.adapter_.resetForm();
     }
 
