@@ -27,9 +27,9 @@ class MemberDetailsPage extends LayoutPage {
     init(...args) {
         super.init(...args);
 
-        this.addMemberBtnClickHandler_ = event => this.handleAddMemberBtnClick(event);
-        this.memberDetailsDlgAcceptHandler_ = event => this.handleMemberDetailsDlgAccept(event);
-        this.memberDetailsTblRowClickHandler_ = event => this.handleMemberDetailsTblRowClick(event);
+        this.addMemberBtnHandler_ = event => this.handleAddMemberBtn_(event);
+        this.memberDialogAcceptHandler_ = event => this.handleMemberDialogAccept_(event);
+        this.memberTableRowClickHandler_ = event => this.handleMemberTableRowClick_(event);
     }
 
     /**
@@ -38,20 +38,19 @@ class MemberDetailsPage extends LayoutPage {
     initDom() {
         super.initDom();
 
-        const s = MemberDetailsPage.Selector;
         const root = this.root_;
 
         this.memberTable_ = new DataTable(
-                root.querySelector(s.MEMBER_TABLE),
-                DataTable.templatedRowFactory(MemberDataRow.ctor, s.MEMBER_TABLE_ROW_TMPL));
-        this.addMemberBtn_ = new Button(root.querySelector(s.ADD_MEMBER_BTN));
+                root.querySelector(MemberDetailsPage.Selector.MEMBER_TABLE),
+                DataTable.templatedRowFactory(MemberDataRow.ctor, MemberDetailsPage.Selector.MEMBER_TABLE_ROW_TMPL));
+        this.addMemberBtn_ = new Button(root.querySelector(MemberDetailsPage.Selector.ADD_MEMBER_BTN));
         this.memberDialog_ = new MemberDetailsFormDialog(
-                new Dialog(root.querySelector(s.MEMBER_DIALOG)),
-                new DataForm(root.querySelector(s.MEMBER_DIALOG_FORM)));
+                new Dialog(root.querySelector(MemberDetailsPage.Selector.MEMBER_DIALOG)),
+                new DataForm(root.querySelector(MemberDetailsPage.Selector.MEMBER_DIALOG_FORM)));
 
-        this.memberTable_.listen(DataTable.Event.ROW_CLICK, this.memberDetailsTblRowClickHandler_);
-        this.addMemberBtn_.listen(Button.Event.CLICK, this.addMemberBtnClickHandler_);
-        this.memberDialog_.listen(DataFormDialog.Event.ACCEPT, this.memberDetailsDlgAcceptHandler_);
+        this.memberTable_.listen(DataTable.Event.ROW_CLICK, this.memberTableRowClickHandler_);
+        this.addMemberBtn_.listen(Button.Event.CLICK, this.addMemberBtnHandler_);
+        this.memberDialog_.listen(DataFormDialog.Event.ACCEPT, this.memberDialogAcceptHandler_);
 
         this.repopulateMemberDetailsTable();
     }
@@ -60,9 +59,9 @@ class MemberDetailsPage extends LayoutPage {
      * @protected
      */
     destroy() {
-        this.memberTable_.unlisten(DataTable.Event.ROW_CLICK, this.memberDetailsTblRowClickHandler_);
-        this.addMemberBtn_.unlisten(Button.Event.CLICK, this.addMemberBtnClickHandler_);
-        this.memberDialog_.unlisten(DataFormDialog.Event.ACCEPT, this.memberDetailsDlgAcceptHandler_);
+        this.memberTable_.unlisten(DataTable.Event.ROW_CLICK, this.memberTableRowClickHandler_);
+        this.addMemberBtn_.unlisten(Button.Event.CLICK, this.addMemberBtnHandler_);
+        this.memberDialog_.unlisten(DataFormDialog.Event.ACCEPT, this.memberDialogAcceptHandler_);
 
         this.memberTable_.destroy();
         this.addMemberBtn_.destroy();
@@ -83,8 +82,9 @@ class MemberDetailsPage extends LayoutPage {
 
     /**
      * @param {Event} event
+     * @private
      */
-    handleAddMemberBtnClick(event) {
+    handleAddMemberBtn_(event) {
         const member = {
             id: null,
             type: null,
@@ -97,8 +97,9 @@ class MemberDetailsPage extends LayoutPage {
 
     /**
      * @param {Event} event
+     * @private
      */
-    handleMemberDetailsDlgAccept(event) {
+    handleMemberDialogAccept_(event) {
         const member = this.memberDialog_.parseMember();
         const reqType = member.id == null ? RequestType.CREATE : RequestType.UPDATE;
 
@@ -110,8 +111,9 @@ class MemberDetailsPage extends LayoutPage {
 
     /**
      * @param {Event} event
+     * @private
      */
-    handleMemberDetailsTblRowClick(event) {
+    handleMemberTableRowClick_(event) {
         const member = event.detail.row.data;
         this.memberDialog_.show(member);
     }
