@@ -4,7 +4,12 @@
 /webapp/dist/
 
 # Application runtime data, eg. DBs, log files...
+/data/
 /server-core/data/
+
+
+### Visual Studio Code ###
+.vscode/
 
 
 # Created by https://www.gitignore.io/api/git,java,gradle,intellij+all
