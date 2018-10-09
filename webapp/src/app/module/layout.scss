@@ -1,10 +1,13 @@
 // Must be imported before any @material components
 @import 'theme.scss';
 
+@import '~@material/tab/mdc-tab';
+@import '~@material/tab-bar/mdc-tab-bar';
+@import '~@material/tab-indicator/mdc-tab-indicator';
+@import '~@material/tab-scroller/mdc-tab-scroller';
 @import '~@material/top-app-bar/mdc-top-app-bar';
 @import '~@material/typography/mdc-typography';
 @import '~material-design-icons/iconfont/material-icons';
-@import '../ui-component/tab-bar/aik-tab-bar';
 
 body {
     margin: 0;

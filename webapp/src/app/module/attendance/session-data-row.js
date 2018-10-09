@@ -6,44 +6,26 @@ import {firstCharToUpper} from "../../util/string-utils.js";
  * @package
  */
 export class SessionDataRow extends DataRow {
+
     /**
      * @return {!DataRow~Ctor<Session>}
      */
     static get ctor() {
-        return (elem, data) => new SessionDataRow(elem, data);
+        return (root, data) => new SessionDataRow(root, data);
     }
 
     /**
-     * @param {!HTMLTableRowElement} elem
-     * @param {Session} data
+     * @protected
      */
-    constructor(elem, data) {
-        super(elem, data);
-
-        const s = SessionDataRow.Selector;
-        /**
-         * @constant {Object<string, DataRow~Renderer<Session>>}
-         * @private
-         */
-        this.renderers_ = {
-            [s.ID]: (elem, data) => elem.textContent = data.id,
-            [s.TYPE]: (elem, data) => elem.textContent = firstCharToUpper(data.type),
-            [s.DATE]: (elem, data) => elem.textContent = data.dateTime.toISODate(),
-            [s.TIME]: (elem, data) =>
-                    elem.textContent = data.dateTime.toISOTime({ includeOffset: false, suppressSeconds: true }),
-            [s.DURATION]: (elem, data) => elem.textContent = data.duration.as('minutes'),
-            [s.ATTENDANCE_PRESENT_COUNT]: (elem, data) => elem.textContent = data.presentMemberCount
-        };
-    }
-
-    onAttach() {
-        this.render(this.renderers_);
+    initDom() {
+        super.initDom();
+        this.render(SessionDataRow.RENDERERS);
     }
 }
 
 const SELECTOR_BASE = 'aik-session-data-table';
+
 /**
- * @constant
  * @enum {string}
  * @private
  */
@@ -54,4 +36,18 @@ SessionDataRow.Selector = {
     TIME: `.${SELECTOR_BASE}__time`,
     DURATION: `.${SELECTOR_BASE}__duration`,
     ATTENDANCE_PRESENT_COUNT: `.${SELECTOR_BASE}__attendance-present-count`
+};
+
+/**
+ * @constant {Object<string, DataRow~Renderer<Session>>}
+ * @private
+ */
+SessionDataRow.RENDERERS = {
+    [SessionDataRow.Selector.ID]: (elem, data) => elem.textContent = data.id,
+    [SessionDataRow.Selector.TYPE]: (elem, data) => elem.textContent = firstCharToUpper(data.type),
+    [SessionDataRow.Selector.DATE]: (elem, data) => elem.textContent = data.dateTime.toISODate(),
+    [SessionDataRow.Selector.TIME]: (elem, data) =>
+            elem.textContent = data.dateTime.toISOTime({ includeOffset: false, suppressSeconds: true }),
+    [SessionDataRow.Selector.DURATION]: (elem, data) => elem.textContent = data.duration.as('minutes'),
+    [SessionDataRow.Selector.ATTENDANCE_PRESENT_COUNT]: (elem, data) => elem.textContent = data.presentMemberCount
 };

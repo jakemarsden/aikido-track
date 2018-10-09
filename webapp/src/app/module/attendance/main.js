@@ -1,4 +1,4 @@
-import {MDCRipple} from "@material/ripple";
+import MDCDialogFoundation from '@material/dialog/foundation.js';
 import {DateTime, Duration} from "luxon";
 import {RequestType} from "../../endpoint/endpoint.js";
 import {
@@ -11,75 +11,85 @@ import {
     PostSessionAttendancesRequest,
     PostSessionsRequest
 } from "../../endpoint/session-endpoint.js";
-import {AikDataForm} from "../../ui-component/data-form/aik-data-form.js";
-import {DataTable} from "../../ui-component/data-table/data-table.js";
-import '../layout.js';
+import {Button} from '../../ui-component/button/index.js';
+import {DataForm} from "../../ui-component/data-form/index.js";
+import {DataFormDialog} from '../../ui-component/data-form-dialog/index.js';
+import {DataTable} from "../../ui-component/data-table/index.js";
+import {Dialog} from '../../ui-component/dialog/index.js';
+import {LayoutPage} from '../layout.js';
 import './main.scss';
 import {MemberAttendanceDataRow} from "./member-attendance-data-row.js";
 import {SessionDataRow} from "./session-data-row.js";
 import {SessionDetailsFormDialog} from "./session-details-form-dialog.js";
 
-window.addEventListener('load', () => {
-    const now = DateTime.local();
-    new SessionUi(now).initialize();
-});
+/**
+ * @private
+ */
+class AttendancePage extends LayoutPage {
 
-class SessionUi {
-    constructor() {
-        /** @private */
+    /**
+     * @param {...?} args
+     * @protected
+     */
+    init(...args) {
+        super.init(...args);
+
         this.addSessionBtnHandler_ = event => this.showSessionDialog(event, null);
-        /** @private */
         this.dateChangeHandler_ = event => this.repopulateSessionTable();
-        /** @private */
         this.sessionTableSelectionHandler_ = event => this.showSessionDialog(event, event.detail.row.data);
-        /** @private */
-        this.sessionFormSubmitHandler_ = event => this.handleSessionFormSubmit_(event);
+        this.sessionDialogAcceptHandler_ = event => this.handleSessionDialogAccept_(event);
     }
 
-    initialize() {
-        /**
-         * @type {HTMLButtonElement}
-         * @private
-         */
-        this.btnAddSession_ = document.querySelector('#aik-session-details-add-session-btn');
-        /** @private */
-        this.btnRipples_ = [
-            new MDCRipple(this.btnAddSession_),
-            new MDCRipple(document.querySelector('#aik-attendance-date-form__apply-btn'))
-        ];
-        /** @private */
-        this.dateForm_ = new AikDataForm(document.querySelector('#aik-attendance-date-form'));
-        /** @private */
-        this.sessionTable_ = new DataTable(
-                document.querySelector('#aik-session-details-table'),
-                DataTable.templatedRowFactory(SessionDataRow.ctor, '#aik-tmpl-session-details-table__row'));
-        /** @private */
-        const sessionAttendanceTable = new DataTable(
-                document.querySelector('#aik-session-attendance-table'),
-                DataTable.templatedRowFactory(MemberAttendanceDataRow.ctor, '#aik-tmpl-session-attendance-table__row'));
-        /** @private */
-        this.sessionDialog_ = new SessionDetailsFormDialog(
-                document.querySelector('#aik-session-details-dialog'), sessionAttendanceTable, undefined);
+    /**
+     * @protected
+     */
+    initDom() {
+        super.initDom();
 
-        this.btnAddSession_.addEventListener('click', this.addSessionBtnHandler_);
-        this.dateForm_.listen('AikDataForm:submit', this.dateChangeHandler_);
+        const s = AttendancePage.Selector;
+        const root = this.root_;
+
+        this.dateForm_ = new DataForm(root.querySelector(s.DATE_FORM));
+        this.dateFormAcceptBtn_ = new Button(root.querySelector(s.DATE_FORM_ACCEPT_BTN));
+
+        this.sessionTable_ = new DataTable(
+                root.querySelector(s.SESSION_DETAILS_TABLE),
+                DataTable.templatedRowFactory(SessionDataRow.ctor, s.SESSION_DETAILS_TABLE_ROW_TMPL));
+        this.addSessionBtn_ = new Button(root.querySelector(s.ADD_SESSION_BTN));
+
+        this.sessionDialog_ = new SessionDetailsFormDialog(
+                new Dialog(root.querySelector(s.SESSION_DIALOG)),
+                new DataForm(root.querySelector(s.SESSION_DIALOG_FORM)),
+                new DataTable(
+                        root.querySelector(s.SESSION_DIALOG_ATTENDANCE_TABLE),
+                        DataTable.templatedRowFactory(
+                                MemberAttendanceDataRow.ctor, s.SESSION_DIALOG_ATTENDANCE_TABLE_ROW_TMPL)));
+
+        this.dateForm_.listen(DataForm.Event.SUBMIT, this.dateChangeHandler_);
         this.sessionTable_.listen(DataTable.Event.ROW_CLICK, this.sessionTableSelectionHandler_);
-        this.sessionDialog_.form.listen('AikDataForm:submit', this.sessionFormSubmitHandler_);
+        this.addSessionBtn_.listen(Button.Event.CLICK, this.addSessionBtnHandler_);
+        this.sessionDialog_.listen(DataFormDialog.Event.ACCEPT, this.sessionDialogAcceptHandler_);
 
         this.dateForm_.fields.get('date').value = DateTime.local().toISODate();
         this.repopulateSessionTable();
     }
 
+    /**
+     * @protected
+     */
     destroy() {
-        this.btnAddSession_.removeEventListener('click', this.addSessionBtnHandler_);
-        this.dateForm_.unlisten('AikDataForm:submit', this.dateChangeHandler_);
+        this.dateForm_.unlisten(DataTable.Event.SUBMIT, this.dateChangeHandler_);
         this.sessionTable_.unlisten(DataTable.Event.ROW_CLICK, this.sessionTableSelectionHandler_);
-        this.sessionDialog_.form.unlisten('AikDataForm:submit', this.sessionFormSubmitHandler_);
+        this.addSessionBtn_.unlisten(Button.Event.CLICK, this.addSessionBtnHandler_);
+        this.sessionDialog_.unlisten(DataFormDialog.Event.ACCEPT, this.sessionDialogAcceptHandler_);
 
-        this.btnRipples_.forEach(ripple => ripple.destroy());
         this.dateForm_.destroy();
+        this.dateFormAcceptBtn_.destroy();
         this.sessionTable_.destroy();
+        this.addSessionBtn_.destroy();
         this.sessionDialog_.destroy();
+
+        super.destroy();
     }
 
     repopulateSessionTable() {
@@ -112,13 +122,13 @@ class SessionUi {
             date = DateTime.fromISO(rawDate);
             duration = Duration.fromObject({ minutes: 60 });
 
-            this.sessionDialog_.showWith(event, session, null, date, duration);
+            this.sessionDialog_.show(session, null, date, duration);
 
         } else {
             // Update existing session
             const req = new GetSessionAttendancesRequest(session.id);
             ENDPOINT_GET_SESSION_ATTENDANCES.execute(req)
-                    .then(resp => this.sessionDialog_.showWith(event, session, resp.attendances, date, duration));
+                    .then(resp => this.sessionDialog_.show(session, resp.attendances, date, duration));
         }
     }
 
@@ -126,7 +136,7 @@ class SessionUi {
      * @param {Event} event
      * @private
      */
-    handleSessionFormSubmit_(event) {
+    handleSessionDialogAccept_(event) {
         const session = this.sessionDialog_.parseSession();
         const updateExisting = session.id != null;
 
@@ -160,3 +170,21 @@ class SessionUi {
                 });
     }
 }
+
+/**
+ * @enum {string}
+ * @private
+ */
+AttendancePage.Selector = {
+    DATE_FORM: '#aik-attendance-date-form',
+    DATE_FORM_ACCEPT_BTN: '#aik-attendance-date-form__apply-btn',
+    SESSION_DETAILS_TABLE: '#aik-session-details-table',
+    SESSION_DETAILS_TABLE_ROW_TMPL: '#aik-tmpl-session-details-table__row',
+    ADD_SESSION_BTN: '#aik-session-details-add-session-btn',
+    SESSION_DIALOG: '#aik-session-details-dialog',
+    SESSION_DIALOG_FORM: '#aik-session-details-form',
+    SESSION_DIALOG_ATTENDANCE_TABLE: '#aik-session-attendance-table',
+    SESSION_DIALOG_ATTENDANCE_TABLE_ROW_TMPL: '#aik-tmpl-session-attendance-table__row'
+};
+
+new AttendancePage(window);

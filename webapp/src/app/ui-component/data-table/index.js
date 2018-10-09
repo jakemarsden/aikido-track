@@ -1,11 +1,11 @@
-import MDCComponent from "@material/base/component.js";
-import MDCFoundation from "@material/base/foundation.js";
 import {indexOf} from "../../util/collection-utils.js";
+import {Component} from "../base/index.js";
 
 /**
  * @template TData
  */
-export class DataTable extends MDCComponent {
+export class DataTable extends Component {
+
     /**
      * @param {!DataRow~Ctor<TData>} ctor
      * @return {!DataRow~Factory<TData>}
@@ -13,8 +13,8 @@ export class DataTable extends MDCComponent {
      */
     static basicRowFactory(ctor) {
         return data => {
-            const elem = document.createElement('tr');
-            return ctor(elem, data);
+            const root = document.createElement('tr');
+            return ctor(root, data);
         };
     }
 
@@ -30,54 +30,62 @@ export class DataTable extends MDCComponent {
         }
         return data => {
             const frag = document.importNode(tmpl.content, true);
-            const elem = frag.querySelector(DataTable.Selector.TEMPLATE_ROW);
-            return ctor(elem, data);
+            const root = frag.querySelector(DataTable.Selector.TEMPLATE_ROW);
+            return ctor(root, data);
         };
     }
 
     /**
      * @param {!HTMLTableElement} root
      * @param {!DataRow~Factory<TData>} rowFactory
-     * @param {F=} foundation
-     * @param {...?} args
+     * @param {...?} args Any additional arguments to pass to {@link #init}
      */
-    constructor(root, rowFactory, foundation, ...args) {
-        super(root, foundation, rowFactory, ...args);
+    constructor(root, rowFactory, ...args) {
+        super(root, rowFactory, ...args);
     }
 
     /**
      * @param {!DataRow~Factory<TData>} rowFactory
+     * @param {...?} args
+     * @protected
      */
-    initialize(rowFactory) {
-        /**
-         * @constant {!EventHandler}
-         * @private
-         */
-        this.tbodyClickHandler_ = event => this.handleTbodyClick(event);
-        /**
-         * @constant {!EventHandler}
-         * @private
-         */
-        this.theadClickHandler_ = event => this.handleTheadClick(event);
-        /**
-         * @constant {!DataRow~Factory<TData>}
-         * @private
-         */
+    init(rowFactory, ...args) {
+        this.bodyCellClickHandler_ = event => this.handleBodyCellClick_(event);
+        this.headerCellClickHandler_ = event => this.handleHeaderCellClick_(event);
         this.rowFactory_ = rowFactory;
         /**
          * @constant {!Array<DataRow<TData>>}
          * @private
          */
         this.rows_ = [];
-
-        this.tbody.addEventListener('click', this.tbodyClickHandler_);
-        this.thead.addEventListener('click', this.theadClickHandler_);
     }
 
+    /**
+     * @protected
+     */
+    initDom() {
+        /**
+         * @constant {!HTMLTableSectionElement}
+         * @protected
+         */
+        this.tbody_ = this.root_.querySelector(DataTable.Selector.TBODY);
+        /**
+         * @constant {!HTMLTableSectionElement}
+         * @protected
+         */
+        this.thead_ = this.root_.querySelector(DataTable.Selector.THEAD);
+
+        this.tbody_.addEventListener('click', this.bodyCellClickHandler_);
+        this.thead_.addEventListener('click', this.headerCellClickHandler_);
+    }
+
+    /**
+     * @protected
+     */
     destroy() {
-        this.tbody.removeEventListener('click', this.tbodyClickHandler_);
-        this.thead.removeEventListener('click', this.theadClickHandler_);
-        this.rows_.forEach(row => row.destroy());
+        this.tbody_.removeEventListener('click', this.bodyCellClickHandler_);
+        this.thead_.removeEventListener('click', this.headerCellClickHandler_);
+        this.clearRows();
     }
 
     /**
@@ -100,17 +108,16 @@ export class DataTable extends MDCComponent {
      */
     appendRow(data) {
         const row = this.rowFactory_(data);
-        row.onAttach();
-        this.tbody.appendChild(row.elem);
         this.rows_.push(row);
+        this.tbody_.appendChild(row.root);
         return row;
     }
 
     clearRows() {
-        const tbody = this.tbody;
+        const tbody = this.tbody_;
         this.rows_.forEach(row => {
-            tbody.removeChild(row.elem);
-            row.onDetach();
+            tbody.removeChild(row.root);
+            row.destroy();
         });
         this.rows_.length = 0;
     }
@@ -120,7 +127,7 @@ export class DataTable extends MDCComponent {
      * @return {boolean}
      */
     isColumnSortable(colIdx) {
-        const cell = this.thead.rows.item(0).cells.item(colIdx);
+        const cell = this.thead_.rows.item(0).cells.item(colIdx);
         return cell.classList.contains(DataTable.CssClass.SORTABLE);
     }
 
@@ -129,7 +136,7 @@ export class DataTable extends MDCComponent {
      * @param {boolean} sortable
      */
     setColumnSortable(colIdx, sortable) {
-        const cell = this.thead.rows.item(0).cells.item(colIdx);
+        const cell = this.thead_.rows.item(0).cells.item(colIdx);
         cell.classList.toggle(DataTable.CssClass.SORTABLE, sortable);
     }
 
@@ -138,7 +145,7 @@ export class DataTable extends MDCComponent {
      * @return {DataTable.SortDirection}
      */
     getColumnSort(colIdx) {
-        const cell = this.thead.rows.item(0).cells.item(colIdx);
+        const cell = this.thead_.rows.item(0).cells.item(colIdx);
         const clazzes = cell.classList;
         if (clazzes.contains(DataTable.CssClass.SORTED_ASC)) {
             return DataTable.SortDirection.ASC;
@@ -154,7 +161,7 @@ export class DataTable extends MDCComponent {
      * @param {DataTable.SortDirection} dir
      */
     setColumnSort(colIdx, dir) {
-        const cells = this.thead.rows.item(0).cells;
+        const cells = this.thead_.rows.item(0).cells;
         for (let i = 0; i < cells.length; i++) {
             const clazzes = cells.item(i).classList;
             clazzes.remove(DataTable.CssClass.SORTED_ASC);
@@ -199,7 +206,7 @@ export class DataTable extends MDCComponent {
     }
 
     sort() {
-        const cells = this.thead.rows.item(0).cells;
+        const cells = this.thead_.rows.item(0).cells;
         for (let colIdx = 0; colIdx < cells.length; colIdx++) {
             const dir = this.isColumnSortable(colIdx) ? this.getColumnSort(colIdx) : DataTable.SortDirection.UNSORTED;
             if (dir !== DataTable.SortDirection.UNSORTED) {
@@ -210,50 +217,36 @@ export class DataTable extends MDCComponent {
     }
 
     /**
-     * @return {!HTMLTableSectionElement}
-     * @protected
-     */
-    get tbody() {
-        return this.root_.querySelector(DataTable.Selector.TBODY);
-    }
-
-    /**
-     * @return {!HTMLTableSectionElement}
-     * @protected
-     */
-    get thead() {
-        return this.root_.querySelector(DataTable.Selector.THEAD);
-    }
-
-    /**
      * @param {Event} event
-     * @protected
+     * @private
      */
-    handleTbodyClick(event) {
-        const rowElem = event.target && event.target.closest(DataTable.Selector.BODY_ROW);
-        const rowIdx = indexOf(rowElem.parentElement.children, rowElem);
-        if (rowIdx === -1) {
-            return;
-        }
+    handleBodyCellClick_(event) {
         const cellElem = event.target && event.target.closest(DataTable.Selector.BODY_CELL);
-        const colIdx = indexOf(cellElem.parentElement.children, cellElem);
-        if (colIdx === -1) {
+        if (cellElem == null) {
             return;
         }
-        const row = this.rows_.find(row => row.elem === rowElem);
+
+        const rowElem = cellElem.parentElement;
+        const rowIdx = indexOf(rowElem.parentElement.children, rowElem);
+        const colIdx = indexOf(rowElem.children, cellElem);
+
+        const row = this.rows_.find(row => row.root === rowElem);
         this.emit(DataTable.Event.ROW_CLICK, { row, rowIdx, colIdx });
     }
 
     /**
      * @param {Event} event
-     * @protected
+     * @private
      */
-    handleTheadClick(event) {
+    handleHeaderCellClick_(event) {
         const cellElem = event.target && event.target.closest(DataTable.Selector.HEADER_CELL);
-        const colIdx = indexOf(cellElem.parentElement.children, cellElem);
-        if (colIdx === -1) {
+        if (cellElem == null) {
             return;
         }
+
+        const rowElem = cellElem.parentElement;
+        const colIdx = indexOf(rowElem.children, cellElem);
+
         if (this.isColumnSortable(colIdx)) {
             this.toggleColumnSort(colIdx);
         }
@@ -267,15 +260,15 @@ export class DataTable extends MDCComponent {
      */
     sortCol_(colIdx, dir) {
         const rowComparator = (a, b) => dir * DataTable.compareRows_(a, b, colIdx);
-        const tbody = this.tbody;
+        const tbody = this.tbody_;
         const sortedRows = Array.from(this.rows_);
         sortedRows.sort(rowComparator);
-        sortedRows.forEach(row => tbody.appendChild(row.elem));
+        sortedRows.forEach(row => tbody.appendChild(row.root));
     }
 
     /**
-     * @param {(DataRow<TData>|null)} a
-     * @param {(DataRow<TData>|null)} b
+     * @param {(DataRow<TData>|null|undefined)} a
+     * @param {(DataRow<TData>|null|undefined)} b
      * @param {number} colIdx
      * @return {number}
      * @private
@@ -289,27 +282,17 @@ export class DataTable extends MDCComponent {
         }
         return 0;
     }
-
-    getDefaultFoundation() {
-        return new NoOpFoundation();
-    }
 }
 
 /**
- * @private
- */
-class NoOpFoundation extends MDCFoundation {}
-
-/**
- * @constant
  * @enum {string}
  */
 DataTable.Event = {
     ROW_CLICK: 'DataTable:rowClick',
     HEADER_CLICK: 'DataTable:headerClick'
 };
+
 /**
- * @constant
  * @enum {number}
  */
 DataTable.SortDirection = {
@@ -319,9 +302,8 @@ DataTable.SortDirection = {
 };
 
 /**
- * @constant
  * @enum {string}
- * @protected
+ * @private
  */
 DataTable.CssClass = {
     SORTABLE: 'mdl-data-table__header--sortable',
@@ -330,7 +312,6 @@ DataTable.CssClass = {
 };
 
 /**
- * @constant
  * @enum {string}
  * @private
  */
@@ -338,7 +319,6 @@ DataTable.Selector = {
     TEMPLATE_ROW: 'tr',
     TBODY: 'tbody',
     THEAD: 'thead',
-    BODY_ROW: 'tbody tr',
     BODY_CELL: 'tbody td',
     HEADER_CELL: 'thead td, thead th'
 };

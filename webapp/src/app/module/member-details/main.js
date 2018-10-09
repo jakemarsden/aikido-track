@@ -1,25 +1,90 @@
-import {RequestType} from '../../endpoint/endpoint.js'
+import {RequestType} from '../../endpoint/endpoint.js';
 import {
     ENDPOINT_GET_MEMBERS,
     ENDPOINT_POST_MEMBERS,
     GetMembersRequest,
     PostMembersRequest
-} from '../../endpoint/member-endpoint.js'
-import {AikDataFormDialog} from "../../ui-component/data-form-dialog/aik-data-form-dialog.js";
-import {DataTable} from "../../ui-component/data-table/data-table.js";
-import {MemberDataRow} from "../../ui-component/member-data-table/member-data-row.js";
-import '../layout.js';
+} from '../../endpoint/member-endpoint.js';
+import {Button} from '../../ui-component/button/index.js';
+import {MemberDataRow} from "../../ui-component/data-table/member-data-row.js";
+import {DataForm} from "../../ui-component/data-form/index.js";
+import {DataFormDialog} from "../../ui-component/data-form-dialog/index.js";
+import {DataTable} from "../../ui-component/data-table/index.js";
+import {Dialog} from '../../ui-component/dialog/index.js';
+import {LayoutPage} from '../layout.js';
 import './main.scss';
+import {MemberDetailsFormDialog} from './member-details-form-dialog.js';
 
-window.addEventListener('load', () => {
-    /** @type {HTMLButtonElement} */
-    const btnAddMember = document.querySelector('#aik-member-details-add-member');
-    const dlgMemberDetails = new MemberDetailsFormDialog(document.querySelector('#aik-member-details-dialog'));
-    const tblMemberDetails = new DataTable(
-            document.querySelector('#aik-member-details-table'),
-            DataTable.templatedRowFactory(MemberDataRow.ctor, '#aik-tmpl-member-details-table__row'));
+/**
+ * @private
+ */
+class MemberDetailsPage extends LayoutPage {
 
-    btnAddMember.addEventListener('click', event => {
+    /**
+     * @param {...?} args
+     * @protected
+     */
+    init(...args) {
+        super.init(...args);
+
+        this.addMemberBtnHandler_ = event => this.handleAddMemberBtn_(event);
+        this.memberDialogAcceptHandler_ = event => this.handleMemberDialogAccept_(event);
+        this.memberTableRowClickHandler_ = event => this.handleMemberTableRowClick_(event);
+    }
+
+    /**
+     * @protected
+     */
+    initDom() {
+        super.initDom();
+
+        const root = this.root_;
+
+        this.memberTable_ = new DataTable(
+                root.querySelector(MemberDetailsPage.Selector.MEMBER_TABLE),
+                DataTable.templatedRowFactory(MemberDataRow.ctor, MemberDetailsPage.Selector.MEMBER_TABLE_ROW_TMPL));
+        this.addMemberBtn_ = new Button(root.querySelector(MemberDetailsPage.Selector.ADD_MEMBER_BTN));
+        this.memberDialog_ = new MemberDetailsFormDialog(
+                new Dialog(root.querySelector(MemberDetailsPage.Selector.MEMBER_DIALOG)),
+                new DataForm(root.querySelector(MemberDetailsPage.Selector.MEMBER_DIALOG_FORM)));
+
+        this.memberTable_.listen(DataTable.Event.ROW_CLICK, this.memberTableRowClickHandler_);
+        this.addMemberBtn_.listen(Button.Event.CLICK, this.addMemberBtnHandler_);
+        this.memberDialog_.listen(DataFormDialog.Event.ACCEPT, this.memberDialogAcceptHandler_);
+
+        this.repopulateMemberDetailsTable();
+    }
+
+    /**
+     * @protected
+     */
+    destroy() {
+        this.memberTable_.unlisten(DataTable.Event.ROW_CLICK, this.memberTableRowClickHandler_);
+        this.addMemberBtn_.unlisten(Button.Event.CLICK, this.addMemberBtnHandler_);
+        this.memberDialog_.unlisten(DataFormDialog.Event.ACCEPT, this.memberDialogAcceptHandler_);
+
+        this.memberTable_.destroy();
+        this.addMemberBtn_.destroy();
+        this.memberDialog_.destroy();
+
+        super.destroy();
+    }
+
+    repopulateMemberDetailsTable() {
+        const req = new GetMembersRequest();
+        ENDPOINT_GET_MEMBERS.execute(req)
+                .then(resp => {
+                    this.memberTable_.clearRows();
+                    resp.members.forEach(member => this.memberTable_.appendRow(member));
+                    this.memberTable_.sort();
+                });
+    }
+
+    /**
+     * @param {Event} event
+     * @private
+     */
+    handleAddMemberBtn_(event) {
         const member = {
             id: null,
             type: null,
@@ -27,65 +92,45 @@ window.addEventListener('load', () => {
             lastName: null,
             birthDate: null
         };
-        dlgMemberDetails.openWith(member, event);
-    });
-    dlgMemberDetails.listen('MDCDialog:accept', event => {
-        const member = dlgMemberDetails.parseMember();
+        this.memberDialog_.show(member);
+    }
+
+    /**
+     * @param {Event} event
+     * @private
+     */
+    handleMemberDialogAccept_(event) {
+        const member = this.memberDialog_.parseMember();
         const reqType = member.id == null ? RequestType.CREATE : RequestType.UPDATE;
 
         const req = new PostMembersRequest(reqType, [member]);
         ENDPOINT_POST_MEMBERS.execute(req)
                 // Fuck it, just repopulate the entire table...
-                .then(resp => repopulateMemberDetailsTable());
-    });
-    tblMemberDetails.listen(DataTable.Event.ROW_CLICK, event => {
-        const member = event.detail.row.data;
-        dlgMemberDetails.openWith(member, event);
-    });
-
-    repopulateMemberDetailsTable();
-
-    function repopulateMemberDetailsTable() {
-        const req = new GetMembersRequest();
-        ENDPOINT_GET_MEMBERS.execute(req)
-                .then(resp => {
-                    tblMemberDetails.clearRows();
-                    resp.members.forEach(member => tblMemberDetails.appendRow(member));
-                    tblMemberDetails.sort();
-                });
+                .then(resp => this.repopulateMemberDetailsTable());
     }
-});
 
-class MemberDetailsFormDialog extends AikDataFormDialog {
     /**
-     * @param {Member} member
      * @param {Event} event
+     * @private
      */
-    openWith(member, event) {
-        this.lastFocusedTarget = event.target;
-        this.populateMember(member);
-        this.show();
-    }
-
-    /** @param {Member} member */
-    populateMember(member) {
-        const fields = this.form.fields;
-        fields.get('id').value = member.id || null;
-        fields.get('first-name').value = member.firstName || null;
-        fields.get('last-name').value = member.lastName || null;
-        fields.get('type').value = member.type || null;
-        fields.get('birth-date').value = member.birthDate || null;
-    }
-
-    /** @return {Member} */
-    parseMember() {
-        const fields = this.form.fields;
-        return {
-            id: fields.get('id').value || null,
-            firstName: fields.get('first-name').value || null,
-            lastName: fields.get('last-name').value || null,
-            type: fields.get('type').value || null,
-            birthDate: fields.get('birth-date').value || null
-        };
+    handleMemberTableRowClick_(event) {
+        const member = event.detail.row.data;
+        this.memberDialog_.show(member);
     }
 }
+
+const SELECTOR_BASE = 'aik-member-details';
+
+/**
+ * @enum {string}
+ * @private
+ */
+MemberDetailsPage.Selector = {
+    MEMBER_TABLE: `#${SELECTOR_BASE}-table`,
+    MEMBER_TABLE_ROW_TMPL: '#aik-tmpl-member-details-table__row',
+    ADD_MEMBER_BTN: `#${SELECTOR_BASE}-add-member`,
+    MEMBER_DIALOG: `#${SELECTOR_BASE}-dialog`,
+    MEMBER_DIALOG_FORM: `#${SELECTOR_BASE}-form`
+};
+
+new MemberDetailsPage(window);

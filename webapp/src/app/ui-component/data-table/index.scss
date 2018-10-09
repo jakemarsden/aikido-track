@@ -1,5 +1,6 @@
 @import '~material-design-lite/src/data-table/data-table';
 @import '~material-design-lite/src/shadow/shadow';
+@import '../base/index';
 
 // Override rules from ~material-design-lite/src/data-table/data-table to fix header appearance
 .mdl-data-table {
