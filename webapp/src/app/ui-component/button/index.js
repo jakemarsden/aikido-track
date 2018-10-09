@@ -8,7 +8,6 @@ export class Button extends Component {
      * @protected
      */
     init(...args) {
-        this.clickHandler_ = event => this.emit(Button.Event.CLICK);
     }
 
     /**
@@ -16,14 +15,12 @@ export class Button extends Component {
      */
     initDom() {
         this.ripple_ = new MDCRipple(this.root_);
-        this.listen('click', this.clickHandler_);
     }
 
     /**
      * @protected
      */
     destroy() {
-        this.unlisten('click', this.clickHandler_);
         this.ripple_.destroy();
     }
 }
@@ -32,5 +29,5 @@ export class Button extends Component {
  * @enum {string}
  */
 Button.Event = {
-    CLICK: 'Button:click'
+    CLICK: 'click'
 };

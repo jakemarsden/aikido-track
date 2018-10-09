@@ -11,6 +11,8 @@ import {
     PostSessionAttendancesRequest,
     PostSessionsRequest
 } from "../../endpoint/session-endpoint.js";
+import {Page} from '../../ui-component/base/index.js';
+import {Button} from '../../ui-component/button/index.js';
 import {AikDataForm} from "../../ui-component/data-form/aik-data-form.js";
 import {DataTable} from "../../ui-component/data-table/index.js";
 import '../layout.js';
@@ -19,66 +21,65 @@ import {MemberAttendanceDataRow} from "./member-attendance-data-row.js";
 import {SessionDataRow} from "./session-data-row.js";
 import {SessionDetailsFormDialog} from "./session-details-form-dialog.js";
 
-window.addEventListener('load', () => {
-    const now = DateTime.local();
-    new SessionUi(now).initialize();
-});
+/**
+ * @private
+ */
+class AttendancePage extends Page {
 
-class SessionUi {
-    constructor() {
-        /** @private */
+    /**
+     * @param {...?} args
+     * @protected
+     */
+    init(...args) {
         this.addSessionBtnHandler_ = event => this.showSessionDialog(event, null);
-        /** @private */
         this.dateChangeHandler_ = event => this.repopulateSessionTable();
-        /** @private */
         this.sessionTableSelectionHandler_ = event => this.showSessionDialog(event, event.detail.row.data);
-        /** @private */
         this.sessionFormSubmitHandler_ = event => this.handleSessionFormSubmit_(event);
     }
 
-    initialize() {
-        /**
-         * @type {HTMLButtonElement}
-         * @private
-         */
-        this.btnAddSession_ = document.querySelector('#aik-session-details-add-session-btn');
-        /** @private */
-        this.btnRipples_ = [
-            new MDCRipple(this.btnAddSession_),
-            new MDCRipple(document.querySelector('#aik-attendance-date-form__apply-btn'))
-        ];
-        /** @private */
-        this.dateForm_ = new AikDataForm(document.querySelector('#aik-attendance-date-form'));
-        /** @private */
-        this.sessionTable_ = new DataTable(
-                document.querySelector('#aik-session-details-table'),
-                DataTable.templatedRowFactory(SessionDataRow.ctor, '#aik-tmpl-session-details-table__row'));
-        /** @private */
-        const sessionAttendanceTable = new DataTable(
-                document.querySelector('#aik-session-attendance-table'),
-                DataTable.templatedRowFactory(MemberAttendanceDataRow.ctor, '#aik-tmpl-session-attendance-table__row'));
-        /** @private */
-        this.sessionDialog_ = new SessionDetailsFormDialog(
-                document.querySelector('#aik-session-details-dialog'), sessionAttendanceTable, undefined);
+    /**
+     * @protected
+     */
+    initDom() {
+        const s = AttendancePage.Selector;
+        const root = this.root;
 
-        this.btnAddSession_.addEventListener('click', this.addSessionBtnHandler_);
+        this.dateForm_ = new AikDataForm(root.querySelector(s.DATE_FORM));
+        this.dateFormAcceptBtn_ = new Button(root.querySelector(s.DATE_FORM_ACCEPT_BTN));
+
+        this.sessionTable_ = new DataTable(
+                root.querySelector(s.SESSION_DETAILS_TABLE),
+                DataTable.templatedRowFactory(SessionDataRow.ctor, s.SESSION_DETAILS_TABLE_ROW_TMPL));
+        this.addSessionBtn_ = new Button(root.querySelector(s.ADD_SESSION_BTN));
+
+        const sessionAttendanceTable = new DataTable(
+                root.querySelector(s.SESSION_ATTENDANCE_TABLE),
+                DataTable.templatedRowFactory(MemberAttendanceDataRow.ctor, s.SESSION_ATTENDANCE_TABLE_ROW_TMPL));
+        this.sessionDialog_ = new SessionDetailsFormDialog(
+                root.querySelector(s.SESSION_DETAILS_DIALOG), sessionAttendanceTable);
+
         this.dateForm_.listen('AikDataForm:submit', this.dateChangeHandler_);
         this.sessionTable_.listen(DataTable.Event.ROW_CLICK, this.sessionTableSelectionHandler_);
+        this.addSessionBtn_.listen(Button.Event.CLICK, this.addSessionBtnHandler_);
         this.sessionDialog_.form.listen('AikDataForm:submit', this.sessionFormSubmitHandler_);
 
         this.dateForm_.fields.get('date').value = DateTime.local().toISODate();
         this.repopulateSessionTable();
     }
 
+    /**
+     * @protected
+     */
     destroy() {
-        this.btnAddSession_.removeEventListener('click', this.addSessionBtnHandler_);
         this.dateForm_.unlisten('AikDataForm:submit', this.dateChangeHandler_);
         this.sessionTable_.unlisten(DataTable.Event.ROW_CLICK, this.sessionTableSelectionHandler_);
+        this.addSessionBtn_.unlisten(Button.Event.CLICK, this.addSessionBtnHandler_);
         this.sessionDialog_.form.unlisten('AikDataForm:submit', this.sessionFormSubmitHandler_);
 
-        this.btnRipples_.forEach(ripple => ripple.destroy());
         this.dateForm_.destroy();
+        this.dateFormAcceptBtn_.destroy();
         this.sessionTable_.destroy();
+        this.addSessionBtn_.destroy();
         this.sessionDialog_.destroy();
     }
 
@@ -160,3 +161,20 @@ class SessionUi {
                 });
     }
 }
+
+/**
+ * @enum {string}
+ * @private
+ */
+AttendancePage.Selector = {
+    DATE_FORM: '#aik-attendance-date-form',
+    DATE_FORM_ACCEPT_BTN: '#aik-attendance-date-form__apply-btn',
+    SESSION_DETAILS_TABLE: '#aik-session-details-table',
+    SESSION_DETAILS_TABLE_ROW_TMPL: '#aik-tmpl-session-details-table__row',
+    ADD_SESSION_BTN: '#aik-session-details-add-session-btn',
+    SESSION_ATTENDANCE_TABLE: '#aik-session-attendance-table',
+    SESSION_ATTENDANCE_TABLE_ROW_TMPL: '#aik-tmpl-session-attendance-table__row',
+    SESSION_DETAILS_DIALOG: '#aik-session-details-dialog'
+};
+
+new AttendancePage(window);
