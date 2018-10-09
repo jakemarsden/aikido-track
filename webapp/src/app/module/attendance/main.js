@@ -11,11 +11,10 @@ import {
     PostSessionAttendancesRequest,
     PostSessionsRequest
 } from "../../endpoint/session-endpoint.js";
-import {Page} from '../../ui-component/base/index.js';
 import {Button} from '../../ui-component/button/index.js';
 import {DataForm} from "../../ui-component/data-form/index.js";
 import {DataTable} from "../../ui-component/data-table/index.js";
-import '../layout.js';
+import {LayoutPage} from '../layout.js';
 import './main.scss';
 import {MemberAttendanceDataRow} from "./member-attendance-data-row.js";
 import {SessionDataRow} from "./session-data-row.js";
@@ -24,13 +23,15 @@ import {SessionDetailsFormDialog} from "./session-details-form-dialog.js";
 /**
  * @private
  */
-class AttendancePage extends Page {
+class AttendancePage extends LayoutPage {
 
     /**
      * @param {...?} args
      * @protected
      */
     init(...args) {
+        super.init(...args);
+
         this.addSessionBtnHandler_ = event => this.showSessionDialog(event, null);
         this.dateChangeHandler_ = event => this.repopulateSessionTable();
         this.sessionTableSelectionHandler_ = event => this.showSessionDialog(event, event.detail.row.data);
@@ -41,6 +42,8 @@ class AttendancePage extends Page {
      * @protected
      */
     initDom() {
+        super.initDom();
+
         const s = AttendancePage.Selector;
         const root = this.root_;
 
@@ -81,6 +84,8 @@ class AttendancePage extends Page {
         this.sessionTable_.destroy();
         this.addSessionBtn_.destroy();
         this.sessionDialog_.destroy();
+
+        super.destroy();
     }
 
     repopulateSessionTable() {

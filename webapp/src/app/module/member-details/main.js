@@ -5,24 +5,25 @@ import {
     GetMembersRequest,
     PostMembersRequest
 } from '../../endpoint/member-endpoint.js';
-import {Page} from '../../ui-component/base/index.js';
 import {Button} from '../../ui-component/button/index.js';
 import {MemberDataRow} from "../../ui-component/data-table/member-data-row.js";
 import {DataTable} from "../../ui-component/data-table/index.js";
-import '../layout.js';
+import {LayoutPage} from '../layout.js';
 import './main.scss';
 import {MemberDetailsFormDialog} from './member-details-form-dialog.js';
 
 /**
  * @private
  */
-class MemberDetailsPage extends Page {
+class MemberDetailsPage extends LayoutPage {
 
     /**
      * @param {...?} args
      * @protected
      */
     init(...args) {
+        super.init(...args);
+
         this.addMemberBtnClickHandler_ = event => this.handleAddMemberBtnClick(event);
         this.memberDetailsDlgAcceptHandler_ = event => this.handleMemberDetailsDlgAccept(event);
         this.memberDetailsTblRowClickHandler_ = event => this.handleMemberDetailsTblRowClick(event);
@@ -32,6 +33,8 @@ class MemberDetailsPage extends Page {
      * @protected
      */
     initDom() {
+        super.initDom();
+
         const s = MemberDetailsPage.Selector;
         const root = this.root_;
 
@@ -59,6 +62,8 @@ class MemberDetailsPage extends Page {
         this.addMemberBtn_.destroy();
         this.memberDialog_.destroy();
         this.memberTable_.destroy();
+
+        super.destroy();
     }
 
     repopulateMemberDetailsTable() {
