@@ -1,3 +1,4 @@
+import {MDCTextField} from '@material/textfield';
 import {indexOf} from "../../util/collection-utils.js";
 import {Component} from "../base/index.js";
 
@@ -52,10 +53,11 @@ export class DataTable extends Component {
     init(rowFactory, ...args) {
         this.bodyCellClickHandler_ = event => this.handleBodyCellClick_(event);
         this.headerCellClickHandler_ = event => this.handleHeaderCellClick_(event);
+        this.filterControlChangeHandler_ = this.debounce(event => this.filter());
         this.rowFactory_ = rowFactory;
         /**
          * @constant {!Array<DataRow<TData>>}
-         * @private
+         * @protected
          */
         this.rows_ = [];
     }
@@ -75,8 +77,16 @@ export class DataTable extends Component {
          */
         this.thead_ = this.root_.querySelector(DataTable.Selector.THEAD);
 
+        const filterControlElem = this.root_.querySelector(DataTable.Selector.FILTER_CONTROL);
+        /**
+         * @constant {(MDCTextField|null)}
+         * @protected
+         */
+        this.filterControl_ = (filterControlElem && new MDCTextField(filterControlElem)) || null;
+
         this.tbody_.addEventListener('click', this.bodyCellClickHandler_);
         this.thead_.addEventListener('click', this.headerCellClickHandler_);
+        this.filterControl_ && this.filterControl_.listen('input', this.filterControlChangeHandler_);
     }
 
     /**
@@ -85,7 +95,10 @@ export class DataTable extends Component {
     destroy() {
         this.tbody_.removeEventListener('click', this.bodyCellClickHandler_);
         this.thead_.removeEventListener('click', this.headerCellClickHandler_);
+        this.filterControl_ && this.filterControl_.unlisten('input', this.filterControlChangeHandler_);
+
         this.clearRows();
+        this.filterControl_ && this.filterControl_.destroy();
     }
 
     /**
@@ -217,6 +230,28 @@ export class DataTable extends Component {
     }
 
     /**
+     * @return {!DataRow~FilterCriteria}
+     */
+    get filterCriteria() {
+        const criteria = {};
+        if (this.filterControl_ !== null) {
+            criteria.searchTerms = this.filterControl_.value
+                    .split(/\s+/)
+                    .map(it => it.trim())
+                    .filter(it => it.length !== 0)
+        }
+        return criteria;
+    }
+
+    filter() {
+        const criteria = this.filterCriteria;
+        this.rows_.forEach(row => {
+            const passesFilter = row.filter(criteria);
+            row.root.classList.toggle(DataTable.CssClass.ROW_HIDDEN, !passesFilter);
+        });
+    }
+
+    /**
      * @param {Event} event
      * @private
      */
@@ -308,7 +343,8 @@ DataTable.SortDirection = {
 DataTable.CssClass = {
     SORTABLE: 'mdl-data-table__header--sortable',
     SORTED_ASC: 'mdl-data-table__header--sorted-ascending',
-    SORTED_DESC: 'mdl-data-table__header--sorted-descending'
+    SORTED_DESC: 'mdl-data-table__header--sorted-descending',
+    ROW_HIDDEN: 'aik-data-table__row__hidden'
 };
 
 /**
@@ -320,5 +356,6 @@ DataTable.Selector = {
     TBODY: 'tbody',
     THEAD: 'thead',
     BODY_CELL: 'tbody td',
-    HEADER_CELL: 'thead td, thead th'
+    HEADER_CELL: 'thead tr:first-of-type td, thead tr:first-of-type th',
+    FILTER_CONTROL: '.aik-data-table__control__filter'
 };

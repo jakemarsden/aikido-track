@@ -76,6 +76,7 @@ class MemberDetailsPage extends LayoutPage {
                 .then(resp => {
                     this.memberTable_.clearRows();
                     resp.members.forEach(member => this.memberTable_.appendRow(member));
+                    this.memberTable_.filter();
                     this.memberTable_.sort();
                 });
     }

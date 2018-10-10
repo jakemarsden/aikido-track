@@ -19,6 +19,7 @@ import {Dialog} from '../../ui-component/dialog/index.js';
 import {LayoutPage} from '../layout.js';
 import './main.scss';
 import {MemberAttendanceDataRow} from "./member-attendance-data-row.js";
+import {MemberAttendanceDataTable} from "./member-attendance-data-table.js";
 import {SessionDataRow} from "./session-data-row.js";
 import {SessionDetailsFormDialog} from "./session-details-form-dialog.js";
 
@@ -60,7 +61,7 @@ class AttendancePage extends LayoutPage {
         this.sessionDialog_ = new SessionDetailsFormDialog(
                 new Dialog(root.querySelector(s.SESSION_DIALOG)),
                 new DataForm(root.querySelector(s.SESSION_DIALOG_FORM)),
-                new DataTable(
+                new MemberAttendanceDataTable(
                         root.querySelector(s.SESSION_DIALOG_ATTENDANCE_TABLE),
                         DataTable.templatedRowFactory(
                                 MemberAttendanceDataRow.ctor, s.SESSION_DIALOG_ATTENDANCE_TABLE_ROW_TMPL)));
@@ -99,6 +100,7 @@ class AttendancePage extends LayoutPage {
                 .then(resp => {
                     this.sessionTable_.clearRows();
                     resp.sessions.forEach(session => this.sessionTable_.appendRow(session));
+                    this.sessionTable_.filter();
                     this.sessionTable_.sort();
                 });
     }

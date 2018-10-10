@@ -1,3 +1,4 @@
+import {everyMatch, someMatch} from '../../util/collection-utils.js';
 import {Component} from '../base/index.js';
 
 /**
@@ -74,6 +75,24 @@ export class DataRow extends Component {
     }
 
     /**
+     * Default behaviour is to compare the text content of the {@link HTMLTableDataCellElement} elements against the
+     * {@link #DataTable~FilterCriteria#searchTerms}, since this class doesn't know anything about the structure of
+     * the underlying {@link #data}. Subclasses may override this method to perform better filtering, possibly against
+     * more sophisticated {@link DataRow~FilterCriteria}
+     * @param {DataRow~FilterCriteria} criteria
+     * @return {boolean} Whether this row has passed the filter (and should be displayed)
+     */
+    filter(criteria) {
+        if (criteria.searchTerms == null || criteria.searchTerms.length === 0) {
+            return true;
+        }
+        const terms = criteria.searchTerms.map(term => term.toLowerCase());
+        return everyMatch(terms, term =>
+                someMatch(this.root_.cells, cell =>
+                        cell.textContent.trim().toLowerCase().includes(term)));
+    }
+
+    /**
      * @param {Object<string, DataRow~Renderer<TData>>} renderers
      * @protected
      */
@@ -85,6 +104,11 @@ export class DataRow extends Component {
                         renderer(elem, data)));
     }
 }
+
+/**
+ * @typedef {Object} DataRow~FilterCriteria
+ * @property {Array<string>=} searchTerms
+ */
 
 /**
  * @callback DataRow~Ctor

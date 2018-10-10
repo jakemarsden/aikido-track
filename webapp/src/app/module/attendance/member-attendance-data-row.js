@@ -61,6 +61,21 @@ export class MemberAttendanceDataRow extends DataRow {
     }
 
     /**
+     * @param {MemberAttendanceDataRow~FilterCriteria} criteria
+     * @return {boolean}
+     */
+    filter(criteria) {
+        if (criteria.memberType != null && criteria.memberType.length !== 0) {
+            if (this.data_.member.type !== criteria.memberType) {
+                if (!this.data_.present && !this.presentSwitch_.checked) {
+                    return false;
+                }
+            }
+        }
+        return this.memberRow_.filter(criteria);
+    }
+
+    /**
      * @param {(MemberAttendanceDataRow|null|undefined)} other
      * @param {number} colIdx
      * @return {number}
@@ -88,3 +103,8 @@ const SELECTOR_BASE = 'aik-session-attendance-data-table';
 MemberAttendanceDataRow.Selector = {
     PRESENT_SWITCH: `.${SELECTOR_BASE}__attendance`
 };
+
+/**
+ * @typedef {DataRow~FilterCriteria} MemberAttendanceDataRow~FilterCriteria
+ * @property {string=} memberType
+ */

@@ -238,8 +238,49 @@
                             <th class="mdl-data-table__cell--non-numeric mdl-data-table__header--sortable">
                                 Last name
                             </th>
+                            <th class="mdl-data-table__cell--non-numeric mdl-data-table__header--sortable">
+                                Type
+                            </th>
                             <th class="mdl-data-table__header--sortable mdl-data-table__header--sorted-ascending">
                                 Present
+                            </th>
+                        </tr>
+                        <tr>
+                            <th class="aik-data-table__control" colspan="4">
+                                <div class="aik-data-table__control__filter mdc-text-field mdc-text-field--dense mdc-text-field--with-leading-icon mdc-text-field--outlined">
+                                    <span class="material-icons mdc-text-field__icon">search</span>
+                                    <input id="aik-session-attendance-table__control__filter__input"
+                                            class="mdc-text-field__input"
+                                            name="filter"
+                                            type="text"/>
+                                    <label for="aik-session-attendance-table__control__filter__input"
+                                            class="mdc-floating-label">
+                                        Filter
+                                    </label>
+                                    <div class="mdc-notched-outline">
+                                        <svg>
+                                            <path class="mdc-notched-outline__path"/>
+                                        </svg>
+                                    </div>
+                                    <div class="mdc-notched-outline__idle"></div>
+                                </div>
+
+                                <div class="aik-member-attendance-table__control__filter-by-type mdc-switch">
+                                    <div class="mdc-switch__track"></div>
+                                    <div class="mdc-switch__thumb-underlay">
+                                        <div class="mdc-switch__thumb">
+                                            <input id="aik-session-attendance-table__control__filter-by-type__native-control"
+                                                    class="mdc-switch__native-control"
+                                                    name="filter-by-type"
+                                                    type="checkbox"
+                                                    role="switch"
+                                                    checked/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <label for="aik-session-attendance-table__control__filter-by-type__native-control">
+                                    Filter by type
+                                </label>
                             </th>
                         </tr>
                         </thead>
@@ -281,6 +322,7 @@
     <tr>
         <td class="mdl-data-table__cell--non-numeric aik-member-data-table__first-name"></td>
         <td class="mdl-data-table__cell--non-numeric aik-member-data-table__last-name"></td>
+        <td class="mdl-data-table__cell--non-numeric aik-member-data-table__type"></td>
         <td>
             <div class="aik-session-attendance-data-table__attendance mdc-switch">
                 <div class="mdc-switch__track"></div>

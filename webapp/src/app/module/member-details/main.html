@@ -63,6 +63,28 @@
             </th>
             <th class="mdl-data-table__cell--non-numeric mdl-data-table__header--sortable">Type</th>
         </tr>
+        <tr>
+            <th colspan="3">
+                <div class="aik-data-table__control">
+                    <div class="aik-data-table__control__filter mdc-text-field mdc-text-field--dense mdc-text-field--outlined mdc-text-field--with-leading-icon">
+                        <span class="material-icons mdc-text-field__icon">search</span>
+                        <input id="aik-member-details-table__control__filter__input"
+                                class="mdc-text-field__input"
+                                name="filter"
+                                type="text"/>
+                        <label for="aik-member-details-table__control__filter__input" class="mdc-floating-label">
+                            Filter
+                        </label>
+                        <div class="mdc-notched-outline">
+                            <svg>
+                                <path class="mdc-notched-outline__path"/>
+                            </svg>
+                        </div>
+                        <div class="mdc-notched-outline__idle"></div>
+                    </div>
+                </div>
+            </th>
+        </tr>
         </thead>
         <tbody>
         <!-- Populated by #aik-tmpl-member-details-table__row -->

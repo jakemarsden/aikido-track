@@ -45,6 +45,23 @@ export class Component {
     }
 
     /**
+     * Wraps the given event listener in a fancy new debouncing event listener
+     * @param {!Function} handler
+     * @param {number=} interval In milliseconds
+     * @return {!Function} The wrapped listener
+     */
+    debounce(handler, interval = 200) {
+        let timeoutId = null;
+        return (...args) => {
+            if (timeoutId !== null) {
+                window.clearTimeout(timeoutId);
+                timeoutId = null;
+            }
+            timeoutId = window.setTimeout(() => handler.apply(...args), interval);
+        };
+    }
+
+    /**
      * Wrapper method to add an event listener to the component's root element. This is most useful when listening for
      * custom events. Based on {@link MDCComponent#listen}
      * @param {string} eventType

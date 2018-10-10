@@ -43,3 +43,12 @@
         }
     }
 }
+
+.aik-data-table__control,
+.mdl-data-table .aik-data-table__control {
+    text-align: start;
+}
+
+.aik-data-table__row__hidden {
+    display: none;
+}

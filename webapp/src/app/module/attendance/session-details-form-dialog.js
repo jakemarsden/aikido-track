@@ -105,6 +105,7 @@ export class SessionDetailsFormDialog extends DataFormDialog {
         this.attendanceTable_.clearRows();
         if (attendances !== null) {
             attendances.forEach(attendance => this.attendanceTable_.appendRow(attendance));
+            this.attendanceTable_.filter();
             this.attendanceTable_.sort();
         }
         this.attendanceFieldsetHidden = (attendances === null);
