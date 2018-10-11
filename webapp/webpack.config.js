@@ -7,8 +7,8 @@ const CompressionPlugin = require('compression-webpack-plugin');
 const HtmlPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
-const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const SpeedMeasurePlugin = require('speed-measure-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = function (env) {
     const isForProd = env === 'production';
@@ -55,7 +55,7 @@ module.exports = function (env) {
         minimize: isForProd,
         minimizer: [
             new OptimizeCssAssetsPlugin({ cssProcessor: cssnano }),
-            new UglifyJsPlugin({
+            new TerserPlugin({
                 cache: !isForProd,
                 extractComments: {
                     // Separate license comments from the main bundle and add a comment explaining where to find them
@@ -65,7 +65,7 @@ module.exports = function (env) {
                 },
                 parallel: true,
                 sourceMap: true,
-                uglifyOptions: {
+                terserOptions: {
                     compress: true,
                     mangle: true
                 }
