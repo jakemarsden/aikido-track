@@ -2,7 +2,7 @@ plugins {
     id 'groovy'
     id 'project-report'
     id 'io.spring.dependency-management' version '1.0.6.RELEASE'
-    id 'org.springframework.boot' version '2.0.3.RELEASE'
+    id 'org.springframework.boot' version '2.0.5.RELEASE'
 }
 
 group 'com.jakemarsden'
@@ -16,11 +16,11 @@ repositories {
 
 dependencyManagement {
     imports {
-        mavenBom 'org.springframework.boot:spring-boot-dependencies:2.0.3.RELEASE'
+        mavenBom 'org.springframework.boot:spring-boot-dependencies:2.0.5.RELEASE'
     }
 
     dependencies {
-        dependencySet(group: 'org.hibernate', version: '5.3.1.Final') {
+        dependencySet(group: 'org.hibernate', version: '5.3.6.Final') {
             entry 'hibernate-core'
             entry 'hibernate-java8'
         }
