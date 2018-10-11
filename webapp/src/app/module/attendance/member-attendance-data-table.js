@@ -29,14 +29,14 @@ export class MemberAttendanceDataTable extends DataTable {
          * @protected
          */
         this.filterByTypeControl_ = (elem && new MDCSwitch(elem)) || null;
-        this.filterByTypeControl_ && this.filterByTypeControl_.listen('input', this.filterByTypeControlHandler_);
+        this.filterByTypeControl_ && this.filterByTypeControl_.listen('change', this.filterByTypeControlHandler_);
     }
 
     /**
      * @protected
      */
     destroy() {
-        this.filterByTypeControl_ && this.filterByTypeControl_.unlisten('input', this.filterByTypeControlHandler_);
+        this.filterByTypeControl_ && this.filterByTypeControl_.unlisten('change', this.filterByTypeControlHandler_);
         this.filterByTypeControl_ && this.filterByTypeControl_.destroy();
         super.destroy();
     }
