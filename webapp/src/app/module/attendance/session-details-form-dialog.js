@@ -10,7 +10,7 @@ export class SessionDetailsFormDialog extends DataFormDialog {
     /**
      * @param {!Dialog} dialog
      * @param {!DataForm} form
-     * @param {!DataTable<SessionAttendance>} attendanceTable
+     * @param {!MemberAttendanceDataTable} attendanceTable
      * @param {...?} args Any additional arguments to pass to {@link #init}
      */
     constructor(dialog, form, attendanceTable, ...args) {
@@ -20,23 +20,37 @@ export class SessionDetailsFormDialog extends DataFormDialog {
     /**
      * @param {!Dialog} dialog
      * @param {!DataForm} form
-     * @param {!DataTable<SessionAttendance>} attendanceTable
+     * @param {!MemberAttendanceDataTable} attendanceTable
      * @param {...?} args
      * @protected
      */
     init(dialog, form, attendanceTable, ...args) {
         super.init(dialog, form, attendanceTable, ...args);
         /**
-         * @constant {DataTable<SessionAttendance>}
+         * @constant {!MemberAttendanceDataTable}
          * @private
          */
         this.attendanceTable_ = attendanceTable;
+
+        this.sessionFieldChangeHandler_ = event => {
+            this.attendanceTable_.memberType = getMemberTypeFor(event.target.value);
+            this.attendanceTable_.filter();
+        }
+    }
+
+    /**
+     * @protected
+     */
+    initDom() {
+        super.initDom();
+        this.fields.get('type').listen('change', this.sessionFieldChangeHandler_);
     }
 
     /**
      * @protected
      */
     destroy() {
+        this.fields.get('type').unlisten('change', this.sessionFieldChangeHandler_);
         this.attendanceTable_.destroy();
         super.destroy();
     }
@@ -102,6 +116,7 @@ export class SessionDetailsFormDialog extends DataFormDialog {
      * @private
      */
     populateAttendance(attendances) {
+        this.attendanceTable_.memberType = getMemberTypeFor(this.fields.get('type').value);
         this.attendanceTable_.clearRows();
         if (attendances !== null) {
             attendances.forEach(attendance => this.attendanceTable_.appendRow(attendance));
@@ -154,3 +169,25 @@ SessionDetailsFormDialog.CssClass = {
 SessionDetailsFormDialog.Selector = {
     ATTENDANCE_FIELDSET: '.aik-session-details-form__attendance-fieldset'
 };
+
+/**
+ * @param {(string|null|undefined)} sessionType
+ * @return {(string|null)} The member type associated with the given session type
+ */
+function getMemberTypeFor(sessionType) {
+    if (sessionType == null || sessionType.length === 0) {
+        return null;
+    }
+    switch (sessionType) {
+        case 'advanced':
+        case 'beginner':
+        case 'general':
+        case 'iaido':
+        case 'weapons':
+            return 'adult';
+        case 'junior':
+            return 'junior';
+        default:
+            throw new TypeError(`Unsupported session type: '${sessionType}'`)
+    }
+}

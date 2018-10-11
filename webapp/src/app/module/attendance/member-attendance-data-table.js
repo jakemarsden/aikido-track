@@ -15,6 +15,12 @@ export class MemberAttendanceDataTable extends DataTable {
     init(rowFactory, ...args) {
         super.init(rowFactory, ...args);
         this.filterByTypeControlHandler_ = event => this.filter();
+
+        /**
+         * @type {(string|null)}
+         * @private
+         */
+        this.memberType_ = null;
     }
 
     /**
@@ -42,12 +48,28 @@ export class MemberAttendanceDataTable extends DataTable {
     }
 
     /**
+     * If non-`null`, this is the member type used to filter members when the
+     * {@link MemberAttendanceDataTable.Selector.FILTER_BY_TYPE_CONTROL} field is checked. If `null`, the field will
+     * be disabled and members won't be filtered by type. Note that {@link #filter} may need to be called to actually
+     * apply the updated {@link MemberAttendanceDataTable~FilterCriteria}, although the `FILTER_BY_TYPE_CONTROL` field
+     * *will* be (*en/dis*)abled automatically
+     * @param {(string|null)} type Pass `null` to disable the option to filter members by type
+     * @see #filterCriteria
+     * @see #filter
+     * @see MemberAttendanceDataRow#filter
+     */
+    set memberType(type) {
+        this.memberType_ = type;
+        this.filterByTypeControl_ && (this.filterByTypeControl_.disabled = type === null);
+    }
+
+    /**
      * @return {MemberAttendanceDataRow~FilterCriteria}
      */
     get filterCriteria() {
         const criteria = super.filterCriteria;
-        if (this.filterByTypeControl_ !== null) {
-            criteria.memberType = this.filterByTypeControl_.checked ? 'junior' : null;
+        if (this.memberType_ !== null && this.filterByTypeControl_ !== null) {
+            criteria.memberType = this.filterByTypeControl_.checked ? this.memberType_ : null;
         }
         return criteria;
     }
