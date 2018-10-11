@@ -60,6 +60,6 @@ bootRun {
 }
 
 wrapper {
-    gradleVersion = '4.7'
+    gradleVersion = '4.10.2'
     distributionType = 'ALL'
 }
