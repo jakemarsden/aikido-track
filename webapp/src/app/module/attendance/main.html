@@ -104,210 +104,210 @@
     </button>
 </section>
 
-<aside id="aik-session-details-dialog"
+
+
+<div id="aik-session-details-dialog"
         class="mdc-dialog"
         role="alertdialog"
+        aria-modal="true"
         aria-labelledby="aik-session-details-dialog__title"
-        aria-describedby="aik-session-details-dialog__body">
+        aria-describedby="aik-session-details-dialog__content">
 
-    <div class="mdc-dialog__surface">
-        <header class="mdc-dialog__header">
-            <h2 id="aik-session-details-dialog__title" class="mdc-dialog__header__title">Member details</h2>
-        </header>
+    <div class="mdc-dialog__container">
+        <div class="mdc-dialog__surface">
+            <h2 id="aik-session-details-dialog__title" class="mdc-dialog__title">Session details</h2>
+            <div id="aik-session-details-dialog__content" class="mdc-dialog__content">
+                <form id="aik-session-details-form" class="aik-data-form">
 
-        <section id="aik-session-details-dialog__body" class="mdc-dialog__body mdc-dialog__body--scrollable">
-            <form id="aik-session-details-form" class="aik-data-form">
+                    <fieldset class="aik-data-form__fieldset">
+                        <legend>Basic info</legend>
 
-                <fieldset class="aik-data-form__fieldset">
-                    <legend>Basic info</legend>
-
-                    <div id="aik-session-details-form__id"
-                            class="mdc-text-field mdc-text-field--short mdc-text-field--outlined mdc-text-field--disabled">
-                        <input id="aik-session-details-form__id__input"
-                                class="mdc-text-field__input"
-                                name="id"
-                                type="text"
-                                disabled/>
-                        <label for="aik-session-details-form__id__input" class="mdc-floating-label">ID</label>
-                        <div class="mdc-notched-outline">
-                            <svg>
-                                <path class="mdc-notched-outline__path"/>
-                            </svg>
+                        <div id="aik-session-details-form__id"
+                                class="mdc-text-field mdc-text-field--short mdc-text-field--outlined mdc-text-field--disabled">
+                            <input id="aik-session-details-form__id__input"
+                                    class="mdc-text-field__input"
+                                    name="id"
+                                    type="text"
+                                    disabled/>
+                            <label for="aik-session-details-form__id__input" class="mdc-floating-label">ID</label>
+                            <div class="mdc-notched-outline">
+                                <svg>
+                                    <path class="mdc-notched-outline__path"/>
+                                </svg>
+                            </div>
+                            <div class="mdc-notched-outline__idle"></div>
                         </div>
-                        <div class="mdc-notched-outline__idle"></div>
-                    </div>
 
-                    <div id="aik-session-details-form__type" class="mdc-select mdc-select--outlined">
-                        <select id="aik-session-details-form__type__native-control"
-                                class="mdc-select__native-control"
-                                name="type"
-                                required>
-                            <option disabled selected></option>
-                            <option value="junior">Junior</option>
-                            <option value="beginner">Beginner</option>
-                            <option value="general">General</option>
-                            <option value="advanced">Advanced</option>
-                            <option value="iaido">Iaido</option>
-                            <option value="weapons">Weapons</option>
-                        </select>
-                        <label for="aik-session-details-form__type__native-control" class="mdc-floating-label">
-                            Type
-                        </label>
-                        <div class="mdc-notched-outline">
-                            <svg>
-                                <path class="mdc-notched-outline__path"></path>
-                            </svg>
-                        </div>
-                        <div class="mdc-notched-outline__idle"></div>
-                    </div>
-
-                    <div id="aik-session-details-form__date"
-                            class="mdc-text-field mdc-text-field--outlined mdc-text-field--with-leading-icon">
-
-                        <i class="material-icons mdc-text-field__icon">event</i>
-                        <input id="aik-session-details-form__date__input"
-                                class="mdc-text-field__input"
-                                name="date"
-                                type="date"
-                                required/>
-                        <label for="aik-session-details-form__date__input"
-                                class="mdc-floating-label mdc-floating-label--float-above">
-                            Date
-                        </label>
-                        <div class="mdc-notched-outline mdc-notched-outline--notched">
-                            <svg>
-                                <path class="mdc-notched-outline__path" d=""></path>
-                            </svg>
-                        </div>
-                        <div class="mdc-notched-outline__idle"></div>
-                    </div>
-
-                    <div id="aik-session-details-form__time"
-                            class="mdc-text-field mdc-text-field--outlined mdc-text-field--with-leading-icon">
-
-                        <i class="material-icons mdc-text-field__icon">access_time</i>
-                        <input id="aik-session-details-form__time__input"
-                                class="mdc-text-field__input"
-                                name="time"
-                                type="time"
-                                step="60"
-                                required/>
-                        <label for="aik-session-details-form__time__input"
-                                class="mdc-floating-label mdc-floating-label--float-above">
-                            Start time
-                        </label>
-                        <div class="mdc-notched-outline mdc-notched-outline--notched">
-                            <svg>
-                                <path class="mdc-notched-outline__path" d=""></path>
-                            </svg>
-                        </div>
-                        <div class="mdc-notched-outline__idle"></div>
-                    </div>
-
-                    <div id="aik-session-details-form__duration"
-                            class="mdc-text-field mdc-text-field--short mdc-text-field--outlined">
-                        <input id="aik-session-details-form__duration__input"
-                                class="mdc-text-field__input"
-                                name="duration"
-                                type="number"
-                                min="0"
-                                step="15"
-                                value="60"
-                                required/>
-                        <label for="aik-session-details-form__duration__input" class="mdc-floating-label">
-                            Duration
-                        </label>
-                        <div class="mdc-notched-outline">
-                            <svg>
-                                <path class="mdc-notched-outline__path"/>
-                            </svg>
-                        </div>
-                        <div class="mdc-notched-outline__idle"></div>
-                    </div>
-                </fieldset>
-
-                <fieldset class="aik-data-form__fieldset aik-session-details-form__attendance-fieldset">
-                    <legend>Attendance</legend>
-
-                    <table id="aik-session-attendance-table" class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
-                        <thead>
-                        <tr>
-                            <th class="mdl-data-table__cell--non-numeric mdl-data-table__header--sortable">
-                                First name
-                            </th>
-                            <th class="mdl-data-table__cell--non-numeric mdl-data-table__header--sortable">
-                                Last name
-                            </th>
-                            <th class="mdl-data-table__cell--non-numeric mdl-data-table__header--sortable">
+                        <div id="aik-session-details-form__type" class="mdc-select mdc-select--outlined">
+                            <select id="aik-session-details-form__type__native-control"
+                                    class="mdc-select__native-control"
+                                    name="type"
+                                    required>
+                                <option disabled selected></option>
+                                <option value="junior">Junior</option>
+                                <option value="beginner">Beginner</option>
+                                <option value="general">General</option>
+                                <option value="advanced">Advanced</option>
+                                <option value="iaido">Iaido</option>
+                                <option value="weapons">Weapons</option>
+                            </select>
+                            <label for="aik-session-details-form__type__native-control" class="mdc-floating-label">
                                 Type
-                            </th>
-                            <th class="mdl-data-table__header--sortable mdl-data-table__header--sorted-ascending">
-                                Present
-                            </th>
-                        </tr>
-                        <tr>
-                            <th class="aik-data-table__control" colspan="4">
-                                <div class="aik-data-table__control__filter mdc-text-field mdc-text-field--dense mdc-text-field--with-leading-icon mdc-text-field--outlined">
-                                    <span class="material-icons mdc-text-field__icon">search</span>
-                                    <input id="aik-session-attendance-table__control__filter__input"
-                                            class="mdc-text-field__input"
-                                            name="filter"
-                                            type="text"/>
-                                    <label for="aik-session-attendance-table__control__filter__input"
-                                            class="mdc-floating-label">
-                                        Filter
-                                    </label>
-                                    <div class="mdc-notched-outline">
-                                        <svg>
-                                            <path class="mdc-notched-outline__path"/>
-                                        </svg>
-                                    </div>
-                                    <div class="mdc-notched-outline__idle"></div>
-                                </div>
+                            </label>
+                            <div class="mdc-notched-outline">
+                                <svg>
+                                    <path class="mdc-notched-outline__path"></path>
+                                </svg>
+                            </div>
+                            <div class="mdc-notched-outline__idle"></div>
+                        </div>
 
-                                <div class="aik-member-attendance-table__control__filter-by-type mdc-switch">
-                                    <div class="mdc-switch__track"></div>
-                                    <div class="mdc-switch__thumb-underlay">
-                                        <div class="mdc-switch__thumb">
-                                            <input id="aik-session-attendance-table__control__filter-by-type__native-control"
-                                                    class="mdc-switch__native-control"
-                                                    name="filter-by-type"
-                                                    type="checkbox"
-                                                    role="switch"
-                                                    checked/>
+                        <div id="aik-session-details-form__date"
+                                class="mdc-text-field mdc-text-field--outlined mdc-text-field--with-leading-icon">
+    
+                            <i class="material-icons mdc-text-field__icon">event</i>
+                            <input id="aik-session-details-form__date__input"
+                                    class="mdc-text-field__input"
+                                    name="date"
+                                    type="date"
+                                    required/>
+                            <label for="aik-session-details-form__date__input"
+                                    class="mdc-floating-label mdc-floating-label--float-above">
+                                Date
+                            </label>
+                            <div class="mdc-notched-outline mdc-notched-outline--notched">
+                                <svg>
+                                    <path class="mdc-notched-outline__path" d=""></path>
+                                </svg>
+                            </div>
+                            <div class="mdc-notched-outline__idle"></div>
+                        </div>
+
+                        <div id="aik-session-details-form__time"
+                                class="mdc-text-field mdc-text-field--outlined mdc-text-field--with-leading-icon">
+    
+                            <i class="material-icons mdc-text-field__icon">access_time</i>
+                            <input id="aik-session-details-form__time__input"
+                                    class="mdc-text-field__input"
+                                    name="time"
+                                    type="time"
+                                    step="60"
+                                    required/>
+                            <label for="aik-session-details-form__time__input"
+                                    class="mdc-floating-label mdc-floating-label--float-above">
+                                Start time
+                            </label>
+                            <div class="mdc-notched-outline mdc-notched-outline--notched">
+                                <svg>
+                                    <path class="mdc-notched-outline__path" d=""></path>
+                                </svg>
+                            </div>
+                            <div class="mdc-notched-outline__idle"></div>
+                        </div>
+
+                        <div id="aik-session-details-form__duration"
+                                class="mdc-text-field mdc-text-field--short mdc-text-field--outlined">
+                            <input id="aik-session-details-form__duration__input"
+                                    class="mdc-text-field__input"
+                                    name="duration"
+                                    type="number"
+                                    min="0"
+                                    step="15"
+                                    value="60"
+                                    required/>
+                            <label for="aik-session-details-form__duration__input" class="mdc-floating-label">
+                                Duration
+                            </label>
+                            <div class="mdc-notched-outline">
+                                <svg>
+                                    <path class="mdc-notched-outline__path"/>
+                                </svg>
+                            </div>
+                            <div class="mdc-notched-outline__idle"></div>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="aik-data-form__fieldset aik-session-details-form__attendance-fieldset">
+                        <legend>Attendance</legend>
+
+                        <table id="aik-session-attendance-table" class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
+                            <thead>
+                            <tr>
+                                <th class="mdl-data-table__cell--non-numeric mdl-data-table__header--sortable">
+                                    First name
+                                </th>
+                                <th class="mdl-data-table__cell--non-numeric mdl-data-table__header--sortable">
+                                    Last name
+                                </th>
+                                <th class="mdl-data-table__cell--non-numeric mdl-data-table__header--sortable">
+                                    Type
+                                </th>
+                                <th class="mdl-data-table__header--sortable mdl-data-table__header--sorted-ascending">
+                                    Present
+                                </th>
+                            </tr>
+                            <tr>
+                                <th class="aik-data-table__control" colspan="4">
+                                    <div class="aik-data-table__control__filter mdc-text-field mdc-text-field--dense mdc-text-field--with-leading-icon mdc-text-field--outlined">
+                                        <span class="material-icons mdc-text-field__icon">search</span>
+                                        <input id="aik-session-attendance-table__control__filter__input"
+                                                class="mdc-text-field__input"
+                                                name="filter"
+                                                type="text"/>
+                                        <label for="aik-session-attendance-table__control__filter__input"
+                                                class="mdc-floating-label">
+                                            Filter
+                                        </label>
+                                        <div class="mdc-notched-outline">
+                                            <svg>
+                                                <path class="mdc-notched-outline__path"/>
+                                            </svg>
+                                        </div>
+                                        <div class="mdc-notched-outline__idle"></div>
+                                    </div>
+    
+                                    <div class="aik-member-attendance-table__control__filter-by-type mdc-switch">
+                                        <div class="mdc-switch__track"></div>
+                                        <div class="mdc-switch__thumb-underlay">
+                                            <div class="mdc-switch__thumb">
+                                                <input id="aik-session-attendance-table__control__filter-by-type__native-control"
+                                                        class="mdc-switch__native-control"
+                                                        name="filter-by-type"
+                                                        type="checkbox"
+                                                        role="switch"
+                                                        checked/>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <label for="aik-session-attendance-table__control__filter-by-type__native-control">
-                                    Filter by type
-                                </label>
-                            </th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <!-- Populated by #aik-tmpl-session-attendance-table__row -->
-                        </tbody>
-                    </table>
-                </fieldset>
-
-            </form>
-        </section>
-
-        <footer class="mdc-dialog__footer">
-            <button class="mdc-button mdc-button--unelevated mdc-dialog__footer__button"
-                    form="aik-session-details-form"
-                    type="reset">
-                Decline
-            </button>
-            <button class="mdc-button mdc-button--unelevated mdc-dialog__footer__button"
-                    form="aik-session-details-form"
-                    type="submit">
-                Accept
-            </button>
-        </footer>
+                                    <label for="aik-session-attendance-table__control__filter-by-type__native-control">
+                                        Filter by type
+                                    </label>
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <!-- Populated by #aik-tmpl-session-attendance-table__row -->
+                            </tbody>
+                        </table>
+                    </fieldset>
+                </form>
+            </div>
+            <footer class="mdc-dialog__actions">
+                <button class="mdc-button"
+                        form="aik-session-details-form"
+                        type="reset">
+                    Cancel
+                </button>
+                <button class="mdc-button mdc-button--unelevated"
+                        form="aik-session-details-form"
+                        type="submit">
+                    Accept
+                </button>
+            </footer>
+        </div>
     </div>
-    <div class="mdc-dialog__backdrop"></div>
-</aside>
+    <div class="mdc-dialog__scrim"></div>
+</div>
 
 <template id="aik-tmpl-session-details-table__row">
     <tr>

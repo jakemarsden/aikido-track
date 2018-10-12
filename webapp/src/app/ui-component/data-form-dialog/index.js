@@ -20,7 +20,7 @@ export class DataFormDialog extends Component {
      * @protected
      */
     init(dialog, form, ...args) {
-        this.dialogShowHandler_ = event => this.handleDialogShow_(event);
+        this.dialogOpenHandler_ = event => this.handleDialogOpen_(event);
         this.dialogCloseHandler_ = event => this.handleDialogClose_(event);
         this.formSubmitHandler_ = event => this.handleFormSubmit_(event);
         this.formResetHandler_ = event => this.handleFormReset_(event);
@@ -41,18 +41,16 @@ export class DataFormDialog extends Component {
      * @protected
      */
     initDom() {
-        this.dialog_.listen(Dialog.Event.SHOW, this.dialogShowHandler_);
-        this.dialog_.listen(Dialog.Event.ACCEPT, this.dialogCloseHandler_);
-        this.dialog_.listen(Dialog.Event.CANCEL, this.dialogCloseHandler_);
+        this.dialog_.listen(Dialog.Event.OPENING, this.dialogOpenHandler_);
+        this.dialog_.listen(Dialog.Event.CLOSING, this.dialogCloseHandler_);
     }
 
     /**
      * @protected
      */
     destroy() {
-        this.dialog_.unlisten(Dialog.Event.SHOW, this.dialogShowHandler_);
-        this.dialog_.unlisten(Dialog.Event.ACCEPT, this.dialogCloseHandler_);
-        this.dialog_.unlisten(Dialog.Event.CANCEL, this.dialogCloseHandler_);
+        this.dialog_.unlisten(Dialog.Event.OPENING, this.dialogOpenHandler_);
+        this.dialog_.unlisten(Dialog.Event.CLOSING, this.dialogCloseHandler_);
         this.form_.unlisten(DataForm.Event.SUBMIT, this.formSubmitHandler_);
         this.form_.unlisten(DataForm.Event.RESET, this.formResetHandler_);
 
@@ -63,19 +61,21 @@ export class DataFormDialog extends Component {
     /**
      * @return {boolean}
      */
-    get open() {
-        return this.dialog_.open;
+    get isOpen() {
+        return this.dialog_.isOpen;
     }
 
-    show() {
-        this.dialog_.show();
+    open() {
+        this.dialog_.open();
     }
 
     /**
-     * @param {boolean} accept
+     * @param {string=} action In what state the form dialog should be closed. Potentially, but not necessarily, one
+     * of {@link Dialog.Action}. {@link DataFormDialog} uses {@link Dialog.Action.ACCEPT} to indicate form submission
+     * @see Dialog.Action
      */
-    close(accept) {
-        this.dialog_.close(accept);
+    close(action = Dialog.Action.CANCEL) {
+        this.dialog_.close(action);
     }
 
     /**
@@ -93,10 +93,9 @@ export class DataFormDialog extends Component {
      * @param {Event} event
      * @private
      */
-    handleDialogShow_(event) {
+    handleDialogOpen_(event) {
         this.form_.listen(DataForm.Event.SUBMIT, this.formSubmitHandler_);
         this.form_.listen(DataForm.Event.RESET, this.formResetHandler_);
-        this.emit(DataFormDialog.Event.SHOW);
     }
 
     /**
@@ -114,8 +113,8 @@ export class DataFormDialog extends Component {
      * @private
      */
     handleFormSubmit_(event) {
-        this.emit(DataFormDialog.Event.ACCEPT);
-        this.dialog_.close(true);
+        this.emit(DataFormDialog.Event.SUBMIT);
+        this.dialog_.close(Dialog.Action.ACCEPT);
     }
 
     /**
@@ -123,8 +122,7 @@ export class DataFormDialog extends Component {
      * @private
      */
     handleFormReset_(event) {
-        this.emit(DataFormDialog.Event.CANCEL);
-        this.dialog_.close(false);
+        this.dialog_.close(Dialog.Action.CANCEL);
     }
 }
 
@@ -132,7 +130,5 @@ export class DataFormDialog extends Component {
  * @enum {string}
  */
 DataFormDialog.Event = {
-    SHOW: 'DataFormDialog:show',
-    ACCEPT: 'DataFormDialog:accept',
-    CANCEL: 'DataFormDialog:cancel'
+    SUBMIT: 'DataFormDialog:submit'
 };

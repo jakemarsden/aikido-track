@@ -10,7 +10,7 @@ export class MemberDetailsFormDialog extends DataFormDialog {
      */
     show(member) {
         this.populateMember(member);
-        super.show();
+        this.open();
     }
 
     /**

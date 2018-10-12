@@ -97,131 +97,130 @@
     </button>
 </section>
 
-<aside id="aik-member-details-dialog"
+<div id="aik-member-details-dialog"
         class="mdc-dialog"
         role="alertdialog"
+        aria-modal="true"
         aria-labelledby="aik-member-details-dialog__title"
-        aria-describedby="aik-member-details-dialog__body">
+        aria-describedby="aik-member-details-dialog__content">
 
-    <div class="mdc-dialog__surface">
-        <header class="mdc-dialog__header">
-            <h2 id="aik-member-details-dialog__title" class="mdc-dialog__header__title">Member details</h2>
-        </header>
+    <div class="mdc-dialog__container">
+        <div class="mdc-dialog__surface">
+            <h2 id="aik-member-details-dialog__title" class="mdc-dialog__title">Member details</h2>
+            <div id="aik-member-details-dialog__content" class="mdc-dialog__content">
+                <form id="aik-member-details-form" class="aik-data-form">
+                    <fieldset class="aik-data-form__fieldset">
+                        <legend>Basic info</legend>
 
-        <section id="aik-member-details-dialog__body" class="mdc-dialog__body mdc-dialog__body--scrollable">
-            <form id="aik-member-details-form" class="aik-data-form">
-                <fieldset class="aik-data-form__fieldset">
-                    <legend>Basic info</legend>
-
-                    <div id="aik-member-details-form__id"
-                            class="mdc-text-field mdc-text-field--short mdc-text-field--outlined mdc-text-field--disabled">
-                        <input id="aik-member-details-form__id__input"
-                                class="mdc-text-field__input"
-                                name="id"
-                                type="text"
-                                disabled/>
-                        <label for="aik-member-details-form__id__input" class="mdc-floating-label">ID</label>
-                        <div class="mdc-notched-outline">
-                            <svg>
-                                <path class="mdc-notched-outline__path"/>
-                            </svg>
+                        <div id="aik-member-details-form__id"
+                                class="mdc-text-field mdc-text-field--short mdc-text-field--outlined mdc-text-field--disabled">
+                            <input id="aik-member-details-form__id__input"
+                                    class="mdc-text-field__input"
+                                    name="id"
+                                    type="text"
+                                    disabled/>
+                            <label for="aik-member-details-form__id__input" class="mdc-floating-label">ID</label>
+                            <div class="mdc-notched-outline">
+                                <svg>
+                                    <path class="mdc-notched-outline__path"/>
+                                </svg>
+                            </div>
+                            <div class="mdc-notched-outline__idle"></div>
                         </div>
-                        <div class="mdc-notched-outline__idle"></div>
-                    </div>
 
-                    <div id="aik-member-details-form__first-name" class="mdc-text-field mdc-text-field--outlined">
-                        <input id="aik-member-details-form__first-name__input"
-                                class="mdc-text-field__input"
-                                name="first-name"
-                                type="text"
-                                required/>
-                        <label for="aik-member-details-form__first-name__input" class="mdc-floating-label">
-                            First name
-                        </label>
-                        <div class="mdc-notched-outline">
-                            <svg>
-                                <path class="mdc-notched-outline__path"/>
-                            </svg>
+                        <div id="aik-member-details-form__first-name" class="mdc-text-field mdc-text-field--outlined">
+                            <input id="aik-member-details-form__first-name__input"
+                                    class="mdc-text-field__input"
+                                    name="first-name"
+                                    type="text"
+                                    required/>
+                            <label for="aik-member-details-form__first-name__input" class="mdc-floating-label">
+                                First name
+                            </label>
+                            <div class="mdc-notched-outline">
+                                <svg>
+                                    <path class="mdc-notched-outline__path"/>
+                                </svg>
+                            </div>
+                            <div class="mdc-notched-outline__idle"></div>
                         </div>
-                        <div class="mdc-notched-outline__idle"></div>
-                    </div>
 
-                    <div id="aik-member-details-form__last-name" class="mdc-text-field mdc-text-field--outlined">
-                        <input id="aik-member-details-form__last-name__input"
-                                class="mdc-text-field__input"
-                                name="last-name"
-                                type="text"/>
-                        <label for="aik-member-details-form__last-name__input" class="mdc-floating-label">
-                            Last name
-                        </label>
-                        <div class="mdc-notched-outline">
-                            <svg>
-                                <path class="mdc-notched-outline__path"/>
-                            </svg>
+                        <div id="aik-member-details-form__last-name" class="mdc-text-field mdc-text-field--outlined">
+                            <input id="aik-member-details-form__last-name__input"
+                                    class="mdc-text-field__input"
+                                    name="last-name"
+                                    type="text"/>
+                            <label for="aik-member-details-form__last-name__input" class="mdc-floating-label">
+                                Last name
+                            </label>
+                            <div class="mdc-notched-outline">
+                                <svg>
+                                    <path class="mdc-notched-outline__path"/>
+                                </svg>
+                            </div>
+                            <div class="mdc-notched-outline__idle"></div>
                         </div>
-                        <div class="mdc-notched-outline__idle"></div>
-                    </div>
 
-                    <div class="line-break"></div>
+                        <div class="line-break"></div>
 
-                    <div id="aik-member-details-form__type" class="mdc-select mdc-select--outlined">
-                        <select id="aik-member-details-form__type__native-control"
-                                class="mdc-select__native-control"
-                                name="type"
-                                required>
-                            <option disabled selected></option>
-                            <option value="adult">Adult</option>
-                            <option value="junior">Junior</option>
-                        </select>
-                        <label for="aik-member-details-form__type__native-control" class="mdc-floating-label">
-                            Type
-                        </label>
-                        <div class="mdc-notched-outline">
-                            <svg>
-                                <path class="mdc-notched-outline__path"></path>
-                            </svg>
+                        <div id="aik-member-details-form__type" class="mdc-select mdc-select--outlined">
+                            <select id="aik-member-details-form__type__native-control"
+                                    class="mdc-select__native-control"
+                                    name="type"
+                                    required>
+                                <option disabled selected></option>
+                                <option value="adult">Adult</option>
+                                <option value="junior">Junior</option>
+                            </select>
+                            <label for="aik-member-details-form__type__native-control" class="mdc-floating-label">
+                                Type
+                            </label>
+                            <div class="mdc-notched-outline">
+                                <svg>
+                                    <path class="mdc-notched-outline__path"></path>
+                                </svg>
+                            </div>
+                            <div class="mdc-notched-outline__idle"></div>
                         </div>
-                        <div class="mdc-notched-outline__idle"></div>
-                    </div>
 
-                    <div id="aik-member-details-form__birth-date"
-                            class="mdc-text-field mdc-text-field--outlined mdc-text-field--with-leading-icon">
+                        <div id="aik-member-details-form__birth-date"
+                                class="mdc-text-field mdc-text-field--outlined mdc-text-field--with-leading-icon">
 
-                        <i class="material-icons mdc-text-field__icon">event</i>
-                        <input id="aik-member-details-form__birth-date__input"
-                                class="mdc-text-field__input"
-                                name="birth-date"
-                                type="date"/>
-                        <label for="aik-member-details-form__birth-date__input"
-                                class="mdc-floating-label mdc-floating-label--float-above">
-                            Date of birth
-                        </label>
-                        <div class="mdc-notched-outline mdc-notched-outline--notched">
-                            <svg>
-                                <path class="mdc-notched-outline__path" d=""></path>
-                            </svg>
+                            <i class="material-icons mdc-text-field__icon">event</i>
+                            <input id="aik-member-details-form__birth-date__input"
+                                    class="mdc-text-field__input"
+                                    name="birth-date"
+                                    type="date"/>
+                            <label for="aik-member-details-form__birth-date__input"
+                                    class="mdc-floating-label mdc-floating-label--float-above">
+                                Date of birth
+                            </label>
+                            <div class="mdc-notched-outline mdc-notched-outline--notched">
+                                <svg>
+                                    <path class="mdc-notched-outline__path" d=""></path>
+                                </svg>
+                            </div>
+                            <div class="mdc-notched-outline__idle"></div>
                         </div>
-                        <div class="mdc-notched-outline__idle"></div>
-                    </div>
-                </fieldset>
-            </form>
-        </section>
-
-        <footer class="mdc-dialog__footer">
-            <button class="mdc-button mdc-button--unelevated mdc-dialog__footer__button"
-                    form="aik-member-details-form"
-                    type="reset">
-                Decline
-            </button>
-            <button class="mdc-button mdc-button--unelevated mdc-dialog__footer__button"
-                    form="aik-member-details-form"
-                    type="submit">
-                Accept
-            </button>
-        </footer>
+                    </fieldset>
+                </form>
+            </div>
+            <footer class="mdc-dialog__actions">
+                <button class="mdc-button"
+                        form="aik-member-details-form"
+                        type="reset">
+                    Cancel
+                </button>
+                <button class="mdc-button mdc-button--unelevated"
+                        form="aik-member-details-form"
+                        type="submit">
+                    Accept
+                </button>
+            </footer>
+        </div>
     </div>
-    <div class="mdc-dialog__backdrop"></div>
-</aside>
+    <div class="mdc-dialog__scrim"></div>
+</div>
 
 <template id="aik-tmpl-member-details-table__row">
     <tr>

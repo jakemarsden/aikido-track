@@ -89,7 +89,7 @@ export class SessionDetailsFormDialog extends DataFormDialog {
     show(session, attendances = null, defaultDate = null, defaultDuration = null) {
         this.populateSession(session, defaultDate, defaultDuration);
         this.populateAttendance(attendances);
-        super.show();
+        this.open();
     }
 
     /**
