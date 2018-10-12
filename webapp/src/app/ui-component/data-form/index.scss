@@ -67,6 +67,11 @@ $aik-data-form-spacing: 7px;
 .mdc-text-field {
     min-width: 6em;
     width: 100%;
+
+    // I have no idea what the value *should* be, but the default 100% leads to 200%-wide ::before and ::after pseudo
+    // elements. The result is unecessary horizontal scrollbars which are a fucking bitch to debug... I chose 50% for
+    // no reason other than it's the largest value which doesn't cause the issue (::before and ::after are 100% wide)
+    @include mdc-ripple-radius-bounded(50%);
 }
 
 /**
