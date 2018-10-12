@@ -1,2 +1,10 @@
 @import '../data-form/index';
 @import '../dialog/index';
+
+.mdc-dialog__actions .mdc-button {
+    margin-left: 8px;
+
+    &:first-child {
+        margin-left: 0;
+    }
+}

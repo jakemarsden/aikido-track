@@ -53,9 +53,10 @@
     </div>
 </div>
 
+
 <section>
     <form id="aik-attendance-date-form" class="aik-data-form">
-        <fieldset class="aik-data-form__fieldset aik-data-form__fieldset--no-decoration">
+        <fieldset class="aik-data-form__fieldset aik-data-form__fieldset--horizontal aik-data-form__fieldset--no-border">
             <div id="aik-attendance-date-form__date"
                     class="mdc-text-field mdc-text-field--outlined mdc-text-field--with-leading-icon">
                 <i class="material-icons mdc-text-field__icon">event</i>
@@ -103,7 +104,6 @@
         Add session
     </button>
 </section>
-
 
 
 <div id="aik-session-details-dialog"
@@ -247,41 +247,43 @@
                                 </th>
                             </tr>
                             <tr>
-                                <th class="aik-data-table__control" colspan="4">
-                                    <div class="aik-data-table__control__filter mdc-text-field mdc-text-field--dense mdc-text-field--with-leading-icon mdc-text-field--outlined">
-                                        <span class="material-icons mdc-text-field__icon">search</span>
-                                        <input id="aik-session-attendance-table__control__filter__input"
-                                                class="mdc-text-field__input"
-                                                name="filter"
-                                                type="text"/>
-                                        <label for="aik-session-attendance-table__control__filter__input"
-                                                class="mdc-floating-label">
-                                            Filter
-                                        </label>
-                                        <div class="mdc-notched-outline">
-                                            <svg>
-                                                <path class="mdc-notched-outline__path"/>
-                                            </svg>
+                                <th colspan="4">
+                                    <fieldset class="aik-data-table__control aik-data-form__fieldset aik-data-form__fieldset--horizontal aik-data-form__fieldset--no-decoration">
+                                        <div class="aik-data-table__control__filter mdc-text-field mdc-text-field--dense mdc-text-field--with-leading-icon mdc-text-field--outlined">
+                                            <span class="material-icons mdc-text-field__icon">search</span>
+                                            <input id="aik-session-attendance-table__control__filter__input"
+                                                    class="mdc-text-field__input"
+                                                    name="filter"
+                                                    type="text"/>
+                                            <label for="aik-session-attendance-table__control__filter__input"
+                                                    class="mdc-floating-label">
+                                                Filter
+                                            </label>
+                                            <div class="mdc-notched-outline">
+                                                <svg>
+                                                    <path class="mdc-notched-outline__path"/>
+                                                </svg>
+                                            </div>
+                                            <div class="mdc-notched-outline__idle"></div>
                                         </div>
-                                        <div class="mdc-notched-outline__idle"></div>
-                                    </div>
-    
-                                    <div class="aik-member-attendance-table__control__filter-by-type mdc-switch">
-                                        <div class="mdc-switch__track"></div>
-                                        <div class="mdc-switch__thumb-underlay">
-                                            <div class="mdc-switch__thumb">
-                                                <input id="aik-session-attendance-table__control__filter-by-type__native-control"
-                                                        class="mdc-switch__native-control"
-                                                        name="filter-by-type"
-                                                        type="checkbox"
-                                                        role="switch"
-                                                        checked/>
+        
+                                        <div class="aik-member-attendance-table__control__filter-by-type mdc-switch">
+                                            <div class="mdc-switch__track"></div>
+                                            <div class="mdc-switch__thumb-underlay">
+                                                <div class="mdc-switch__thumb">
+                                                    <input id="aik-session-attendance-table__control__filter-by-type__native-control"
+                                                            class="mdc-switch__native-control"
+                                                            name="filter-by-type"
+                                                            type="checkbox"
+                                                            role="switch"
+                                                            checked/>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <label for="aik-session-attendance-table__control__filter-by-type__native-control">
-                                        Filter by type
-                                    </label>
+                                        <label for="aik-session-attendance-table__control__filter-by-type__native-control">
+                                            Filter by type
+                                        </label>
+                                    </fieldset>
                                 </th>
                             </tr>
                             </thead>
@@ -309,6 +311,7 @@
     <div class="mdc-dialog__scrim"></div>
 </div>
 
+
 <template id="aik-tmpl-session-details-table__row">
     <tr>
         <td class="mdl-data-table__cell--non-numeric aik-session-data-table__type"></td>
@@ -317,6 +320,7 @@
         <td class="aik-session-data-table__attendance-present-count"></td>
     </tr>
 </template>
+
 
 <template id="aik-tmpl-session-attendance-table__row">
     <tr>

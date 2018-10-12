@@ -1,3 +1,8 @@
 @import '~@material/button/mdc-button';
 @import '~@material/dialog/mdc-dialog';
 @import '../base/index';
+
+.mdc-dialog__content {
+    padding-bottom: 0;
+    overflow-x: hidden;
+}
