@@ -1,4 +1,4 @@
-import {MDCDialog} from '@material/dialog';
+import {MDCDialog} from '@material/dialog/index.js';
 import MDCDialogFoundation from '@material/dialog/foundation.js';
 import {Component} from '../base/index.js';
 

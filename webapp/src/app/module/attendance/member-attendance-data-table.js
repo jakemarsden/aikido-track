@@ -1,4 +1,4 @@
-import {MDCSwitch} from '@material/switch';
+import {MDCSwitch} from '@material/switch/index.js';
 import {DataTable} from '../../ui-component/data-table/index.js';
 
 /**

@@ -1,4 +1,3 @@
-import MDCDialogFoundation from '@material/dialog/foundation.js';
 import {DateTime, Duration} from "luxon";
 import {RequestType} from "../../endpoint/endpoint.js";
 import {

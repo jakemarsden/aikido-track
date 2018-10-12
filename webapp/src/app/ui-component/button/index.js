@@ -1,4 +1,4 @@
-import {MDCRipple} from '@material/ripple';
+import {MDCRipple} from '@material/ripple/index.js';
 import {Component} from '../base/index.js';
 
 export class Button extends Component {

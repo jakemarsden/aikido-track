@@ -1,5 +1,5 @@
-import {MDCSelect} from "@material/select";
-import {MDCTextField} from "@material/textfield";
+import {MDCSelect} from '@material/select/index.js';
+import {MDCTextField} from '@material/textfield/index.js';
 import {Component} from '../base/index.js';
 
 export class DataForm extends Component {
