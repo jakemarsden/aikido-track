@@ -2,6 +2,11 @@
 @import '~@material/dialog/mdc-dialog';
 @import '../base/index';
 
+.mdc-dialog {
+    $mdc-dialog-max-width: 700px;
+    @include mdc-dialog-max-width($mdc-dialog-max-width, $mdc-dialog-margin);
+}
+
 .mdc-dialog__content {
     padding-bottom: 0;
 }
