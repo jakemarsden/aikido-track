@@ -28,7 +28,7 @@ class MemberDetailsPage extends LayoutPage {
         super.init(...args);
 
         this.addMemberBtnHandler_ = event => this.handleAddMemberBtn_(event);
-        this.memberDialogAcceptHandler_ = event => this.handleMemberDialogAccept_(event);
+        this.memberDialogSubmitHandler_ = event => this.handleMemberDialogSubmit_(event);
         this.memberTableRowClickHandler_ = event => this.handleMemberTableRowClick_(event);
     }
 
@@ -50,7 +50,7 @@ class MemberDetailsPage extends LayoutPage {
 
         this.memberTable_.listen(DataTable.Event.ROW_CLICK, this.memberTableRowClickHandler_);
         this.addMemberBtn_.listen(Button.Event.CLICK, this.addMemberBtnHandler_);
-        this.memberDialog_.listen(DataFormDialog.Event.ACCEPT, this.memberDialogAcceptHandler_);
+        this.memberDialog_.listen(DataFormDialog.Event.SUBMIT, this.memberDialogSubmitHandler_);
 
         this.repopulateMemberDetailsTable();
     }
@@ -61,7 +61,7 @@ class MemberDetailsPage extends LayoutPage {
     destroy() {
         this.memberTable_.unlisten(DataTable.Event.ROW_CLICK, this.memberTableRowClickHandler_);
         this.addMemberBtn_.unlisten(Button.Event.CLICK, this.addMemberBtnHandler_);
-        this.memberDialog_.unlisten(DataFormDialog.Event.ACCEPT, this.memberDialogAcceptHandler_);
+        this.memberDialog_.unlisten(DataFormDialog.Event.SUBMIT, this.memberDialogSubmitHandler_);
 
         this.memberTable_.destroy();
         this.addMemberBtn_.destroy();
@@ -100,7 +100,7 @@ class MemberDetailsPage extends LayoutPage {
      * @param {Event} event
      * @private
      */
-    handleMemberDialogAccept_(event) {
+    handleMemberDialogSubmit_(event) {
         const member = this.memberDialog_.parseMember();
         const reqType = member.id == null ? RequestType.CREATE : RequestType.UPDATE;
 

@@ -1,5 +1,5 @@
-import {MDCTabBar} from '@material/tab-bar';
-import {MDCTopAppBar} from '@material/top-app-bar';
+import {MDCTabBar} from '@material/tab-bar/index.js';
+import {MDCTopAppBar} from '@material/top-app-bar/index.js';
 import {Page} from '../ui-component/base/index.js';
 import './app-icon-dark.png';
 import './app-icon-light.png';

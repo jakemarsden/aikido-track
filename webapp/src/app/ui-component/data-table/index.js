@@ -1,4 +1,4 @@
-import {MDCTextField} from '@material/textfield';
+import {MDCTextField} from '@material/textfield/index.js';
 import {indexOf} from "../../util/collection-utils.js";
 import {Component} from "../base/index.js";
 

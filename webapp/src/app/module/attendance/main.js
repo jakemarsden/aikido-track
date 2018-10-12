@@ -1,4 +1,3 @@
-import MDCDialogFoundation from '@material/dialog/foundation.js';
 import {DateTime, Duration} from "luxon";
 import {RequestType} from "../../endpoint/endpoint.js";
 import {
@@ -38,7 +37,7 @@ class AttendancePage extends LayoutPage {
         this.addSessionBtnHandler_ = event => this.showSessionDialog(event, null);
         this.dateChangeHandler_ = event => this.repopulateSessionTable();
         this.sessionTableSelectionHandler_ = event => this.showSessionDialog(event, event.detail.row.data);
-        this.sessionDialogAcceptHandler_ = event => this.handleSessionDialogAccept_(event);
+        this.sessionDialogSubmitHandler_ = event => this.handleSessionDialogSubmit_(event);
     }
 
     /**
@@ -69,7 +68,7 @@ class AttendancePage extends LayoutPage {
         this.dateForm_.listen(DataForm.Event.SUBMIT, this.dateChangeHandler_);
         this.sessionTable_.listen(DataTable.Event.ROW_CLICK, this.sessionTableSelectionHandler_);
         this.addSessionBtn_.listen(Button.Event.CLICK, this.addSessionBtnHandler_);
-        this.sessionDialog_.listen(DataFormDialog.Event.ACCEPT, this.sessionDialogAcceptHandler_);
+        this.sessionDialog_.listen(DataFormDialog.Event.SUBMIT, this.sessionDialogSubmitHandler_);
 
         this.dateForm_.fields.get('date').value = DateTime.local().toISODate();
         this.repopulateSessionTable();
@@ -82,7 +81,7 @@ class AttendancePage extends LayoutPage {
         this.dateForm_.unlisten(DataTable.Event.SUBMIT, this.dateChangeHandler_);
         this.sessionTable_.unlisten(DataTable.Event.ROW_CLICK, this.sessionTableSelectionHandler_);
         this.addSessionBtn_.unlisten(Button.Event.CLICK, this.addSessionBtnHandler_);
-        this.sessionDialog_.unlisten(DataFormDialog.Event.ACCEPT, this.sessionDialogAcceptHandler_);
+        this.sessionDialog_.unlisten(DataFormDialog.Event.SUBMIT, this.sessionDialogSubmitHandler_);
 
         this.dateForm_.destroy();
         this.dateFormAcceptBtn_.destroy();
@@ -138,7 +137,7 @@ class AttendancePage extends LayoutPage {
      * @param {Event} event
      * @private
      */
-    handleSessionDialogAccept_(event) {
+    handleSessionDialogSubmit_(event) {
         const session = this.sessionDialog_.parseSession();
         const updateExisting = session.id != null;
 

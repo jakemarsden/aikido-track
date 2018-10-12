@@ -1,17 +1,3 @@
 @import '~@material/button/mdc-button';
 @import '~@material/dialog/mdc-dialog';
 @import '../base/index';
-
-.mdc-dialog__surface {
-    max-height: calc(100% - 30px);
-}
-
-.mdc-dialog__body {
-    max-height: unset;
-    padding: 24px;
-}
-
-.mdc-dialog__body--scrollable {
-    overflow-x: hidden;
-    overflow-y: auto;
-}

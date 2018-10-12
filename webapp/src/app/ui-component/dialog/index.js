@@ -1,4 +1,4 @@
-import {MDCDialog} from '@material/dialog';
+import {MDCDialog} from '@material/dialog/index.js';
 import MDCDialogFoundation from '@material/dialog/foundation.js';
 import {Component} from '../base/index.js';
 
@@ -25,28 +25,40 @@ export class Dialog extends Component {
     /**
      * @return {boolean}
      */
-    get open() {
-        return this.mdc_.foundation_.isOpen();
+    get isOpen() {
+        return this.mdc_.isOpen;
     }
 
-    show() {
-        this.emit(Dialog.Event.SHOW);
-        this.mdc_.foundation_.open();
+    open() {
+        this.mdc_.open();
     }
 
     /**
-     * @param {boolean} accept 
+     * @param {string=} action In what state the dialog should be closed. Potentially, but not necessarily, one of
+     * {@link Dialog.Action}
+     * @see Dialog.Action
      */
-    close(accept) {
-        accept ? this.mdc_.foundation_.accept(true) : this.mdc_.foundation_.cancel(true);
+    close(action = Dialog.Action.CANCEL) {
+        this.mdc_.close(action);
     }
 }
+
+/**
+ * Potentially useful constants to use when {@link Dialog#close}ing a dialo, although these values aren't the only
+ * ones accepted by {@link Dialog#close}
+ * @enum {string}
+ */
+Dialog.Action = {
+    ACCEPT: 'accept',
+    CANCEL: 'close'
+};
 
 /**
  * @enum {string}
  */
 Dialog.Event = {
-    SHOW: 'Dialog:show',
-    ACCEPT: MDCDialogFoundation.strings.ACCEPT_EVENT,
-    CANCEL: MDCDialogFoundation.strings.CANCEL_EVENT
+    OPENING: MDCDialogFoundation.strings.OPENING_EVENT,
+    OPENED: MDCDialogFoundation.strings.OPENED_EVENT,
+    CLOSING: MDCDialogFoundation.strings.CLOSING_EVENT,
+    CLOSED: MDCDialogFoundation.strings.CLOSED_EVENT
 };

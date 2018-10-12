@@ -1,4 +1,4 @@
-import {MDCSwitch} from "@material/switch";
+import {MDCSwitch} from '@material/switch/index.js';
 import {MemberDataRow} from "../../ui-component/data-table/member-data-row.js";
 import {DataRow} from "../../ui-component/data-table/data-row.js";
 
